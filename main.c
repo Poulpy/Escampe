@@ -14,6 +14,7 @@
 int cell_width = 62, cell_height = 62, circle_radius = 30;
 void draw_gameboard(int gameboard[6][6]);
 void draw_unicorn(int pos[], COULEUR color);
+void cell_click(int pos[]);
 
 
 int main()
@@ -26,16 +27,27 @@ int main()
                            {3,2,2,1,3,2}};
     int unicorn[] = {0, 0};
     int unicorn2[] = {3, 4};
+    //int pos[] = {1,1};
     init_graphics(WIDTH, HEIGHT);
 
 
     draw_gameboard(gameboard);
+    cell_click(unicorn);
     draw_unicorn(unicorn, blanc);
+    cell_click(unicorn2);
     draw_unicorn(unicorn2, bleu);
 
     wait_escape();
 
     return 0;
+}
+
+void cell_click(int pos[])
+{
+    POINT clic = wait_clic();
+    pos[0] = (clic.x - MARGIN) / cell_width;
+    pos[1] = (BOARD_HEIGHT - clic.y) / cell_height;
+    //printf("pos : %d, %d\n", pos[0], pos[1]);
 }
 
 void draw_unicorn(int pos[], COULEUR color)
