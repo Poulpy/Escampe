@@ -10,15 +10,23 @@
 // Can't do correct division T.T
 #define CELL_WIDTH (BOARD_WIDTH / 6.0)
 #define CELL_HEIGHT (BOARD_HEIGHT / 6.0)
+typedef enum Border
+{
+    TOP, BOTTOM, LEFT, RIGHT
+} Border;
 
 int cell_width = 62, cell_height = 62, circle_radius = 30;
+
+int is_in_border(int pos[], Border bor);
 void draw_gameboard(int gameboard[6][6]);
 void draw_unicorn(int pos[], COULEUR color);
 void cell_click(int pos[]);
+void position_paws(int pos[][2], Border bor);
 
 
 int main()
 {
+    int i;
     int gameboard[6][6] = {{1,2,2,3,1,2},
                            {3,1,3,1,3,2},
                            {2,3,1,2,1,3},
@@ -27,17 +35,54 @@ int main()
                            {3,2,2,1,3,2}};
     int unicorn[] = {0, 0};
     int unicorn2[] = {3, 4};
+    int white_pawns[6][2];
     //int pos[] = {1,1};
     init_graphics(WIDTH, HEIGHT);
 
 
     draw_gameboard(gameboard);
+    /*
     cell_click(unicorn);
     draw_unicorn(unicorn, blanc);
     cell_click(unicorn2);
     draw_unicorn(unicorn2, bleu);
+    */
+    position_paws(white_pawns, TOP);
+    for (i = 0; i != 6; i++)
+    {
+        draw_unicorn(white_pawns[i], white);
+    }
 
     wait_escape();
+
+    return 0;
+}
+
+void position_paws(int pos[][2], Border bor)
+{
+    int i;
+    for (i = 0; i != 6; i++)
+    {
+        do
+        {
+            cell_click(pos[i]);
+        } while (!is_in_border(pos[i], bor));
+    }
+}
+
+int is_in_border(int pos[], Border bor)
+{
+    switch (bor)
+    {
+    case TOP:
+        return pos[1] == 0 || pos[1] == 1;
+    case BOTTOM:
+        return pos[1] == 4 || pos[1] == 5;
+    case LEFT:
+        return pos[0] == 0 || pos[0] == 1;
+    case RIGHT:
+        return pos[0] == 4 || pos[0] == 5;
+    }
 
     return 0;
 }
