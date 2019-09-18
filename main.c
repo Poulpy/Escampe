@@ -10,29 +10,57 @@
 // Can't do correct division T.T
 #define CELL_WIDTH (BOARD_WIDTH / 6.0)
 #define CELL_HEIGHT (BOARD_HEIGHT / 6.0)
+
 typedef enum Border
 {
     TOP, BOTTOM, LEFT, RIGHT
 } Border;
 
-int cell_width = 62, cell_height = 62, circle_radius = 30;
-
-int is_in_border(int pos[], Border bor);
-void draw_gameboard(int gameboard[6][6]);
-void draw_unicorn(int pos[], COULEUR color);
-void cell_click(int pos[]);
-void position_paws(int pos[][2], Border bor);
-
-
-int main()
+typedef struct Box
 {
-    int i;
-    int gameboard[6][6] = {{1,2,2,3,1,2},
+    int edging;/* 1, 2, 3 */
+    Type type;
+    Coul color;
+} Box;
+
+typedef enum Type
+{
+    EMPTY, UNICORN, PALADIN
+} Type;
+
+typedef enum Coul
+{
+    BLACK, WHITE
+} Coul;
+
+typedef struct NumBox
+{
+    int x;
+    int y;
+} NumBox;
+
+int cell_width = 62, cell_height = 62, circle_radius = 30;
+/*int gameboard[6][6] = {{1,2,2,3,1,2},
                            {3,1,3,1,3,2},
                            {2,3,1,2,1,3},
                            {2,1,3,2,3,1},
                            {1,3,1,3,1,2},
                            {3,2,2,1,3,2}};
+*/
+Box gameboard[6][6];
+
+int is_cell_ocuppied(NumBox pos);
+void highlighting_possible_moves(NumBox pos);
+int is_in_border(NumBox pos, Border bor);
+void draw_gameboard();
+void draw_unicorn(NumBox pos, COULEUR color);
+void cell_click(NumBox pos);
+void position_paws(NumBox pos[], Border bor);
+
+
+int main()
+{
+    int i;
     int unicorn[] = {0, 0};
     int unicorn2[] = {3, 4};
     int white_pawns[6][2];
@@ -40,25 +68,100 @@ int main()
     init_graphics(WIDTH, HEIGHT);
 
 
-    draw_gameboard(gameboard);
+    draw_gameboard();
     /*
     cell_click(unicorn);
     draw_unicorn(unicorn, blanc);
     cell_click(unicorn2);
     draw_unicorn(unicorn2, bleu);
     */
+    /*
     position_paws(white_pawns, TOP);
     for (i = 0; i != 6; i++)
     {
         draw_unicorn(white_pawns[i], white);
     }
+    */
+    cell_click(unicorn);
+    highlighting_possible_moves(unicorn);
 
     wait_escape();
 
     return 0;
 }
 
-void position_paws(int pos[][2], Border bor)
+void init_gameboard()
+{
+    gameboard = {{{1, EMPTY, BLACK},
+                {2, EMPTY, BLACK},
+                {2, EMPTY, BLACK},
+                {3, EMPTY, BLACK},
+                {1, EMPTY, BLACK},
+                {2, EMPTY, BLACK}},
+                {{3, EMPTY, BLACK},// 1
+                {1, EMPTY, BLACK},
+                {3, EMPTY, BLACK},
+                {1, EMPTY, BLACK},
+                {3, EMPTY, BLACK},
+                {2, EMPTY, BLACK}},
+                {{2, EMPTY, BLACK},// 2
+                {3, EMPTY, BLACK},
+                {1, EMPTY, BLACK},
+                {2, EMPTY, BLACK},
+                {1, EMPTY, BLACK},
+                {3, EMPTY, BLACK}},
+                {{2, EMPTY, BLACK},// 3
+                {1, EMPTY, BLACK},
+                {3, EMPTY, BLACK},
+                {2, EMPTY, BLACK},
+                {3, EMPTY, BLACK},
+                {1, EMPTY, BLACK}},
+                {{1, EMPTY, BLACK},// 4
+                {3, EMPTY, BLACK},
+                {1, EMPTY, BLACK},
+                {3, EMPTY, BLACK},
+                {1, EMPTY, BLACK},
+                {2, EMPTY, BLACK}},
+                {{3, EMPTY, BLACK},// 5
+                {2, EMPTY, BLACK},
+                {2, EMPTY, BLACK},
+                {1, EMPTY, BLACK},
+                {3, EMPTY, BLACK},
+                {2, EMPTY, BLACK}}};
+}
+
+
+
+
+
+void highlighting_possible_moves(int pos[])
+{
+    int moves = gameboard[pos[1]][pos[0]];
+    printf("moves : %d\n", moves);
+}
+
+void possible_moves(NumBox pos, NumBox moves[])
+{
+    moves[0] = NumBox { pos.x - 3, pos.y - 1 }
+    moves[1] = NumBox { pos.x - 2, pos.y - 2 }
+    moves[2] = NumBox { pos.x - 1, pos.y - 1 }
+    moves[3] = NumBox { pos.x, pos.y - 3 }
+    moves[4] = NumBox { pos.x + 1, pos.y - 2 }
+    moves[5] = NumBox { pos.x + 2, pos.y - 1 }
+    moves[6] = NumBox { pos.x + 3, pos.y }
+    moves[7] = NumBox { pos.x + 2, pos.y + 1 }
+    moves[8] = NumBox { pos.x + 1, pos.y + 2 }
+    moves[9] = NumBox { pos.x, pos.y + 3 }
+    moves[10] = NumBox { pos.x - 1, pos.y + 2 }
+    moves[11] = NumBox { pos.x - 2, pos.y + 1 }
+}
+
+int is_cell_ocuppied(NumBox pos)
+{
+    return !(pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5 && gameboard[pos.y][pos.x] != EMPTY);
+}
+
+void position_paws(NumBox pos[], Border bor)
 {
     int i;
     for (i = 0; i != 6; i++)
@@ -70,7 +173,7 @@ void position_paws(int pos[][2], Border bor)
     }
 }
 
-int is_in_border(int pos[], Border bor)
+int is_in_border(NumBox pos, Border bor)
 {
     switch (bor)
     {
@@ -87,7 +190,7 @@ int is_in_border(int pos[], Border bor)
     return 0;
 }
 
-void cell_click(int pos[])
+void cell_click(NumBox pos)
 {
     POINT clic = wait_clic();
     pos[0] = (clic.x - MARGIN) / cell_width;
@@ -95,7 +198,7 @@ void cell_click(int pos[])
     //printf("pos : %d, %d\n", pos[0], pos[1]);
 }
 
-void draw_unicorn(int pos[], COULEUR color)
+void draw_unicorn(NumBox pos, COULEUR color)
 {
     int margin = 2;
     int marginy = 10;
@@ -110,7 +213,7 @@ void draw_unicorn(int pos[], COULEUR color)
     draw_fill_triangle(top, botl, botr, color);
 }
 
-void draw_gameboard(int gameboard[6][6])
+void draw_gameboard()
 {
     int row, col, c;
     POINT p = { MARGIN + circle_radius, BOARD_HEIGHT - circle_radius };
@@ -120,7 +223,7 @@ void draw_gameboard(int gameboard[6][6])
         p.x = MARGIN + circle_radius;
         for (col = 0; col != 6; col++)
         {
-            for (c = 0; c != gameboard[row][col]; c++)
+            for (c = 0; c != gameboard[row][col].edging; c++)
             {
                 draw_circle(p, circle_radius - c * 3, red);
             }
