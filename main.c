@@ -33,10 +33,19 @@ int main()
     return 0;
 }
 
+void draw_unicorn(int pos[])
+{
+    int cell_width = 63;
+    POINT top = { MARGIN + (pos[0] + 1) * cell_width };
+    POINT botl = {  };
+    POINT botr;
+    //draw_fill_triangle(POINT p1, POINT p2, POINT p3, COULEUR color);
+}
+
 void draw_gameboard(int gameboard[6][6])
 {
-    int row, col, circle_radius = 31, c, cell_width = 63;
-    POINT p = { MARGIN + cell_width, BOARD_HEIGHT - cell_width };
+    int row, col, circle_radius = 30, c, cell_width = 62;
+    POINT p = { MARGIN + circle_radius, BOARD_HEIGHT - circle_radius };
 
     for (row = 0; row != 6; row++)
     {
