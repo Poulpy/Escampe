@@ -61,6 +61,8 @@ int  is_cell_occupied(NumBox pos);
 void init_gamepaws_1();
 void init_gamepaws_2();
 void move_pawn(NumBox start, NumBox end);
+int  possible_moves(NumBox **poss_moves, NumBox pos, int moves);
+int  out_of_range(NumBox pos);
 
 /* View */
 
@@ -72,7 +74,8 @@ void erase_pawn(POINT origin);
 void draw_pawn(Box pawn, POINT origin);
 void display_menu();
 int  get_interface_choice(POINT click);
-int is_on_board(POINT click);
+int  is_on_board(POINT click);
+void highlight_possible_moves(NumBox pos, int moves, int interface);
 
 /* Controller */
 
@@ -109,9 +112,10 @@ int main()
         do
         {
             click1 = wait_clic();
-            click2 = wait_clic();
-
             n1 = point_to_numbox(click1, interface);
+            highlight_possible_moves(n1, gameboard[n1.y][n1.x].edging, interface);
+
+            click2 = wait_clic();
             n2 = point_to_numbox(click2, interface);
 
 
@@ -119,6 +123,7 @@ int main()
             p2 = numbox_to_point(n2, interface);
 
         } while (!is_cell_occupied(n1) || !is_on_board(click1) || !is_on_board(click2));
+
 
         erase_pawn(p1);
         move_pawn(n1, n2);
@@ -195,7 +200,68 @@ void move_pawn(NumBox start, NumBox end)
     gameboard[start.y][start.x].type = EMPTY;
 }
 
+int possible_moves(NumBox **poss_moves, NumBox pos, int moves)
+{
+    int i, j = 0;
+
+    *poss_moves = (NumBox *) malloc(sizeof(NumBox) * 4 * moves);
+    NumBox buffer;
+
+    (*poss_moves)[j++] = (NumBox) { pos.x, pos.y + moves };
+    (*poss_moves)[j++] = (NumBox) { pos.x, pos.y - moves };
+    (*poss_moves)[j++] = (NumBox) { pos.x + moves, pos.y };
+    (*poss_moves)[j++] = (NumBox) { pos.x - moves, pos.y };
+
+    for (i = 1; i != moves; i++)
+    {
+        (*poss_moves)[j++] = (NumBox) { pos.x + i, pos.y - (moves - i) };
+        (*poss_moves)[j++] = (NumBox) { pos.x - i, pos.y - (moves - i) };
+        printf("Move  : x : %d y : %d\n", (*poss_moves)[j - 2].x, (*poss_moves)[j - 2].y);
+        printf("Move2 : x : %d y : %d\n", (*poss_moves)[j - 1].x, (*poss_moves)[j - 1].y);
+    }
+
+    for (i = 0; i != j; i++)
+    {
+        if (out_of_range((*poss_moves)[i]) || is_cell_occupied((*poss_moves)[i]))
+        {
+            printf("M : x : %d y : %d\n", (*poss_moves)[i].x, (*poss_moves)[i].y);
+            buffer.x = (*poss_moves)[j - 1].x;
+            buffer.y = (*poss_moves)[j - 1].y;
+            (*poss_moves)[j - 1].x = (*poss_moves)[i].x;
+            (*poss_moves)[j - 1].y = (*poss_moves)[i].y;
+            j--;
+            (*poss_moves)[i].x = buffer.x;
+        }   (*poss_moves)[i].y = buffer.y;
+    }
+
+    return j;
+}
+
+int out_of_range(NumBox pos)
+{
+    return !(pos.x >= 0 || pos.x <= 5 || pos.y >= 0 || pos.y <= 5);
+}
+
+
 /* View */
+
+void highlight_possible_moves(NumBox pos, int moves, int interface)
+{
+    NumBox *poss_moves = NULL;
+    int i, length = possible_moves(&poss_moves, pos, moves);
+    POINT p;
+
+    for (i = 0; i != length; i++)
+    {
+        p = numbox_to_point(poss_moves[i], interface);
+        p.x += CIRCLE_RADIUS;
+        p.y += CIRCLE_RADIUS;
+
+        draw_fill_circle(p, 10, orange);
+    }
+
+    affiche_all();
+}
 
 void display_menu()
 {
