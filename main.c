@@ -341,7 +341,6 @@ void erase_pawn(POINT origin)
 }
 
 int is_on_board(POINT click){
-    printf("%d : %d\n", click.x, click.y);
     return (click.x >= MARGIN && click.x <= (WIDTH - MARGIN) && click.y >= MARGIN  && click.y <= (HEIGHT - MARGIN));
 }
 
