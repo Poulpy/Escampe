@@ -101,7 +101,7 @@ int main()
     fill_screen(black);
 
     init_gameboard();
-    init_gamepaws_1();
+    init_gamepaws_2();
     draw_gameboard(interface);
 
     while (1)
@@ -158,55 +158,28 @@ void init_gameboard()
 
 void init_gamepaws_1()
 {
-    Coul colors[6][6] = {{BLACK, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {BLACK, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {BLACK, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {BLACK, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {BLACK, WHITE, BLACK, WHITE, WHITE, BLACK},
-                         {BLACK, WHITE, WHITE, WHITE, BLACK, BLACK}};
+    int i;
 
-    Type types[6][6] = {{EMPTY, EMPTY, PALADIN, EMPTY, PALADIN, EMPTY },
-                        {PALADIN, UNICORN, PALADIN, EMPTY, EMPTY, PALADIN },
-                        {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY },
-                        {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY },
-                        {EMPTY, PALADIN, EMPTY, PALADIN, PALADIN, EMPTY },
-                        {EMPTY, PALADIN, PALADIN, UNICORN, EMPTY, EMPTY }};
-    int i, j;
-    for (i = 0; i != 6; i++)
-    {
-        for (j = 0; j != 6; j++)
-        {
-            gameboard[i][j].type = types[i][j];
-            gameboard[i][j].color = colors[i][j];
-        }
-    }
+    NumBox whites[6] = {{4,1}, {4,3}, {4,4}, {5,1}, {5,2}, {5,3}};
+    NumBox paladins[10] = {{0,2}, {0,4}, {1,0}, {1,2}, {1,5}, {4,1}, {4,3}, {4,4}, {5,1}, {5,2}};
+    NumBox unicorns[2] = {{1,1}, {5,3}};
+
+    for (i = 0; i != 6; i++) gameboard[whites[i].x][whites[i].y].color = WHITE;
+    for (i = 0; i != 10; i++) gameboard[paladins[i].x][paladins[i].y].type = PALADIN;
+    for (i = 0; i != 2; i++) gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
 void init_gamepaws_2()
 {
-    Coul colors[6][6] = {{WHITE, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {WHITE, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {WHITE, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {WHITE, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {WHITE, BLACK, BLACK, BLACK, BLACK, BLACK},
-                         {WHITE, BLACK, BLACK, BLACK, BLACK, BLACK}};
+    int i;
 
-    Type types[6][6] = {{UNICORN, EMPTY, EMPTY, EMPTY, EMPTY, PALADIN },
-                        {PALADIN, EMPTY, EMPTY, EMPTY, EMPTY, PALADIN },
-                        {PALADIN, EMPTY, EMPTY, EMPTY, EMPTY, PALADIN },
-                        {PALADIN, EMPTY, EMPTY, EMPTY, EMPTY, UNICORN },
-                        {PALADIN, EMPTY, EMPTY, EMPTY, EMPTY, PALADIN },
-                        {PALADIN, EMPTY, EMPTY, EMPTY, EMPTY, PALADIN }};
-    int i, j;
-    for (i = 0; i != 6; i++)
-    {
-        for (j = 0; j != 6; j++)
-        {
-            gameboard[i][j].type = types[i][j];
-            gameboard[i][j].color = colors[i][j];
-        }
-    }
+    NumBox whites[6] = {{0,0}, {0,1}, {0,2}, {0,3}, {0,4}, {0,5}};
+    NumBox paladins[10] = {{0,1}, {0,2}, {0,3}, {0,4}, {0,5}, {5,0}, {5,1}, {5,2}, {5,4}, {5,5}};
+    NumBox unicorns[2] = {{0,0}, {5,3}};
 
+    for (i = 0; i != 6; i++) gameboard[whites[i].x][whites[i].y].color = WHITE;
+    for (i = 0; i != 10; i++) gameboard[paladins[i].x][paladins[i].y].type = PALADIN;
+    for (i = 0; i != 2; i++) gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
 
