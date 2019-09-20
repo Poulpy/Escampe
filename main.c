@@ -72,6 +72,7 @@ void erase_pawn(POINT origin);
 void draw_pawn(Box pawn, POINT origin);
 void display_menu();
 int  get_interface_choice(POINT click);
+int is_on_board(POINT click);
 
 /* Controller */
 
@@ -116,7 +117,8 @@ int main()
 
             p1 = numbox_to_point(n1, interface);
             p2 = numbox_to_point(n2, interface);
-        } while (!is_cell_occupied(n1));
+
+        } while (!is_cell_occupied(n1) || !is_on_board(click1) || !is_on_board(click2));
 
         erase_pawn(p1);
         move_pawn(n1, n2);
@@ -336,6 +338,11 @@ void draw_edging(POINT bl_corner, int number)
 void erase_pawn(POINT origin)
 {
    draw_unicorn(origin, black);
+}
+
+int is_on_board(POINT click){
+    printf("%d : %d\n", click.x, click.y);
+    return (click.x >= MARGIN && click.x <= (WIDTH - MARGIN) && click.y >= MARGIN  && click.y <= (HEIGHT - MARGIN));
 }
 
 /* Controller */
