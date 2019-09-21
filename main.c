@@ -58,8 +58,8 @@ Box gameboard[6][6];
 
 void init_gameboard();
 int  is_cell_occupied(NumBox pos);
-void init_gamepaws_1();
-void init_gamepaws_2();
+void init_gamepawns_1();
+void init_gamepawns_2();
 void move_pawn(NumBox start, NumBox end);
 
 /* View */
@@ -156,7 +156,7 @@ void init_gameboard()
     }
 }
 
-void init_gamepaws_1()
+void init_gamepawns_1()
 {
     int i;
 
@@ -169,7 +169,7 @@ void init_gamepaws_1()
     for (i = 0; i != 2; i++) gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
-void init_gamepaws_2()
+void init_gamepawns_2()
 {
     int i;
 
@@ -207,8 +207,6 @@ void display_menu()
     bottom.y = MARGIN;
     label.x = 50;
     label.y = MID_HEIGHT + 20;
-
-    //printf("WIDTH : %d \ntop : %d %d\n", WIDTH, top.x, top.y);
 
     draw_line(top, bottom, white);
 
