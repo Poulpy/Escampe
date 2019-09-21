@@ -101,7 +101,7 @@ int main()
     fill_screen(black);
 
     init_gameboard();
-    init_gamepaws_2();
+    init_gamepawns_2();
     draw_gameboard(interface);
 
     while (1)
