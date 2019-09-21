@@ -44,7 +44,7 @@ typedef struct NUMBOX
 typedef struct BOX
 {
     int lisere;/* 1, 2, 3 */
-    TYPE typePP;
+    TYPE typeP;
     COUL coulP;
 } BOX;
 
@@ -52,7 +52,7 @@ typedef struct BOX
 
 BOX plateau[6][6];
 
-/* Functions prototypePPs */
+/* Functions prototypes */
 
 /* Model */
 
@@ -76,12 +76,12 @@ int is_on_board(POINT click);
 
 /* Controller */
 
-POINT numBOX_to_point(NUMBOX n, int interface);
-NUMBOX point_to_numBOX(POINT p, int interface);
-POINT  numBOX_to_pointBG_ig1(NUMBOX n);
-NUMBOX point_ig1_to_numBOX(POINT p);
-POINT  numBOX_to_pointBG_ig2(NUMBOX n);
-NUMBOX point_ig2_to_numBOX(POINT p);
+POINT numBox_to_point(NUMBOX n, int interface);
+NUMBOX point_to_numBox(POINT p, int interface);
+POINT  numBox_to_pointBG_ig1(NUMBOX n);
+NUMBOX point_ig1_to_numBox(POINT p);
+POINT  numBox_to_pointBG_ig2(NUMBOX n);
+NUMBOX point_ig2_to_numBox(POINT p);
 
 /* Main */
 
@@ -111,12 +111,12 @@ int main()
             click1 = wait_clic();
             click2 = wait_clic();
 
-            n1 = point_to_numBOX(click1, interface);
-            n2 = point_to_numBOX(click2, interface);
+            n1 = point_to_numBox(click1, interface);
+            n2 = point_to_numBox(click2, interface);
 
 
-            p1 = numBOX_to_point(n1, interface);
-            p2 = numBOX_to_point(n2, interface);
+            p1 = numBox_to_point(n1, interface);
+            p2 = numBox_to_point(n2, interface);
 
         } while (!is_cell_occupied(n1) || !is_on_board(click1) || !is_on_board(click2));
 
@@ -150,7 +150,7 @@ void init_plateau()
         for (j = 0; j != 6; j++)
         {
             plateau[i][j].lisere = liseres[i][j];
-            plateau[i][j].typePP = VIDE;
+            plateau[i][j].typeP = VIDE;
             plateau[i][j].coulP = NOIR;
         }
     }
@@ -165,8 +165,8 @@ void init_piece1_debug()
     NUMBOX unicorns[2] = {{1,1}, {5,3}};
 
     for (i = 0; i != 6; i++) plateau[whites[i].x][whites[i].y].coulP = BLANC;
-    for (i = 0; i != 10; i++) plateau[paladins[i].x][paladins[i].y].typePP = PALADIN;
-    for (i = 0; i != 2; i++) plateau[unicorns[i].x][unicorns[i].y].typePP = LICORNE;
+    for (i = 0; i != 10; i++) plateau[paladins[i].x][paladins[i].y].typeP = PALADIN;
+    for (i = 0; i != 2; i++) plateau[unicorns[i].x][unicorns[i].y].typeP = LICORNE;
 }
 
 void init_piece2_debug()
@@ -178,21 +178,21 @@ void init_piece2_debug()
     NUMBOX unicorns[2] = {{0,0}, {5,3}};
 
     for (i = 0; i != 6; i++) plateau[whites[i].x][whites[i].y].coulP = BLANC;
-    for (i = 0; i != 10; i++) plateau[paladins[i].x][paladins[i].y].typePP = PALADIN;
-    for (i = 0; i != 2; i++) plateau[unicorns[i].x][unicorns[i].y].typePP = LICORNE;
+    for (i = 0; i != 10; i++) plateau[paladins[i].x][paladins[i].y].typeP = PALADIN;
+    for (i = 0; i != 2; i++) plateau[unicorns[i].x][unicorns[i].y].typeP = LICORNE;
 }
 
 
 int is_cell_occupied(NUMBOX pos)
 {
-    return plateau[pos.y][pos.x].typePP != VIDE;
+    return plateau[pos.y][pos.x].typeP != VIDE;
 }
 
 void move_piece(NUMBOX start, NUMBOX end)
 {
-    plateau[end.y][end.x].typePP = plateau[start.y][start.x].typePP;
+    plateau[end.y][end.x].typeP = plateau[start.y][start.x].typeP;
     plateau[end.y][end.x].coulP = plateau[start.y][start.x].coulP;
-    plateau[start.y][start.x].typePP = VIDE;
+    plateau[start.y][start.x].typeP = VIDE;
 }
 
 /* View */
@@ -271,7 +271,7 @@ void draw_plateau(int interface)
         {
             n.x = col;
             n.y = row;
-            cursor = numBOX_to_point(n, interface);
+            cursor = numBox_to_point(n, interface);
 
             draw_lisere(cursor, plateau[row][col].lisere);
             affiche_piece(plateau[row][col], cursor);
@@ -288,8 +288,8 @@ void affiche_piece(BOX piece, POINT origin)
     if (piece.coulP == NOIR) coulP = blue;
     else coulP = white;
 
-    if (piece.typePP == LICORNE) affiche_licorne(origin, coulP);
-    else if (piece.typePP == PALADIN) affiche_paladin(origin, coulP);
+    if (piece.typeP == LICORNE) affiche_licorne(origin, coulP);
+    else if (piece.typeP == PALADIN) affiche_paladin(origin, coulP);
 }
 
 void draw_lisere(POINT bl_corner, int number)
@@ -317,19 +317,19 @@ int is_on_board(POINT click){
 
 /* Controller */
 
-POINT numBOX_to_point(NUMBOX n, int interface)
+POINT numBox_to_point(NUMBOX n, int interface)
 {
-    if (interface == 1) return numBOX_to_pointBG_ig1(n);
-    else return numBOX_to_pointBG_ig2(n);
+    if (interface == 1) return numBox_to_pointBG_ig1(n);
+    else return numBox_to_pointBG_ig2(n);
 }
 
-NUMBOX point_to_numBOX(POINT p, int interface)
+NUMBOX point_to_numBox(POINT p, int interface)
 {
-    if (interface == 1) return point_ig1_to_numBOX(p);
-    else return point_ig2_to_numBOX(p);
+    if (interface == 1) return point_ig1_to_numBox(p);
+    else return point_ig2_to_numBox(p);
 }
 
-POINT numBOX_to_pointBG_ig1(NUMBOX n)
+POINT numBox_to_pointBG_ig1(NUMBOX n)
 {
     POINT p;
 
@@ -339,7 +339,7 @@ POINT numBOX_to_pointBG_ig1(NUMBOX n)
     return p;
 }
 
-NUMBOX point_ig1_to_numBOX(POINT p)
+NUMBOX point_ig1_to_numBox(POINT p)
 {
     NUMBOX n;
 
@@ -349,7 +349,7 @@ NUMBOX point_ig1_to_numBOX(POINT p)
     return n;
 }
 
-POINT numBOX_to_pointBG_ig2(NUMBOX n)
+POINT numBox_to_pointBG_ig2(NUMBOX n)
 {
     POINT p;
 
@@ -359,7 +359,7 @@ POINT numBOX_to_pointBG_ig2(NUMBOX n)
     return p;
 }
 
-NUMBOX point_ig2_to_numBOX(POINT p)
+NUMBOX point_ig2_to_numBox(POINT p)
 {
     NUMBOX n;
 
