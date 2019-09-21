@@ -66,6 +66,8 @@ void init_gamepaws_2();
 void move_pawn(NumBox start, NumBox end);
 int  possible_moves(NumBox **poss_moves, NumBox pos, int moves);
 int  out_of_range(NumBox pos);
+int get_neighbours(NumBox **free, int size, NumBox pawn);
+int get_possible_moves(NumBox **free, NumBox pos);
 
 /* View */
 
@@ -80,6 +82,7 @@ int  get_interface_choice(POINT click);
 int  is_on_board(POINT click);
 void highlight_possible_moves(NumBox pos, int moves, int interface);
 void erase_highlighting(NumBox pos, int moves, int interface);
+
 /* Controller */
 
 POINT  numbox_to_point(NumBox n, int interface);
@@ -89,14 +92,26 @@ NumBox point_to_numbox_ig1(POINT p);
 POINT  numbox_to_point_ig2(NumBox n);
 NumBox point_to_numbox_ig2(POINT p);
 
+/* Tests */
+
+void print_numboxes(NumBox *n, int len);
+void print_numbox(NumBox n);
+int test_possible_moves();
+int test_possible_moves2(NumBox n);
+int eql(NumBox n1, NumBox n2);
+void remove_numbox(NumBox *ns, int *len, NumBox n);
+
 /* Main */
 
 int main()
 {
-    NumBox n1, n2;
+    NumBox n1, n2, *free;
     POINT choice, click1, click2, p1, p2;
-    int interface;
+    int interface, length = 0, i;
 
+    //
+    //*free = (NumBox *) malloc(sizeof(NumBox) * 4);
+    //
 
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
@@ -116,7 +131,15 @@ int main()
         {
             click1 = wait_clic();
             n1 = point_to_numbox(click1, interface);
-            highlight_possible_moves(n1, gameboard[n1.y][n1.x].edging, interface);
+            //highlight_possible_moves(n1, gameboard[n1.y][n1.x].edging, interface);
+            test_possible_moves2(n1);
+
+            //
+            /*length = get_possible_moves(&free, n1);
+            for (i = 0;i != length; i++)
+                printf("%d %d\n", free[i].x, free[i].y);
+            */
+            //
 
             click2 = wait_clic();
             n2 = point_to_numbox(click2, interface);
@@ -203,25 +226,84 @@ void move_pawn(NumBox start, NumBox end)
     gameboard[start.y][start.x].type = EMPTY;
 }
 
+//Appends the neighbours to the array
+int get_neighbours(NumBox **free, int size, NumBox pawn)
+{
+    int j = size, i;
+    if (*free == NULL) *free = (NumBox*) malloc(sizeof(NumBox) * (size + 4));
+    else *free = (NumBox*) realloc(*free, sizeof(NumBox) * (size + 4));
+
+    (*free)[j].x = pawn.x + 1;
+    (*free)[j++].y = pawn.y;
+    (*free)[j].x = pawn.x - 1;
+    (*free)[j++].y = pawn.y;
+    (*free)[j].x = pawn.x;
+    (*free)[j++].y = pawn.y - 1;
+    (*free)[j].x = pawn.x;
+    (*free)[j++].y = pawn.y + 1;
+
+    for (i = size; i != j;i++)
+    {
+        //printf("Len : %d\n", j);
+        //puts("BEFORE");
+        //print_numbox((*free)[i]);
+        if (out_of_range((*free)[i]))
+        {
+            //puts("oor");
+            (*free)[i].x = (*free)[j - 1].x;
+            (*free)[i].y = (*free)[j - 1].y;
+            *free = (NumBox*) realloc(*free, sizeof(NumBox) * --j);
+            i--;
+        }
+        else if (is_cell_occupied((*free)[i]))
+        {
+            //puts("co");
+            (*free)[i].x = (*free)[j - 1].x;
+            (*free)[i].y = (*free)[j - 1].y;
+            *free = (NumBox*) realloc(*free, sizeof(NumBox) * --j);
+            i--;
+        }
+    }
+    //puts("finished");
+    //print_numboxes(*free, j);
+    return j;
+}
+
+int get_possible_moves(NumBox **free, NumBox pos)
+{
+    *free = (NumBox *) malloc(sizeof(NumBox *) * 1);
+    (*free[0]).x = pos.x;
+    (*free[0]).y = pos.y;
+    NumBox *n = (NumBox *) malloc(sizeof(NumBox *) * 4);
+    int cells = 1;//get_neighbours(free, 0, pos);
+    int moves = gameboard[pos.y][pos.x].edging;
+    int total_neigh = 0, i, j, size;
+
+    for (i = 0; i != moves; i++)
+    {
+        total_neigh = 0;
+
+        for (j = 0; j != cells; j++)
+        {
+            size = get_neighbours(&n, cells, (*free)[i]);
+            remove_numbox(&n, size, (*free)[i]);
+            total_neigh += size;
+        }
+
+        cells = total_neigh;
+        free = &n;
+    }
+
+    return cells;
+}
+
 int possible_moves(NumBox **poss_moves, NumBox pos, int moves)
 {
-    int i, j = 0, sort = 0, k;
+    int i, j = 0, k;
 
     *poss_moves = (NumBox *) malloc(sizeof(NumBox) * 4 * moves);
     NumBox *buffer_moves = (NumBox *) malloc(sizeof(NumBox) * 4);
-    NumBox buffer = { 0, 0 };
-/*
-    (*poss_moves)[j++] = (NumBox) { pos.x, pos.y + moves };
-    (*poss_moves)[j++] = (NumBox) { pos.x, pos.y - moves };
-    (*poss_moves)[j++] = (NumBox) { pos.x + moves, pos.y };
-    (*poss_moves)[j++] = (NumBox) { pos.x - moves, pos.y };
-#if DEBUG
-    printf("1) : x : %d y : %d\n", (*poss_moves)[0].x, (*poss_moves)[0].y);
-    printf("2) : x : %d y : %d\n", (*poss_moves)[1].x, (*poss_moves)[1].y);
-    printf("3) : x : %d y : %d\n", (*poss_moves)[2].x, (*poss_moves)[2].y);
-    printf("2) : x : %d y : %d\n", (*poss_moves)[3].x, (*poss_moves)[3].y);
-#endif
-*/
+
     for (i = 0; i < moves + 1; i++)
     {
         buffer_moves[0].x = pos.x + i;
@@ -244,25 +326,7 @@ int possible_moves(NumBox **poss_moves, NumBox pos, int moves)
             }
         }
     }
-/*
-    for (i = 0; i < j; i++)
-    {
-        printf("i %d j %d\n", i, j);
-        if (out_of_range((*poss_moves)[i])) { puts("out of range"); sort = 1; }
-        else if (is_cell_occupied((*poss_moves)[i])) { puts("cell occupied"); sort = 1; }
-        else sort = 0;
 
-        if (sort == 1)
-        {
-            printf("Correct : x : %d y : %d\n", (*poss_moves)[j].x, (*poss_moves)[j].y);
-            printf("To move : x : %d y : %d\n", (*poss_moves)[i].x, (*poss_moves)[i].y);
-            (*poss_moves)[i].x = (*poss_moves)[j].x;
-            (*poss_moves)[i].y = (*poss_moves)[j].y;
-            j--;
-            printf("Length : %d\n", j);
-        }
-    }
-*/
     return j;
 }
 
@@ -480,4 +544,62 @@ NumBox point_to_numbox_ig2(POINT p)
     n.x = (MARGIN + BOARD_HEIGHT - p.y) / CELL_HEIGHT;
 
     return n;
+}
+
+
+void print_numbox(NumBox n)
+{
+    printf("x : %d ; y : %d\n", n.x, n.y);
+}
+
+void print_numboxes(NumBox *n, int len)
+{
+    int i;
+    puts(">");
+    for (i = 0; i != len; i++)
+        print_numbox(n[i]);
+    puts("<");
+}
+/* Tests */
+
+
+int test_possible_moves()
+{
+    NumBox n = { 0, 0 };
+    NumBox n2 = { 1, 0 };
+    NumBox n3 = { 2, 0 };
+    NumBox *free = NULL;
+    int length = get_neighbours(&free, 0, n);free = NULL;
+    length = get_neighbours(&free, 0, n2);free = NULL;
+    length = get_neighbours(&free, 0, n3);
+
+    return 0;
+}
+int test_possible_moves2(NumBox n)
+{
+    NumBox *fre = NULL;
+    int length = get_neighbours(&fre, 0, n);
+    free(fre);
+
+    return 0;
+}
+
+void remove_numbox(NumBox *ns, int *len, NumBox n)
+{
+    int i;
+    for (i = 0; i != *len; i++)
+    {
+        if (eql(ns[i], n))
+        {
+            ns[i].x = ns[*len].x;
+            ns[i].y = ns[*len].x;
+            *len -= 1;
+            return;
+        }
+    }
+}
+
+int eql(NumBox n1, NumBox n2)
+{
+    return n1.x == n2.x && n1.y == n2.y;
 }
