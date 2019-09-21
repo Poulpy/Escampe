@@ -23,71 +23,71 @@
 
 /* Enumerations */
 
-typedef enum TYPE
+typedef enum Type
 {
-    VIDE, LICORNE, PALADIN
-} TYPE;
+    EMPTY, UNICORN, PALADIN
+} Type;
 
-typedef enum COUL
+typedef enum Coul
 {
-    NOIR, BLANC
-} COUL;
+    BLACK, WHITE
+} Coul;
 
 /* Structures */
 
-typedef struct NUMBOX
+typedef struct NumBox
 {
     int x;
     int y;
-} NUMBOX;
+} NumBox;
 
-typedef struct BOX
+typedef struct Box
 {
-    int lisere;/* 1, 2, 3 */
-    TYPE typeP;
-    COUL coulP;
-} BOX;
+    int edging;/* 1, 2, 3 */
+    Type type;
+    Coul color;
+} Box;
 
 /* Global variables */
 
-BOX plateau[6][6];
+Box gameboard[6][6];
 
-/* Functions prototypePs */
+/* Functions prototypes */
 
 /* Model */
 
-void init_plateau();
-int  is_cell_occupied(NUMBOX pos);
-void init_piece1_debug();
-void init_piece2_debug();
-void move_piece(NUMBOX start, NUMBOX end);
+void init_gameboard();
+int  is_cell_occupied(NumBox pos);
+void init_gamepawns_1();
+void init_gamepawns_2();
+void move_pawn(NumBox start, NumBox end);
 
 /* View */
 
-void draw_lisere(POINT center, int number);
-void draw_plateau(int interface);
-void affiche_licorne(POINT origin, COULEUR coulP);
-void affiche_paladin(POINT origin, COULEUR coulP);
-void erase_piece(POINT origin);
-void affiche_piece(BOX piece, POINT origin);
+void draw_edging(POINT center, int number);
+void draw_gameboard(int interface);
+void draw_unicorn(POINT origin, COULEUR color);
+void draw_paladin(POINT origin, COULEUR color);
+void erase_pawn(POINT origin);
+void draw_pawn(Box pawn, POINT origin);
 void display_menu();
 int  get_interface_choice(POINT click);
 int is_on_board(POINT click);
 
 /* Controller */
 
-POINT numBOX_to_point(NUMBOX n, int interface);
-NUMBOX point_to_numBOX(POINT p, int interface);
-POINT  numBOX_to_pointBG_ig1(NUMBOX n);
-NUMBOX point_ig1_to_numBOX(POINT p);
-POINT  numBOX_to_pointBG_ig2(NUMBOX n);
-NUMBOX point_ig2_to_numBOX(POINT p);
+POINT numbox_to_point(NumBox n, int interface);
+NumBox point_to_numbox(POINT p, int interface);
+POINT  numbox_to_point_ig1(NumBox n);
+NumBox point_to_numbox_ig1(POINT p);
+POINT  numbox_to_point_ig2(NumBox n);
+NumBox point_to_numbox_ig2(POINT p);
 
 /* Main */
 
 int main()
 {
-    NUMBOX n1, n2;
+    NumBox n1, n2;
     POINT choice, click1, click2, p1, p2;
     int interface;
 
@@ -100,9 +100,9 @@ int main()
     interface = get_interface_choice(choice);
     fill_screen(black);
 
-    init_plateau();
-    init_piece2_debug();
-    draw_plateau(interface);
+    init_gameboard();
+    init_gamepawns_2();
+    draw_gameboard(interface);
 
     while (1)
     {
@@ -111,18 +111,18 @@ int main()
             click1 = wait_clic();
             click2 = wait_clic();
 
-            n1 = point_to_numBOX(click1, interface);
-            n2 = point_to_numBOX(click2, interface);
+            n1 = point_to_numbox(click1, interface);
+            n2 = point_to_numbox(click2, interface);
 
 
-            p1 = numBOX_to_point(n1, interface);
-            p2 = numBOX_to_point(n2, interface);
+            p1 = numbox_to_point(n1, interface);
+            p2 = numbox_to_point(n2, interface);
 
         } while (!is_cell_occupied(n1) || !is_on_board(click1) || !is_on_board(click2));
 
-        erase_piece(p1);
-        move_piece(n1, n2);
-        affiche_piece(plateau[n2.y][n2.x], p2);
+        erase_pawn(p1);
+        move_pawn(n1, n2);
+        draw_pawn(gameboard[n2.y][n2.x], p2);
 
         affiche_all();
     }
@@ -136,9 +136,9 @@ int main()
 
 /* Model */
 
-void init_plateau()
+void init_gameboard()
 {
-    int liseres[6][6] = {{1,2,2,3,1,2},
+    int edgings[6][6] = {{1,2,2,3,1,2},
                          {3,1,3,1,3,2},
                          {2,3,1,2,1,3},
                          {2,1,3,2,3,1},
@@ -149,50 +149,50 @@ void init_plateau()
     {
         for (j = 0; j != 6; j++)
         {
-            plateau[i][j].lisere = liseres[i][j];
-            plateau[i][j].typeP = VIDE;
-            plateau[i][j].coulP = NOIR;
+            gameboard[i][j].edging = edgings[i][j];
+            gameboard[i][j].type = EMPTY;
+            gameboard[i][j].color = BLACK;
         }
     }
 }
 
-void init_piece1_debug()
+void init_gamepawns_1()
 {
     int i;
 
-    NUMBOX whites[6] = {{4,1}, {4,3}, {4,4}, {5,1}, {5,2}, {5,3}};
-    NUMBOX paladins[10] = {{0,2}, {0,4}, {1,0}, {1,2}, {1,5}, {4,1}, {4,3}, {4,4}, {5,1}, {5,2}};
-    NUMBOX unicorns[2] = {{1,1}, {5,3}};
+    NumBox whites[6] = {{4,1}, {4,3}, {4,4}, {5,1}, {5,2}, {5,3}};
+    NumBox paladins[10] = {{0,2}, {0,4}, {1,0}, {1,2}, {1,5}, {4,1}, {4,3}, {4,4}, {5,1}, {5,2}};
+    NumBox unicorns[2] = {{1,1}, {5,3}};
 
-    for (i = 0; i != 6; i++) plateau[whites[i].x][whites[i].y].coulP = BLANC;
-    for (i = 0; i != 10; i++) plateau[paladins[i].x][paladins[i].y].typeP = PALADIN;
-    for (i = 0; i != 2; i++) plateau[unicorns[i].x][unicorns[i].y].typeP = LICORNE;
+    for (i = 0; i != 6; i++) gameboard[whites[i].x][whites[i].y].color = WHITE;
+    for (i = 0; i != 10; i++) gameboard[paladins[i].x][paladins[i].y].type = PALADIN;
+    for (i = 0; i != 2; i++) gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
-void init_piece2_debug()
+void init_gamepawns_2()
 {
     int i;
 
-    NUMBOX whites[6] = {{0,0}, {0,1}, {0,2}, {0,3}, {0,4}, {0,5}};
-    NUMBOX paladins[10] = {{0,1}, {0,2}, {0,3}, {0,4}, {0,5}, {5,0}, {5,1}, {5,2}, {5,4}, {5,5}};
-    NUMBOX unicorns[2] = {{0,0}, {5,3}};
+    NumBox whites[6] = {{0,0}, {0,1}, {0,2}, {0,3}, {0,4}, {0,5}};
+    NumBox paladins[10] = {{0,1}, {0,2}, {0,3}, {0,4}, {0,5}, {5,0}, {5,1}, {5,2}, {5,4}, {5,5}};
+    NumBox unicorns[2] = {{0,0}, {5,3}};
 
-    for (i = 0; i != 6; i++) plateau[whites[i].x][whites[i].y].coulP = BLANC;
-    for (i = 0; i != 10; i++) plateau[paladins[i].x][paladins[i].y].typeP = PALADIN;
-    for (i = 0; i != 2; i++) plateau[unicorns[i].x][unicorns[i].y].typeP = LICORNE;
+    for (i = 0; i != 6; i++) gameboard[whites[i].x][whites[i].y].color = WHITE;
+    for (i = 0; i != 10; i++) gameboard[paladins[i].x][paladins[i].y].type = PALADIN;
+    for (i = 0; i != 2; i++) gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
 
-int is_cell_occupied(NUMBOX pos)
+int is_cell_occupied(NumBox pos)
 {
-    return plateau[pos.y][pos.x].typeP != VIDE;
+    return gameboard[pos.y][pos.x].type != EMPTY;
 }
 
-void move_piece(NUMBOX start, NUMBOX end)
+void move_pawn(NumBox start, NumBox end)
 {
-    plateau[end.y][end.x].typeP = plateau[start.y][start.x].typeP;
-    plateau[end.y][end.x].coulP = plateau[start.y][start.x].coulP;
-    plateau[start.y][start.x].typeP = VIDE;
+    gameboard[end.y][end.x].type = gameboard[start.y][start.x].type;
+    gameboard[end.y][end.x].color = gameboard[start.y][start.x].color;
+    gameboard[start.y][start.x].type = EMPTY;
 }
 
 /* View */
@@ -225,7 +225,7 @@ int get_interface_choice(POINT click)
     else return 2;
 }
 
-void affiche_licorne(POINT origin, COULEUR coulP)
+void draw_unicorn(POINT origin, COULEUR color)
 {
     int top_margin = 10;
     int bot_margin = 15;
@@ -238,16 +238,16 @@ void affiche_licorne(POINT origin, COULEUR coulP)
     POINT botr = { origin.x + CELL_WIDTH -  side_margin,
                    origin.y + bot_margin };
 
-    draw_fill_triangle(top, botl, botr, coulP);
+    draw_fill_triangle(top, botl, botr, color);
 }
 
-void affiche_paladin(POINT origin, COULEUR coulP)
+void draw_paladin(POINT origin, COULEUR color)
 {
     int top_margin = 10;
     int bot_margin = 15;
     int side_margin = 20;
 
-    affiche_licorne(origin, coulP);
+    draw_unicorn(origin, color);
 
     POINT top = { origin.x + CIRCLE_RADIUS,
                   origin.y + CELL_HEIGHT - top_margin };
@@ -259,11 +259,11 @@ void affiche_paladin(POINT origin, COULEUR coulP)
     draw_fill_triangle(top, botl, botr, black);
 }
 
-void draw_plateau(int interface)
+void draw_gameboard(int interface)
 {
     int row, col;
     POINT cursor;
-    NUMBOX n;
+    NumBox n;
 
     for (row = 0; row != 6; row++)
     {
@@ -271,28 +271,28 @@ void draw_plateau(int interface)
         {
             n.x = col;
             n.y = row;
-            cursor = numBOX_to_point(n, interface);
+            cursor = numbox_to_point(n, interface);
 
-            draw_lisere(cursor, plateau[row][col].lisere);
-            affiche_piece(plateau[row][col], cursor);
+            draw_edging(cursor, gameboard[row][col].edging);
+            draw_pawn(gameboard[row][col], cursor);
         }
     }
 
     affiche_all();
 }
 
-void affiche_piece(BOX piece, POINT origin)
+void draw_pawn(Box pawn, POINT origin)
 {
-    COULEUR coulP;
+    COULEUR color;
 
-    if (piece.coulP == NOIR) coulP = blue;
-    else coulP = white;
+    if (pawn.color == BLACK) color = blue;
+    else color = white;
 
-    if (piece.typeP == LICORNE) affiche_licorne(origin, coulP);
-    else if (piece.typeP == PALADIN) affiche_paladin(origin, coulP);
+    if (pawn.type == UNICORN) draw_unicorn(origin, color);
+    else if (pawn.type == PALADIN) draw_paladin(origin, color);
 }
 
-void draw_lisere(POINT bl_corner, int number)
+void draw_edging(POINT bl_corner, int number)
 {
     int c;
     POINT center;
@@ -306,9 +306,9 @@ void draw_lisere(POINT bl_corner, int number)
     }
 }
 
-void erase_piece(POINT origin)
+void erase_pawn(POINT origin)
 {
-   affiche_licorne(origin, black);
+   draw_unicorn(origin, black);
 }
 
 int is_on_board(POINT click){
@@ -317,19 +317,19 @@ int is_on_board(POINT click){
 
 /* Controller */
 
-POINT numBOX_to_point(NUMBOX n, int interface)
+POINT numbox_to_point(NumBox n, int interface)
 {
-    if (interface == 1) return numBOX_to_pointBG_ig1(n);
-    else return numBOX_to_pointBG_ig2(n);
+    if (interface == 1) return numbox_to_point_ig1(n);
+    else return numbox_to_point_ig2(n);
 }
 
-NUMBOX point_to_numBOX(POINT p, int interface)
+NumBox point_to_numbox(POINT p, int interface)
 {
-    if (interface == 1) return point_ig1_to_numBOX(p);
-    else return point_ig2_to_numBOX(p);
+    if (interface == 1) return point_to_numbox_ig1(p);
+    else return point_to_numbox_ig2(p);
 }
 
-POINT numBOX_to_pointBG_ig1(NUMBOX n)
+POINT numbox_to_point_ig1(NumBox n)
 {
     POINT p;
 
@@ -339,9 +339,9 @@ POINT numBOX_to_pointBG_ig1(NUMBOX n)
     return p;
 }
 
-NUMBOX point_ig1_to_numBOX(POINT p)
+NumBox point_to_numbox_ig1(POINT p)
 {
-    NUMBOX n;
+    NumBox n;
 
     n.x = (p.x - MARGIN) / CELL_WIDTH;
     n.y = (p.y - MARGIN) / CELL_HEIGHT;
@@ -349,7 +349,7 @@ NUMBOX point_ig1_to_numBOX(POINT p)
     return n;
 }
 
-POINT numBOX_to_pointBG_ig2(NUMBOX n)
+POINT numbox_to_point_ig2(NumBox n)
 {
     POINT p;
 
@@ -359,9 +359,9 @@ POINT numBOX_to_pointBG_ig2(NUMBOX n)
     return p;
 }
 
-NUMBOX point_ig2_to_numBOX(POINT p)
+NumBox point_to_numbox_ig2(POINT p)
 {
-    NUMBOX n;
+    NumBox n;
 
     n.y = (p.x - MARGIN) / CELL_WIDTH;
     n.x = (MARGIN + BOARD_HEIGHT - p.y) / CELL_HEIGHT;
