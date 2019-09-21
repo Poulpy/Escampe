@@ -79,7 +79,7 @@ void highlight_possible_moves(NumBox pos, int moves, int interface);
 
 /* Controller */
 
-POINT numbox_to_point(NumBox n, int interface);
+POINT  numbox_to_point(NumBox n, int interface);
 NumBox point_to_numbox(POINT p, int interface);
 POINT  numbox_to_point_ig1(NumBox n);
 NumBox point_to_numbox_ig1(POINT p);
