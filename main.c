@@ -61,13 +61,13 @@ Box gameboard[6][6];
 
 void init_gameboard();
 int  is_cell_occupied(NumBox pos);
-void init_gamepaws_1();
-void init_gamepaws_2();
+void init_gamepawns_1();
+void init_gamepawns_2();
 void move_pawn(NumBox start, NumBox end);
 int  possible_moves(NumBox **poss_moves, NumBox pos, int moves);
 int  out_of_range(NumBox pos);
-NumBox *get_possible_moves_v2(NumBox *ns, int *len, NumBox pos);
 void get_neighbours_v3(NumBox *free, int *offset, NumBox pawn);
+NumBox *get_possible_moves_v2(NumBox *ns, int *len, NumBox pos);
 
 /* View */
 
@@ -81,6 +81,7 @@ void display_menu();
 int  get_interface_choice(POINT click);
 int  is_on_board(POINT click);
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
+void erase_highlighting(NumBox *cells, int len, int interface);
 
 /* Controller */
 
@@ -91,12 +92,10 @@ NumBox point_to_numbox_ig1(POINT p);
 POINT  numbox_to_point_ig2(NumBox n);
 NumBox point_to_numbox_ig2(POINT p);
 
-/* Tests */
+/* Helpers */
 
 void print_numboxes(NumBox *n, int len);
 void print_numbox(NumBox n);
-int  test_possible_moves();
-int  test_possible_moves2(NumBox n);
 int  eql(NumBox n1, NumBox n2);
 void remove_numbox(NumBox *ns, int *len, NumBox n);
 void append(NumBox *ns, int *len, NumBox n);
@@ -121,7 +120,7 @@ int main()
     fill_screen(black);
 
     init_gameboard();
-    init_gamepaws_2();
+    init_gamepawns_2();
     draw_gameboard(interface);
     int m;
 
@@ -142,8 +141,8 @@ int main()
 
         } while (!is_cell_occupied(n1) || !is_on_board(click1) || !is_on_board(click2));
 
-        highlight_cells(fre, m, BACKGROUND_COLOR, interface);
-        free(fre);
+        erase_highlighting(fre, m, interface);
+        //highlight_cells(fre, m, BACKGROUND_COLOR, interface);
         erase_pawn(p1);
         move_pawn(n1, n2);
         draw_pawn(gameboard[n2.y][n2.x], p2);
@@ -180,7 +179,7 @@ void init_gameboard()
     }
 }
 
-void init_gamepaws_1()
+void init_gamepawns_1()
 {
     int i;
 
@@ -193,7 +192,7 @@ void init_gamepaws_1()
     for (i = 0; i != 2; i++) gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
-void init_gamepaws_2()
+void init_gamepawns_2()
 {
     int i;
 
@@ -220,7 +219,6 @@ void move_pawn(NumBox start, NumBox end)
 }
 
 
-//Appends the neighbours to the array
 void get_neighbours_v3(NumBox *free, int *offset, NumBox pawn)
 {
     int i;
@@ -237,24 +235,19 @@ void get_neighbours_v3(NumBox *free, int *offset, NumBox pawn)
         {
             if (!is_cell_occupied(n[i]))
             {
-                //printf("LEN : %d; AJOUT : ", *offset);
-                print_numbox(n[i]);
                 free[(*offset)++] = n[i];
             }
         }
     }
-    //print_numboxes(free, *offset);
 }
 
 NumBox *get_possible_moves_v2(NumBox *empt_cell, int *len, NumBox pos)
 {
-    int moves = gameboard[pos.y][pos.x].edging;
-    int i, j;
-    NumBox neighbours[13], to_remove[13];
-    NumBox *empt_cells;
-    empt_cells = (NumBox *) malloc(sizeof(NumBox) * 13);
-    int         cells = 1,       size = 0, removals = 0;
+    int moves = gameboard[pos.y][pos.x].edging, i, j;
+    int cells = 1, size = 0, removals = 0;
+    NumBox neighbours[13], to_remove[13], *empt_cells;
 
+    empt_cells = (NumBox *) malloc(sizeof(NumBox) * 13);
     empt_cells[0] = pos;
 
     for (i = 0; i != moves; i++, size = 0)
@@ -292,6 +285,12 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
     affiche_all();
 }
 
+void erase_highlighting(NumBox *cells, int len, int interface)
+{
+    highlight_cells(cells, len, BACKGROUND_COLOR, interface);
+    free(cells);
+}
+
 
 int out_of_range(NumBox pos)
 {
@@ -300,24 +299,6 @@ int out_of_range(NumBox pos)
 
 
 /* View */
-void erase_highlighting(NumBox pos, int moves, int interface)
-{
-    /*
-    NumBox *poss_moves = NULL;
-    int i, length = possible_moves(&poss_moves, pos, moves);
-    POINT p;
-
-    for (i = 0; i != length; i++)
-    {
-        p = numbox_to_point(poss_moves[i], interface);
-        p.x += CIRCLE_RADIUS;
-        p.y += CIRCLE_RADIUS;
-
-        draw_fill_circle(p, 10, BACKGROUND_COLOR);
-    }
-
-    affiche_all();*/
-}
 
 void display_menu()
 {
@@ -430,7 +411,7 @@ void draw_edging(POINT bl_corner, int number)
 
 void erase_pawn(POINT origin)
 {
-   draw_unicorn(origin, black);
+   draw_unicorn(origin, BACKGROUND_COLOR);
 }
 
 int is_on_board(POINT click){
@@ -491,6 +472,7 @@ NumBox point_to_numbox_ig2(POINT p)
     return n;
 }
 
+/* Helpers */
 
 void print_numbox(NumBox n)
 {
@@ -500,28 +482,23 @@ void print_numbox(NumBox n)
 void print_numboxes(NumBox *n, int len)
 {
     int i;
-    puts(">");
+
     for (i = 0; i != len; i++)
+    {
         print_numbox(n[i]);
-    puts("<");
+    }
 }
-
-/* Tests */
-
-
-int test_possible_moves3(NumBox n)
-{
-
-    return 0;
-}
-
 
 void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2)
 {
     int i;
+
     for (i = 0; i != len2; i++)
     {
-        if (contains(n1, *len1, n2[i])) remove_numbox(n1, len1, *(n2 + i));
+        if (contains(n1, *len1, n2[i]))
+        {
+            remove_numbox(n1, len1, n2[i]);
+        }
     }
 }
 
