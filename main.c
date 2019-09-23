@@ -63,7 +63,6 @@ void init_gamepaws_2();
 void move_pawn(NumBox start, NumBox end);
 int  possible_moves(NumBox **poss_moves, NumBox pos, int moves);
 int  out_of_range(NumBox pos);
-void set_game_finished(int* finished);
 
 /* View */
 
@@ -92,6 +91,8 @@ int  get_interface_choice(POINT click);
 int  get_gamemode_choice(POINT click);
 int  replay(POINT click);
 int  is_on_player_side(POINT click, int interface, Coul color);
+void set_game_finished(int* finished);
+void get_same_edgings(int edgingsNumber);
 
 /* Main */
 
@@ -169,6 +170,8 @@ int main()
         fill_screen(black);
     }
 
+    /* get_same_edgings(3);
+    wait_escape(); */
     return 0;
 }
 
@@ -275,11 +278,6 @@ int possible_moves(NumBox **poss_moves, NumBox pos, int moves)
 int out_of_range(NumBox pos)
 {
     return !(pos.x >= 0 || pos.x <= 5 || pos.y >= 0 || pos.y <= 5);
-}
-
-void set_game_finished(int* finished)
-{
-     *finished = 1;
 }
 
 /* View */
@@ -459,7 +457,6 @@ int is_on_board(POINT click)
     return (click.x >= MARGIN && click.x <= (WIDTH - MARGIN) && click.y >= MARGIN  && click.y <= (HEIGHT - MARGIN));
 }
 
-
 void display_endgame_menu(Coul color)
 {
     fill_screen(black);
@@ -568,3 +565,29 @@ int replay(POINT click)
     else return 0;
 }
 
+void set_game_finished(int* finished)
+{
+     *finished = 1;
+}
+
+void get_same_edgings(int edgingsNumber)
+{
+    int i,j, arraySize = 1;
+    NumBox* validCells = NULL;
+    NumBox newCell;
+
+    for(i = 0; i < 6; i++)
+    {
+        for(j = 0; j < 6; j++)
+        {
+            if(gameboard[i][j].edging == edgingsNumber)
+            {
+                validCells = realloc(validCells, arraySize * sizeof(NumBox));
+                newCell.x = j;
+                newCell.y = i;
+                validCells[arraySize - 1] = newCell;
+                arraySize += 1;
+            }
+        }
+    }
+}
