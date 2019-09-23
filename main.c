@@ -480,12 +480,12 @@ void display_endgame_menu(Coul color)
     draw_line(top, bottom, white);
 
     size = 25;
-    label.x = 50;
+    label.x = 75;
     label.y = MID_HEIGHT + 20;
 
     aff_pol("Rejouer", size, label, white);
 
-    label.x = MID_WIDTH + 50;
+    label.x = MID_WIDTH + 75;
 
     aff_pol("Quitter", size, label, white);
 
