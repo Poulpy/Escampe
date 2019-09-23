@@ -108,7 +108,7 @@ int main()
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
 
-    /* while (inGame)
+    while (inGame)
     {
         color = WHITE;
         display_interface_choice();
@@ -169,10 +169,10 @@ int main()
         click1 = wait_clic();
         inGame = replay(click1);
         fill_screen(black);
-    } */
+    }
 
-    get_same_edgings(3);
-    wait_escape();
+    /* get_same_edgings(3);
+    wait_escape(); */
     return 0;
 }
 
