@@ -95,28 +95,22 @@ NumBox point_to_numbox_ig2(POINT p);
 
 void print_numboxes(NumBox *n, int len);
 void print_numbox(NumBox n);
-int test_possible_moves();
-int test_possible_moves2(NumBox n);
-int eql(NumBox n1, NumBox n2);
+int  test_possible_moves();
+int  test_possible_moves2(NumBox n);
+int  eql(NumBox n1, NumBox n2);
 void remove_numbox(NumBox *ns, int *len, NumBox n);
-int test_possible_moves3(NumBox n);
 void append(NumBox *ns, int *len, NumBox n);
 void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
 void copy(NumBox *n1, int offset, NumBox *n2, int len2);
-int contains(NumBox *ns, int len, NumBox n);
+int  contains(NumBox *ns, int len, NumBox n);
 
 /* Main */
 
 int main()
 {
-    NumBox n1, n2, *fre;//, **fre;
+    NumBox n1, n2, *fre;
     POINT choice, click1, click2, p1, p2;
-    int interface;//, length = 0, i;
-    //*fre = (NumBox *) malloc(sizeof(NumBox) * 13);
-
-
-    //
-    //
+    int interface;
 
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
@@ -138,8 +132,6 @@ int main()
             click1 = wait_clic();
             n1 = point_to_numbox(click1, interface);
             fre = get_possible_moves_v2(fre, &m, n1);
-            puts("TRUC");
-            print_numboxes(fre, m);
             highlight_cells(fre, m, orange, interface);
 
             click2 = wait_clic();
@@ -150,7 +142,6 @@ int main()
 
         } while (!is_cell_occupied(n1) || !is_on_board(click1) || !is_on_board(click2));
 
-        puts("BEFORE ERASING");
         highlight_cells(fre, m, BACKGROUND_COLOR, interface);
         free(fre);
         erase_pawn(p1);
@@ -259,7 +250,7 @@ NumBox *get_possible_moves_v2(NumBox *empt_cell, int *len, NumBox pos)
 {
     int moves = gameboard[pos.y][pos.x].edging;
     int i, j;
-    NumBox /*empt_cells[13],*/ neighbours[13], to_remove[13];
+    NumBox neighbours[13], to_remove[13];
     NumBox *empt_cells;
     empt_cells = (NumBox *) malloc(sizeof(NumBox) * 13);
     int         cells = 1,       size = 0, removals = 0;
@@ -268,45 +259,20 @@ NumBox *get_possible_moves_v2(NumBox *empt_cell, int *len, NumBox pos)
 
     for (i = 0; i != moves; i++, size = 0)
     {
-        printf(">>>> I : %d\n", i);
         for (j = 0; j != cells; j++)
         {
-            printf(">>>> J : %d\n", j);
             get_neighbours_v3(neighbours, &size, empt_cells[j]);
-            puts("neighbours : ");
-            print_numboxes(neighbours, cells);
             append(to_remove, &removals, empt_cells[j]);
-            printf("to_remove : \n");
-            print_numboxes(to_remove, removals);
-            //puts("after add : ");
-            //print_numboxes(neighbours, size);
         }
 
-        //puts("BEF");
-        //print_numboxes(empt_cells, cells);
-
-        puts("empt_cells : ");
-        print_numboxes(empt_cells, cells);
         copy(empt_cells, 0, neighbours, size);
-        puts("empt_cells after copy : ");
-        print_numboxes(empt_cells, cells);
-        puts("neighbours : ");
-        print_numboxes(neighbours, cells);
         cells = size;
     }
-    puts("Loop finished");
 
     remove_numboxes(empt_cells, &cells, to_remove, removals);
-    puts("empt_cells : ");
-    print_numboxes(empt_cells, cells);
-    //highlight_cells(empt_cells, cells, orange, 1);
-    //highlight_cells(to_remove, removals, magenta, 1);
-    //highlight_cells(neighbours, size, magenta, 1);
-    //m= empt_cells;
     *len = cells;
 
     return empt_cells;
-    //return cells;
 }
 
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
@@ -539,9 +505,8 @@ void print_numboxes(NumBox *n, int len)
         print_numbox(n[i]);
     puts("<");
 }
+
 /* Tests */
-
-
 
 
 int test_possible_moves3(NumBox n)
