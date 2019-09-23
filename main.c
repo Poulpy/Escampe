@@ -77,6 +77,7 @@ void display_gamemode_choice();
 int  is_on_board(POINT click);
 void highlight_possible_moves(NumBox pos, int moves, int interface);
 void display_endgame_menu(Coul color);
+int is_cell_valid(NumBox cell, NumBox* validCells);
 
 
 /* Controller */
@@ -90,9 +91,9 @@ NumBox point_to_numbox_ig2(POINT p);
 int  get_interface_choice(POINT click);
 int  get_gamemode_choice(POINT click);
 int  replay(POINT click);
-int  is_on_player_side(POINT click, int interface, Coul color);
 void set_game_finished(int* finished);
 void get_same_edgings(int edgingsNumber);
+int  is_on_player_side(POINT click, int interface, Coul color);
 
 /* Main */
 
@@ -101,13 +102,13 @@ int main()
     NumBox n1, n2;
     POINT choice, click1, click2, p1, p2;
     int interface, gamemode, finished = 0, inGame = 1, type1, type2;
-
+    init_gameboard();
     Coul color;
 
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
 
-    while (inGame)
+    /* while (inGame)
     {
         color = WHITE;
         display_interface_choice();
@@ -168,10 +169,10 @@ int main()
         click1 = wait_clic();
         inGame = replay(click1);
         fill_screen(black);
-    }
+    } */
 
-    /* get_same_edgings(3);
-    wait_escape(); */
+    get_same_edgings(3);
+    wait_escape();
     return 0;
 }
 
@@ -570,24 +571,39 @@ void set_game_finished(int* finished)
      *finished = 1;
 }
 
+// Todo: refactor this function with pointer
+// check array size
 void get_same_edgings(int edgingsNumber)
 {
-    int i,j, arraySize = 1;
+    int i,j, arraySize = 0;
     NumBox* validCells = NULL;
     NumBox newCell;
-
+    
     for(i = 0; i < 6; i++)
     {
         for(j = 0; j < 6; j++)
         {
             if(gameboard[i][j].edging == edgingsNumber)
             {
-                validCells = realloc(validCells, arraySize * sizeof(NumBox));
+                validCells = realloc(validCells, (arraySize + 1) * sizeof(NumBox));
                 newCell.x = j;
                 newCell.y = i;
-                validCells[arraySize - 1] = newCell;
+                validCells[arraySize] = newCell;
                 arraySize += 1;
+                printf("%ld\n", sizeof(validCells));
             }
         }
     }
+}
+
+int is_cell_valid(NumBox cell, NumBox* validCells)
+{
+    int i;
+    
+    for(i = 0; i < sizeof(validCells), i++)
+    {
+        if(validCells[i] == cell) return i;
+    }
+
+    return -1;
 }
