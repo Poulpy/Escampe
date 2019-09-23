@@ -1,0 +1,8 @@
+Todo list
+---------
+
+
+- Placement des pions par les joueurs
+- IA
+- Menu d'accueil
+- Merge du code
