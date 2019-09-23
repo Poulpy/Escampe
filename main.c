@@ -101,6 +101,8 @@ int test_possible_moves2(NumBox n);
 int eql(NumBox n1, NumBox n2);
 void remove_numbox(NumBox *ns, int *len, NumBox n);
 int test_possible_moves3(NumBox n);
+void append(NumBox *ns, int *len, NumBox n);
+void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
 
 /* Main */
 
@@ -260,37 +262,38 @@ int get_neighboursv2(NumBox **free, int size, NumBox pawn)
 int get_possible_moves_v2(NumBox pos)
 {
     int cells = 1, size = 0, moves = gameboard[pos.y][pos.x].edging;
-    int i, j;
-    NumBox *empt_cells, *neighbours;
+    int i, j, removals = 1;
+    NumBox *empt_cells, *neighbours, *to_remove;
 
     empt_cells = (NumBox *) calloc(1, sizeof(NumBox));
     neighbours = (NumBox *) calloc(1, sizeof(NumBox));
+    to_remove = (NumBox *) calloc(1, sizeof(NumBox));
+    to_remove[0] = pos;
     empt_cells[0] = pos;
 
+    // removals : len of to_remove
     // size : len of neighbours
     // cells : len of empt_cells
-    for (i = 0; i != moves; i++)
+    for (i = 0, size = 0; i != moves; i++)
     {
         for (j = 0; j != cells; j++)
         {
-            size = get_neighboursv2(&neighbours, size, (empt_cells)[j]);// invalid read
-            /*printf("Size before remove : %d\n", size);
-            remove_numbox(&neighbours, &size, (empt_cells)[j]);
-            printf("Size after remove : %d\n", size);*/
+            size = get_neighboursv2(&neighbours, size, (empt_cells)[j]);
+            append(to_remove, &removals, empt_cells[j]);
         }
         if (i + 1 == moves) break;
+
         free(empt_cells);
         empt_cells = NULL;
         empt_cells = neighbours;
         cells = size;
-        size = 0;
         free(neighbours);
         neighbours = NULL;
         neighbours = (NumBox *) malloc(sizeof(NumBox));
     }
+
+    remove_numboxes(neighbours, &size, to_remove, removals);
     highlight_cells(neighbours, size, orange, 1);
-    free(empt_cells);
-    free(neighbours);
 
     return size;
 }
@@ -537,19 +540,41 @@ int test_possible_moves3(NumBox n)
     return 0;
 }
 
+
+void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2)
+{
+    int i;
+    for (i = 0; i != len2; i++)
+    {
+        remove_numbox(n1, len1, *(n2 + i));
+    }
+}
+
 void remove_numbox(NumBox *ns, int *len, NumBox n)
 {
     int i;
+    printf("TO REMOVE : ");
+    print_numbox(n);
     for (i = 0; i != *len; i++)
     {
+        print_numbox(ns[i]);
+
         if (eql(ns[i], n))
         {
+            *len -= 1;
             ns[i].x = ns[*len].x;
             ns[i].y = ns[*len].y;
-            *len -= 1;
+            ns = (NumBox *) realloc(ns, sizeof(NumBox) * *len);
             return;
         }
     }
+}
+
+void append(NumBox *ns, int *len, NumBox n)
+{
+    ns = (NumBox *) realloc(ns, sizeof(NumBox) * (*len + 1));
+    ns[*len] = n;
+    (*len)++;
 }
 
 int eql(NumBox n1, NumBox n2)
