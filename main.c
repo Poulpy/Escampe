@@ -68,6 +68,7 @@ int  possible_moves(NumBox **poss_moves, NumBox pos, int moves);
 int  out_of_range(NumBox pos);
 int  get_possible_moves_v2(NumBox pos);
 int  get_neighboursv2(NumBox **free, int size, NumBox pawn);
+void get_neighbours_v3(NumBox *free, int *offset, NumBox pawn);
 
 /* View */
 
@@ -103,6 +104,8 @@ void remove_numbox(NumBox *ns, int *len, NumBox n);
 int test_possible_moves3(NumBox n);
 void append(NumBox *ns, int *len, NumBox n);
 void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
+void copy(NumBox *n1, int offset, NumBox *n2, int len2);
+int contains(NumBox *ns, int len, NumBox n);
 
 /* Main */
 
@@ -259,43 +262,79 @@ int get_neighboursv2(NumBox **free, int size, NumBox pawn)
     return j;
 }
 
+//Appends the neighbours to the array
+void get_neighbours_v3(NumBox *free, int *offset, NumBox pawn)
+{
+    int i;
+    NumBox n[4];
+
+    n[0] = (NumBox) { pawn.x + 1, pawn.y };
+    n[1] = (NumBox) { pawn.x - 1, pawn.y };
+    n[2] = (NumBox) { pawn.x, pawn.y - 1 };
+    n[3] = (NumBox) { pawn.x, pawn.y + 1 };
+
+    for (i = 0; i != 4; i++)
+    {
+        if (!out_of_range(n[i]))
+        {
+            if (!is_cell_occupied(n[i]))
+            {
+                //printf("LEN : %d; AJOUT : ", *offset);
+                print_numbox(n[i]);
+                free[(*offset)++] = n[i];
+            }
+        }
+    }
+    //print_numboxes(free, *offset);
+}
 int get_possible_moves_v2(NumBox pos)
 {
-    int cells = 1, size = 0, moves = gameboard[pos.y][pos.x].edging;
-    int i, j, removals = 1;
-    NumBox *empt_cells, *neighbours, *to_remove;
+    int moves = gameboard[pos.y][pos.x].edging;
+    int i, j;
+    NumBox empt_cells[13], neighbours[13], to_remove[13];
+    int         cells = 1,       size = 0, removals = 0;
 
-    empt_cells = (NumBox *) calloc(1, sizeof(NumBox));
-    neighbours = (NumBox *) calloc(1, sizeof(NumBox));
-    to_remove = (NumBox *) calloc(1, sizeof(NumBox));
-    to_remove[0] = pos;
     empt_cells[0] = pos;
 
-    // removals : len of to_remove
-    // size : len of neighbours
-    // cells : len of empt_cells
-    for (i = 0, size = 0; i != moves; i++)
+    for (i = 0; i != moves; i++, size = 0)
     {
+        printf(">>>> I : %d\n", i);
         for (j = 0; j != cells; j++)
         {
-            size = get_neighboursv2(&neighbours, size, (empt_cells)[j]);
+            printf(">>>> J : %d\n", j);
+            get_neighbours_v3(neighbours, &size, empt_cells[j]);
+            puts("neighbours : ");
+            print_numboxes(neighbours, cells);
             append(to_remove, &removals, empt_cells[j]);
+            printf("to_remove : \n");
+            print_numboxes(to_remove, removals);
+            //puts("after add : ");
+            //print_numboxes(neighbours, size);
         }
-        if (i + 1 == moves) break;
 
-        free(empt_cells);
-        empt_cells = NULL;
-        empt_cells = neighbours;
+        //puts("BEF");
+        //print_numboxes(empt_cells, cells);
+
+        puts("empt_cells : ");
+        print_numboxes(empt_cells, cells);
+        copy(empt_cells, 0, neighbours, size);
+        puts("empt_cells after copy : ");
+        print_numboxes(empt_cells, cells);
+        puts("neighbours : ");
+        print_numboxes(neighbours, cells);
         cells = size;
-        free(neighbours);
-        neighbours = NULL;
-        neighbours = (NumBox *) malloc(sizeof(NumBox));
     }
+    puts("Loop finished");
 
-    remove_numboxes(neighbours, &size, to_remove, removals);
-    highlight_cells(neighbours, size, orange, 1);
+    //print_numboxes(to_remove, removals);
+    remove_numboxes(empt_cells, &cells, to_remove, removals);
+        puts("empt_cells : ");
+        print_numboxes(empt_cells, cells);
+    highlight_cells(empt_cells, cells, orange, 1);
+    //highlight_cells(to_remove, removals, magenta, 1);
+    //highlight_cells(neighbours, size, magenta, 1);
 
-    return size;
+    return cells;
 }
 
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
@@ -546,38 +585,54 @@ void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2)
     int i;
     for (i = 0; i != len2; i++)
     {
-        remove_numbox(n1, len1, *(n2 + i));
+        if (contains(n1, *len1, n2[i]))
+            remove_numbox(n1, len1, *(n2 + i));
     }
 }
 
 void remove_numbox(NumBox *ns, int *len, NumBox n)
 {
     int i;
-    printf("TO REMOVE : ");
-    print_numbox(n);
+    //printf("TO REMOVE : ");
+    //print_numbox(n);
     for (i = 0; i != *len; i++)
     {
-        print_numbox(ns[i]);
+        //print_numbox(ns[i]);
 
         if (eql(ns[i], n))
         {
-            *len -= 1;
-            ns[i].x = ns[*len].x;
-            ns[i].y = ns[*len].y;
-            ns = (NumBox *) realloc(ns, sizeof(NumBox) * *len);
-            return;
+            ns[i] = ns[--(*len)];
+            i--;
         }
     }
 }
 
+void copy(NumBox *n1, int offset, NumBox *n2, int len2)
+{
+    int i;
+
+    for (i = 0; i != len2; i++)
+        n1[offset++] = n2[i];
+}
+
 void append(NumBox *ns, int *len, NumBox n)
 {
-    ns = (NumBox *) realloc(ns, sizeof(NumBox) * (*len + 1));
-    ns[*len] = n;
-    (*len)++;
+    if (contains(ns, *len, n)) return;
+    ns[(*len)++] = n;
 }
 
 int eql(NumBox n1, NumBox n2)
 {
     return n1.x == n2.x && n1.y == n2.y;
 }
+
+int contains(NumBox *ns, int len, NumBox n)
+{
+    int i;
+
+    for (i = 0; i != len; i++)
+        if (eql(ns[i], n))
+            return 1;
+    return 0;
+}
+
