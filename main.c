@@ -632,23 +632,24 @@ void display_informations(Coul playerColor, int lastEdging)
 
     if (lastEdging != 0)
     {
-        int radius = 25;
+        int radius = 25, i;
         char requiredEdging[1];
         sprintf(requiredEdging, "%d", lastEdging);
 
         label.x = MID_WIDTH;
         label.y = MARGIN - size;
         draw_fill_circle(label, radius - 10, textColor);
-        draw_circle(label, radius, EDGING_COLOR);
+        for (i = 0; i != lastEdging; i++)
+        {
+            draw_circle(label, radius - (i * 4), EDGING_COLOR);
+            draw_circle(label, radius - (i * 4) - 1, EDGING_COLOR);
+        }
+        /*draw_circle(label, radius, EDGING_COLOR);
         draw_circle(label, radius - 1, salmon);
         draw_circle(label, radius - 4, EDGING_COLOR);
         draw_circle(label, radius - 5, salmon);
         draw_circle(label, radius - 8, EDGING_COLOR);
-        draw_circle(label, radius - 9, salmon);
-        //aff_pol("Liseres:", size, label, white);
-        /*label.x -= 5;
-        label.y += radius / 2 + 5;
-        aff_pol(requiredEdging, 20, label, white);*/
+        draw_circle(label, radius - 9, salmon);*/
         label.x += 30;
         label.y += radius / 2;
         aff_pol(requiredEdging, 20, label, black);
