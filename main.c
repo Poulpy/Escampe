@@ -1,10 +1,17 @@
+/* Escampe project by HAUSER Joshua & REPAIN Paul */
+/* IATIC3 2019 */
+
 /* Librairies */
 
 #include "graphics.h"
 
 /* Constants */
 
+#define DEBUG printf("**%d**\n", __LINE__);
+
 #define EDGING_COLOR red
+#define HIGHLIGHT_COLOR orange
+#define BACKGROUND_COLOR black
 
 #define CELL_WIDTH 65
 #define CELL_HEIGHT 65
@@ -54,18 +61,24 @@ Box gameboard[6][6];
 
 /* Functions prototypes */
 
-/* Model */
+/** Model **/
 
 void init_gameboard();
 int  is_cell_occupied(NumBox pos);
-void init_gamepaws_1();
-void init_gamepaws_2();
+void init_gamepawns_1();
+void init_gamepawns_2();
 void move_pawn(NumBox start, NumBox end);
-int  out_of_range(NumBox pos);
 int is_edging_valid(int lastEdging, NumBox start);
 int is_any_pawn_playable(Coul color, int* lastEdging);
+int  possible_moves(NumBox **poss_moves, NumBox pos, int moves);
+int  out_of_range(NumBox pos);
+void get_neighbours(NumBox *cells, int *offset, NumBox pawn);
+NumBox *get_possible_moves(int *len, NumBox pos);
+NumBox *get_cells_by_color(Coul color);
+int can_override(NumBox start, NumBox end);
+void random_move(Coul color, NumBox *start, NumBox *end);
 
-/* View */
+/** View **/
 
 void draw_edging(POINT center, int number);
 void draw_gameboard(int interface);
@@ -79,10 +92,12 @@ int  is_on_board(POINT click);
 void display_endgame_menu(Coul color);
 void erase_information();
 void display_informations(Coul playerColor, int lastEdging);
+void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
+void erase_highlighting(NumBox *cells, int len, int interface);
 
-/* Controller */
+/** Controller **/
 
-POINT numbox_to_point(NumBox n, int interface);
+POINT  numbox_to_point(NumBox n, int interface);
 NumBox point_to_numbox(POINT p, int interface);
 POINT  numbox_to_point_ig1(NumBox n);
 NumBox point_to_numbox_ig1(POINT p);
@@ -93,17 +108,29 @@ int  get_gamemode_choice(POINT click);
 int  replay(POINT click);
 void set_game_finished(int* finished);
 int  is_on_player_side(POINT click, int interface, Coul color);
+NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *click2, int *moves_count, int interface);
+
+/** Helpers **/
+
+void print_numboxes(NumBox *n, int len);
+void print_numbox(NumBox n);
+int  eql(NumBox n1, NumBox n2);
+void remove_numbox(NumBox *ns, int *len, NumBox n);
+void append(NumBox *ns, int *len, NumBox n);
+void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
+void copy(NumBox *n1, int offset, NumBox *n2, int len2);
+int  contains(NumBox *ns, int len, NumBox n);
 
 /* Main */
 
 int main()
 {
-    NumBox n1, n2;
-    POINT choice, click1, click2, p1, p2;
-    int interface, gamemode, type1, type2, finished = 0, inGame = 1, lastEdging = 0;
-    init_gameboard();
+    NumBox n1, n2, *moves;
+    POINT choice, click1, click2;
+    int interface, moves_count, gamemode, type1, type2, finished = 0, inGame = 1, lastEdging = 0;
     Coul color;
 
+    init_gameboard();
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
 
@@ -122,7 +149,7 @@ int main()
         gamemode = get_gamemode_choice(choice);
 
         init_gameboard();
-        init_gamepaws_2();
+        init_gamepawns_2();
         draw_gameboard(interface);
 
         do
@@ -136,6 +163,8 @@ int main()
             } while (!is_cell_occupied(n1) || !is_on_player_side(click1, interface, color) || !is_edging_valid(lastEdging, n1));
 
             type1 = gameboard[n1.y][n1.x].type;
+            moves = get_possible_moves(&moves_count, n1);
+            highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
 
             do
             {
@@ -145,14 +174,11 @@ int main()
 
             type2 = gameboard[n2.y][n2.x].type;
 
-            p1 = numbox_to_point(n1, interface);
-            p2 = numbox_to_point(n2, interface);
-
-            erase_pawn(p1);
+            erase_pawn(numbox_to_point(n1, interface));
+            erase_highlighting(moves, moves_count, interface);
             move_pawn(n1, n2);
             lastEdging = gameboard[n2.y][n2.x].edging;
-            draw_pawn(gameboard[n2.y][n2.x], p2);
-
+            draw_pawn(gameboard[n2.y][n2.x], numbox_to_point(n2, interface));
 
             if (type1 == PALADIN && type2 == UNICORN )
             {
@@ -193,14 +219,12 @@ void init_gameboard()
     {
         for (j = 0; j != 6; j++)
         {
-            gameboard[i][j].edging = edgings[i][j];
-            gameboard[i][j].type = EMPTY;
-            gameboard[i][j].color = BLACK;
+            gameboard[i][j] = (Box) { edgings[i][j], EMPTY, BLACK };
         }
     }
 }
 
-void init_gamepaws_1()
+void init_gamepawns_1()
 {
     int i;
 
@@ -213,7 +237,7 @@ void init_gamepaws_1()
     for (i = 0; i != 2; i++) gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
-void init_gamepaws_2()
+void init_gamepawns_2()
 {
     int i;
 
@@ -226,6 +250,12 @@ void init_gamepaws_2()
     for (i = 0; i != 2; i++) gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
+int can_override(NumBox start, NumBox end)
+{
+    return (gameboard[start.y][start.x].type == PALADIN
+            && gameboard[end.y][end.x].type == UNICORN
+            && gameboard[start.y][start.x].color != gameboard[end.y][end.x].color);
+}
 
 int is_cell_occupied(NumBox pos)
 {
@@ -237,11 +267,6 @@ void move_pawn(NumBox start, NumBox end)
     gameboard[end.y][end.x].type = gameboard[start.y][start.x].type;
     gameboard[end.y][end.x].color = gameboard[start.y][start.x].color;
     gameboard[start.y][start.x].type = EMPTY;
-}
-
-int out_of_range(NumBox pos)
-{
-    return !(pos.x >= 0 || pos.x <= 5 || pos.y >= 0 || pos.y <= 5);
 }
 
 int is_edging_valid(int lastEdging, NumBox start)
@@ -262,6 +287,92 @@ int is_any_pawn_playable(Coul color, int* lastEdging)
 
     *lastEdging = 0;
     return 0;
+}
+
+void get_neighbours(NumBox *cells, int *offset, NumBox pawn)
+{
+    int i;
+    NumBox n[4];
+
+    n[0] = (NumBox) { pawn.x + 1, pawn.y };
+    n[1] = (NumBox) { pawn.x - 1, pawn.y };
+    n[2] = (NumBox) { pawn.x, pawn.y - 1 };
+    n[3] = (NumBox) { pawn.x, pawn.y + 1 };
+
+    for (i = 0; i != 4; i++)
+    {
+        if (!out_of_range(n[i]))
+        {
+            if (!is_cell_occupied(n[i]) || can_override(pawn, n[i]))
+            {
+                cells[(*offset)++] = n[i];
+            }
+        }
+    }
+}
+
+void random_move(Coul color, NumBox *start, NumBox *end)
+{
+    int len;
+    NumBox *cells, *ends;
+
+    cells = get_cells_by_color(color);
+    *start = cells[alea_int(6)];
+
+    ends = get_possible_moves(&len, *start);
+    *end = ends[alea_int(len)];
+}
+
+NumBox *get_possible_moves(int *len, NumBox pos)
+{
+    int moves = gameboard[pos.y][pos.x].edging, i, j;
+    int cells_count = 1, neigh_count = 0, remove_count = 0;
+    NumBox neighbours[13], to_remove[13], *cells;
+
+    cells = (NumBox *) malloc(sizeof(NumBox) * 13);
+    cells[0] = pos;
+
+    for (i = 0; i != moves; i++)
+    {
+        for (j = 0; j != cells_count; j++)
+        {
+            get_neighbours(neighbours, &neigh_count, cells[j]);
+            append(to_remove, &remove_count, cells[j]);
+        }
+
+        copy(cells, 0, neighbours, neigh_count);
+        cells_count = neigh_count;
+        neigh_count = 0;
+    }
+
+    remove_numboxes(cells, &cells_count, to_remove, remove_count);
+    *len = cells_count;
+
+    return cells;
+}
+
+int out_of_range(NumBox pos)
+{
+    return !(pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5);
+}
+
+NumBox *get_cells_by_color(Coul color)
+{
+    int cursor = 0, i, j;
+    NumBox *cells = (NumBox *) malloc(sizeof(NumBox) * 6);
+
+    for (i = 0; i != 6; i++)
+    {
+        for (j = 0; j != 6; j++)
+        {
+            if (gameboard[i][j].type != EMPTY && gameboard[i][j].color == color)
+            {
+                cells[cursor++] = (NumBox) { j, i };
+            }
+        }
+    }
+
+    return cells;
 }
 
 /* View */
@@ -366,7 +477,7 @@ void draw_paladin(POINT origin, COULEUR color)
     POINT botr = { origin.x + CELL_WIDTH - side_margin,
                    origin.y + bot_margin + 20 };
 
-    draw_fill_triangle(top, botl, botr, black);
+    draw_fill_triangle(top, botl, botr, BACKGROUND_COLOR);
 }
 
 void draw_gameboard(int interface)
@@ -419,12 +530,29 @@ void draw_edging(POINT bl_corner, int number)
 
 void erase_pawn(POINT origin)
 {
-   draw_unicorn(origin, black);
+   draw_unicorn(origin, BACKGROUND_COLOR);
 }
 
 int is_on_board(POINT click)
 {
-    return (click.x >= MARGIN && click.x <= (WIDTH - MARGIN) && click.y >= MARGIN  && click.y <= (HEIGHT - MARGIN));
+    return click.x >= MARGIN && click.x <= (WIDTH - MARGIN) && click.y >= MARGIN && click.y <= (HEIGHT - MARGIN);
+}
+
+void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
+{
+    int i;
+    POINT p;
+
+    for (i = 0; i != len; i++)
+    {
+        p = numbox_to_point(cells[i], interface);
+        p.x += CIRCLE_RADIUS;
+        p.y += CIRCLE_RADIUS;
+
+        draw_fill_circle(p, 10, color);
+    }
+
+    affiche_all();
 }
 
 void display_endgame_menu(Coul color)
@@ -510,8 +638,30 @@ void display_informations(Coul playerColor, int lastEdging)
     }
     affiche_all();
 }
+void erase_highlighting(NumBox *cells, int len, int interface)
+{
+    highlight_cells(cells, len, BACKGROUND_COLOR, interface);
+    free(cells);
+}
+
 
 /* Controller */
+
+/* Doesn't work */
+NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *click2, int *moves_count, int interface)
+{
+    NumBox *moves;
+
+    *click1 = wait_clic();
+    *start = point_to_numbox(*click1, interface);
+    moves = get_possible_moves(moves_count, *start);
+    highlight_cells(moves, *moves_count, HIGHLIGHT_COLOR, interface);
+
+    *click2 = wait_clic();
+    *end = point_to_numbox(*click2, interface);
+
+    return moves;
+}
 
 POINT numbox_to_point(NumBox n, int interface)
 {
@@ -594,3 +744,75 @@ void set_game_finished(int* finished)
 {
      *finished = 1;
 }
+/* Helpers */
+
+void print_numbox(NumBox n)
+{
+    printf("x : %d ; y : %d\n", n.x, n.y);
+}
+
+void print_numboxes(NumBox *n, int len)
+{
+    int i;
+
+    for (i = 0; i != len; i++)
+    {
+        print_numbox(n[i]);
+    }
+}
+
+void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2)
+{
+    int i;
+
+    for (i = 0; i != len2; i++)
+    {
+        remove_numbox(n1, len1, n2[i]);
+    }
+}
+
+void remove_numbox(NumBox *ns, int *len, NumBox n)
+{
+    int i;
+
+    for (i = 0; i != *len; i++)
+    {
+        if (eql(ns[i], n))
+        {
+            ns[i--] = ns[--(*len)];
+        }
+    }
+}
+
+void copy(NumBox *n1, int offset, NumBox *n2, int len2)
+{
+    int i;
+
+    for (i = 0; i != len2; i++)
+    {
+        n1[offset++] = n2[i];
+    }
+}
+
+void append(NumBox *ns, int *len, NumBox n)
+{
+    if (contains(ns, *len, n)) return;
+    ns[(*len)++] = n;
+}
+
+int eql(NumBox n1, NumBox n2)
+{
+    return n1.x == n2.x && n1.y == n2.y;
+}
+
+int contains(NumBox *ns, int len, NumBox n)
+{
+    int i;
+
+    for (i = 0; i != len; i++)
+        if (eql(ns[i], n))
+            return 1;
+
+    return 0;
+}
+
