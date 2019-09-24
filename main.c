@@ -10,14 +10,8 @@
 #define DEBUG printf("**%d**\n", __LINE__);
 
 #define EDGING_COLOR 0x22211d
-//#define EDGING_COLOR red
-#define EDGING_WHITE_COLOR magenta
 #define HIGHLIGHT_COLOR green
 #define BACKGROUND_COLOR 0xBA963E
-//#define BACKGROUND_COLOR 0xd2b776
-//#define BACKGROUND_COLOR 0x7E7D73
-//#define BACKGROUND_COLOR 0x80809F
-//#define BACKGROUND_COLOR 0x789D8C
 
 #define CIRCLE_RADIUS 35
 #define CELL_WIDTH 70
@@ -97,8 +91,10 @@ int  is_on_board(POINT click);
 void display_endgame_menu(Coul color);
 void erase_information();
 void display_informations(Coul playerColor, int lastEdging);
+void highlight_cell(NumBox cell, COULEUR color, int interface);
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
 void erase_highlighting(NumBox *cells, int len, int interface);
+void erase_highlight(NumBox cell, int interface);
 
 /** Controller **/
 
@@ -134,6 +130,7 @@ int main()
     POINT choice, click1, click2;
     int interface, moves_count, gamemode, type1, type2, finished = 0, inGame = 1, lastEdging = 0;
     Coul color;
+    COULEUR colors[2] = { blue, white };
 
     init_gameboard();
     init_graphics(WIDTH, HEIGHT);
@@ -167,7 +164,9 @@ int main()
                 n1 = point_to_numbox(click1, interface);
             } while (!is_cell_occupied(n1) || !is_on_player_side(click1, interface, color) || !is_edging_valid(lastEdging, n1));
 
+            highlight_cell(n1, colors[color], interface);
             type1 = gameboard[n1.y][n1.x].type;
+
             moves = get_possible_moves(&moves_count, n1);
             highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
 
@@ -181,6 +180,7 @@ int main()
 
             erase_pawn(numbox_to_point(n1, interface));
             erase_highlighting(moves, moves_count, interface);
+            erase_highlight(n1, interface);
             move_pawn(n1, n2);
             lastEdging = gameboard[n2.y][n2.x].edging;
             draw_pawn(gameboard[n2.y][n2.x], numbox_to_point(n2, interface));
@@ -452,8 +452,8 @@ void display_gamemode_choice()
 
 void draw_unicorn(POINT origin, COULEUR color)
 {
-    int top_margin = 18;
-    int bot_margin = 20;
+    int top_margin = 20;
+    int bot_margin = 24;
     int side_margin = 25;
 
     POINT top = { origin.x + CIRCLE_RADIUS,
@@ -468,8 +468,8 @@ void draw_unicorn(POINT origin, COULEUR color)
 
 void draw_paladin(POINT origin, COULEUR color)
 {
-    int top_margin = 18;
-    int bot_margin = 20;
+    int top_margin = 20;
+    int bot_margin = 24;
     int side_margin = 25;
 
     draw_unicorn(origin, color);
@@ -560,6 +560,29 @@ int is_on_board(POINT click)
     return click.x >= MARGIN && click.x <= (WIDTH - MARGIN) && click.y >= MARGIN && click.y <= (HEIGHT - MARGIN);
 }
 
+void erase_highlight(NumBox cell, int interface)
+{
+    highlight_cell(cell, BACKGROUND_COLOR, interface);
+}
+
+void highlight_cell(NumBox cell, COULEUR color, int interface)
+{
+    int c, f = 5, number;
+    POINT p;
+
+    p = numbox_to_point(cell, interface);
+    p.x += CIRCLE_RADIUS;
+    p.y += CIRCLE_RADIUS;
+
+    number = gameboard[cell.y][cell.x].edging;
+
+    for (c = 1; c != number + 1; c++)
+    {
+        draw_circle(p, CIRCLE_RADIUS - c * f - 3, color);
+        draw_circle(p, CIRCLE_RADIUS - (c * f) - 4, color);
+    }
+}
+
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
 {
     int i, c, f = 5, number;
@@ -570,19 +593,13 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
         p = numbox_to_point(cells[i], interface);
         p.x += CIRCLE_RADIUS;
         p.y += CIRCLE_RADIUS;
+
         number = gameboard[cells[i].y][cells[i].x].edging;
 
-        //draw_fill_circle(p, CIRCLE_RADIUS / 3, color);
-        /*
-        draw_circle(p, CIRCLE_RADIUS, color);
-        draw_circle(p, CIRCLE_RADIUS - 1, color);
-        draw_circle(p, CIRCLE_RADIUS - 2, color);
-        draw_circle(p, CIRCLE_RADIUS - 3, color);*/
         for (c = 1; c != number + 1; c++)
         {
             draw_circle(p, CIRCLE_RADIUS - c * f - 3, color);
             draw_circle(p, CIRCLE_RADIUS - (c * f) - 4, color);
-            draw_circle(p, CIRCLE_RADIUS - (c * f) - 5, color);
         }
     }
 
