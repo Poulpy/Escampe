@@ -5,6 +5,6 @@ Todo list
 - IA
 - Menu d'accueil
 - Merge du code
-- Vérification des liserés (le joueur doit déplacer un pion d'une case de même liseré que la case d'arrivée de l'adversaire): OK (presque)
-- Passer son tour
-- Affichage des tours à côté du plateau
+- Vérification des liserés (le joueur doit déplacer un pion d'une case de même liseré que la case d'arrivée de l'adversaire): OK
+- Passer son tour: OK
+- Affichage des tours au-dessus du plateau: OK

@@ -10,7 +10,7 @@
 #define CELL_HEIGHT 65
 #define CIRCLE_RADIUS 32
 
-#define MARGIN 30
+#define MARGIN 100
 
 #define MID_WIDTH 3 * CELL_WIDTH + MARGIN
 #define MID_HEIGHT 3 * CELL_HEIGHT + MARGIN
@@ -61,8 +61,9 @@ int  is_cell_occupied(NumBox pos);
 void init_gamepaws_1();
 void init_gamepaws_2();
 void move_pawn(NumBox start, NumBox end);
-int  possible_moves(NumBox **poss_moves, NumBox pos, int moves);
 int  out_of_range(NumBox pos);
+int is_edging_valid(int lastEdging, NumBox start);
+int is_any_pawn_playable(Coul color, int* lastEdging);
 
 /* View */
 
@@ -75,10 +76,9 @@ void draw_pawn(Box pawn, POINT origin);
 void display_interface_choice();
 void display_gamemode_choice();
 int  is_on_board(POINT click);
-void highlight_possible_moves(NumBox pos, int moves, int interface);
 void display_endgame_menu(Coul color);
-int is_cell_valid(NumBox cell, NumBox* validCells);
-
+void erase_previous_messages();
+void write_messages(Coul playerColor, int lastEdging);
 
 /* Controller */
 
@@ -92,7 +92,6 @@ int  get_interface_choice(POINT click);
 int  get_gamemode_choice(POINT click);
 int  replay(POINT click);
 void set_game_finished(int* finished);
-void get_same_edgings(int edgingsNumber);
 int  is_on_player_side(POINT click, int interface, Coul color);
 
 /* Main */
@@ -101,7 +100,7 @@ int main()
 {
     NumBox n1, n2;
     POINT choice, click1, click2, p1, p2;
-    int interface, gamemode, finished = 0, inGame = 1, type1, type2;
+    int interface, gamemode, finished = 0, inGame = 1, type1, type2, lastEdging = 0;
     init_gameboard();
     Coul color;
 
@@ -111,15 +110,15 @@ int main()
     while (inGame)
     {
         color = WHITE;
+        lastEdging = 0;
+        finished = 0;
         display_interface_choice();
         choice = wait_clic();
         interface = get_interface_choice(choice);
-        fill_screen(black);
 
         display_gamemode_choice();
         choice = wait_clic();
         gamemode = get_gamemode_choice(choice);
-        fill_screen(black);
 
         init_gameboard();
         init_gamepaws_2();
@@ -127,11 +126,13 @@ int main()
 
         do
         {
+
+            write_messages(color, lastEdging);
             do
             {
                 click1 = wait_clic();
                 n1 = point_to_numbox(click1, interface);
-            } while (!is_cell_occupied(n1) || !is_on_player_side(click1, interface, color));
+            } while (!is_cell_occupied(n1) || !is_on_player_side(click1, interface, color) || !is_edging_valid(lastEdging, n1));
 
             type1 = gameboard[n1.y][n1.x].type;
 
@@ -139,16 +140,15 @@ int main()
             {
                 click2 = wait_clic();
                 n2 = point_to_numbox(click2, interface);
+                type2 = gameboard[n2.y][n2.x].type;
             } while (is_on_player_side(click2, interface, color));
 
-            type2 = gameboard[n2.y][n2.x].type;
-
-            highlight_possible_moves(n1, gameboard[n1.y][n1.x].edging, interface);
 
             p1 = numbox_to_point(n1, interface);
             p2 = numbox_to_point(n2, interface);
             erase_pawn(p1);
             move_pawn(n1, n2);
+            lastEdging = gameboard[n2.y][n2.x].edging;
             draw_pawn(gameboard[n2.y][n2.x], p2);
 
 
@@ -158,8 +158,8 @@ int main()
             }
             else
             {
-                if (color == BLACK) color = WHITE;
-                else color = BLACK;
+                if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging)) color = WHITE;
+                else if (is_any_pawn_playable(BLACK, &lastEdging)) color = BLACK;
             }
 
             affiche_all();
@@ -171,8 +171,6 @@ int main()
         fill_screen(black);
     }
 
-    /* get_same_edgings(3);
-    wait_escape(); */
     return 0;
 }
 
@@ -239,92 +237,58 @@ void move_pawn(NumBox start, NumBox end)
     gameboard[start.y][start.x].type = EMPTY;
 }
 
-int possible_moves(NumBox **poss_moves, NumBox pos, int moves)
-{
-    int i, j = 0;
-
-    *poss_moves = (NumBox *) malloc(sizeof(NumBox) * 4 * moves);
-    NumBox buffer;
-
-    (*poss_moves)[j++] = (NumBox) { pos.x, pos.y + moves };
-    (*poss_moves)[j++] = (NumBox) { pos.x, pos.y - moves };
-    (*poss_moves)[j++] = (NumBox) { pos.x + moves, pos.y };
-    (*poss_moves)[j++] = (NumBox) { pos.x - moves, pos.y };
-
-    for (i = 1; i != moves; i++)
-    {
-        (*poss_moves)[j++] = (NumBox) { pos.x + i, pos.y - (moves - i) };
-        (*poss_moves)[j++] = (NumBox) { pos.x - i, pos.y - (moves - i) };
-        printf("Move  : x : %d y : %d\n", (*poss_moves)[j - 2].x, (*poss_moves)[j - 2].y);
-        printf("Move2 : x : %d y : %d\n", (*poss_moves)[j - 1].x, (*poss_moves)[j - 1].y);
-    }
-
-    for (i = 0; i != j; i++)
-    {
-        if (out_of_range((*poss_moves)[i]) || is_cell_occupied((*poss_moves)[i]))
-        {
-            printf("M : x : %d y : %d\n", (*poss_moves)[i].x, (*poss_moves)[i].y);
-            buffer.x = (*poss_moves)[j - 1].x;
-            buffer.y = (*poss_moves)[j - 1].y;
-            (*poss_moves)[j - 1].x = (*poss_moves)[i].x;
-            (*poss_moves)[j - 1].y = (*poss_moves)[i].y;
-            j--;
-            (*poss_moves)[i].x = buffer.x;
-        }   (*poss_moves)[i].y = buffer.y;
-    }
-
-    return j;
-}
-
 int out_of_range(NumBox pos)
 {
     return !(pos.x >= 0 || pos.x <= 5 || pos.y >= 0 || pos.y <= 5);
 }
 
-/* View */
-
-void highlight_possible_moves(NumBox pos, int moves, int interface)
+int is_edging_valid(int lastEdging, NumBox start)
 {
-    NumBox *poss_moves = NULL;
-    int i, length = possible_moves(&poss_moves, pos, moves);
-    POINT p;
+    return (lastEdging == 0 || lastEdging == gameboard[start.y][start.x].edging);
+}
 
-    for (i = 0; i != length; i++)
+int is_any_pawn_playable(Coul color, int* lastEdging)
+{
+    int i, j;
+    for (i = 0; i < 6; i++)
     {
-        p = numbox_to_point(poss_moves[i], interface);
-        p.x += CIRCLE_RADIUS;
-        p.y += CIRCLE_RADIUS;
-
-        draw_fill_circle(p, 10, orange);
+        for (j = 0; j < 6; j++)
+        {
+            if (gameboard[i][j].color == color && gameboard[i][j].type != EMPTY && gameboard[i][j].edging == *lastEdging) return 1;
+        }
     }
 
-    affiche_all();
+    *lastEdging = 0;
+    return 0;
 }
+
+/* View */
 
 void display_interface_choice()
 {
     POINT top, bottom, label;
     int size;
 
+    fill_screen(black);
     size = 30;
     label.x = MID_WIDTH - (size * 2) - 15;
-    label.y = HEIGHT - (MARGIN / 2);
+    label.y = HEIGHT - size;
     aff_pol("Interface", size, label, red);
 
     top.x = MID_WIDTH;
-    top.y = label.y - (MARGIN * 2);
+    top.y = MID_HEIGHT + (MARGIN * 2);
     bottom.x = MID_WIDTH;
-    bottom.y = MARGIN;
+    bottom.y = MARGIN / 2;
 
     draw_line(top, bottom, white);
 
     size = 25;
-    label.x = 50;
+    label.x = ((MID_WIDTH / 2) / 4) + size;
     label.y = MID_HEIGHT + 20;
 
     aff_pol("Interface 1", size, label, white);
 
-    label.x = MID_WIDTH + 50;
+    label.x = MID_WIDTH + ((MID_WIDTH / 2) / 4) + size;
 
     aff_pol("Interface 2", size, label, white);
 
@@ -337,18 +301,20 @@ void display_gamemode_choice()
     int size = 30;
 
     label.x = MID_WIDTH - (size * 3);
-    label.y = HEIGHT - (MARGIN / 2);
+    label.y = HEIGHT - size;
 
+    fill_screen(black);
     aff_pol("Mode de jeu", size, label, orange);
 
     top.x = MID_WIDTH;
-    top.y = label.y - (MARGIN * 2);
+    top.y = MID_HEIGHT + (MARGIN * 2);
     bottom.x = MID_WIDTH;
-    bottom.y = MARGIN;
+    bottom.y = MARGIN / 2;
+
     draw_line(top, bottom, white);
 
     size = 25;
-    label.x = ((MID_WIDTH / 2) / 2) - size;
+    label.x = ((MID_WIDTH / 2) / 2) - (size / 2);
     label.y = MID_HEIGHT + (size * 2);
     aff_pol("Joueur", size, label, white);
     label.y = label.y - size - (size / 4);
@@ -357,7 +323,7 @@ void display_gamemode_choice()
     aff_pol("joueur", size, label, white);
 
     label.x = MID_WIDTH + label.x;
-    label.y = MID_HEIGHT + (size * 2 );
+    label.y = MID_HEIGHT + (size * 2);
     aff_pol("Joueur", size, label, white);
     label.y = label.y - size - (size / 4);
     aff_pol("contre", size, label, white);
@@ -406,6 +372,7 @@ void draw_gameboard(int interface)
     int row, col;
     POINT cursor;
     NumBox n;
+    fill_screen(black);
 
     for (row = 0; row != 6; row++)
     {
@@ -465,25 +432,80 @@ void display_endgame_menu(Coul color)
     POINT top, bottom, label;
     int size = 30;
     label.x = MARGIN + (size / 2);
-    label.y = HEIGHT - (MARGIN / 2);
+    label.y = HEIGHT - size;
 
-    if (color == 0) aff_pol("Le joueur noir gagne !", size, label, skyblue);
-    else aff_pol("Le joueur blanc gagne !", size, label, skyblue);
+    if (color == 0) aff_pol("Le joueur 1 gagne !", size, label, skyblue);
+    else aff_pol("Le joueur 2 gagne !", size, label, skyblue);
 
     top.x = MID_WIDTH;
-    top.y = label.y - (MARGIN * 2);
+    top.y = MID_HEIGHT + (MARGIN * 2);
     bottom.x = MID_WIDTH;
-    bottom.y = MARGIN;
+    bottom.y = MARGIN / 2;
     draw_line(top, bottom, white);
 
     size = 25;
-    label.x = 75;
+    label.x = (MID_WIDTH / 2) / 2 - (size / 2);
     label.y = MID_HEIGHT + 20;
     aff_pol("Rejouer", size, label, white);
 
-    label.x = MID_WIDTH + 75;
+    label.x = MID_WIDTH + (MID_WIDTH / 2) / 2 - (size / 2);
     aff_pol("Quitter", size, label, white);
 
+    affiche_all();
+}
+
+void erase_previous_messages()
+{
+    POINT start, end;
+
+    start.x = 0;
+    start.y = HEIGHT;
+    end.x = WIDTH;
+    end.y = MARGIN + BOARD_HEIGHT;
+    draw_fill_rectangle(start, end, black);
+
+    start.y = 0;
+    end.x = WIDTH;
+    end.y = MARGIN - 5;
+    draw_fill_rectangle(start, end, black);
+
+}
+
+void write_messages(Coul playerColor, int lastEdging)
+{
+    erase_previous_messages();
+    POINT label;
+    char* text;
+    COULEUR textColor;
+    int size = 35;
+
+    label.x = MID_WIDTH - (size * 2);
+    label.y = MARGIN + BOARD_HEIGHT + (size * 2);
+
+    if (playerColor == BLACK)
+    {
+        text = "Joueur 1";
+        textColor = blue;
+    }
+    else
+    {
+        text = "Joueur 2";
+        textColor = white;
+    }
+
+    aff_pol(text, size, label, textColor);
+
+    if (lastEdging != 0)
+    {
+        char requiredEdging[1];
+        sprintf(requiredEdging, "%d", lastEdging);
+
+        label.x = size;
+        label.y = MARGIN - size;
+        aff_pol("Liseres:", size, label, white);
+        label.x = MID_WIDTH;
+        aff_pol(requiredEdging, size, label, white);
+    }
     affiche_all();
 }
 
@@ -569,41 +591,4 @@ int replay(POINT click)
 void set_game_finished(int* finished)
 {
      *finished = 1;
-}
-
-// Todo: refactor this function with pointer
-// check array size
-void get_same_edgings(int edgingsNumber)
-{
-    int i,j, arraySize = 0;
-    NumBox* validCells = NULL;
-    NumBox newCell;
-    
-    for(i = 0; i < 6; i++)
-    {
-        for(j = 0; j < 6; j++)
-        {
-            if(gameboard[i][j].edging == edgingsNumber)
-            {
-                validCells = realloc(validCells, (arraySize + 1) * sizeof(NumBox));
-                newCell.x = j;
-                newCell.y = i;
-                validCells[arraySize] = newCell;
-                arraySize += 1;
-                printf("%ld\n", sizeof(validCells));
-            }
-        }
-    }
-}
-
-int is_cell_valid(NumBox cell, NumBox* validCells)
-{
-    int i;
-    
-    for(i = 0; i < sizeof(validCells), i++)
-    {
-        if(validCells[i] == cell) return i;
-    }
-
-    return -1;
 }
