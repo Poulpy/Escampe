@@ -9,10 +9,13 @@
 
 #define DEBUG printf("**%d**\n", __LINE__);
 
-#define EDGING_COLOR red
+#define EDGING_COLOR 0x22211d
+//#define EDGING_COLOR red
 #define EDGING_WHITE_COLOR magenta
-#define HIGHLIGHT_COLOR orange
-#define BACKGROUND_COLOR 0x7E7D73
+#define HIGHLIGHT_COLOR green
+#define BACKGROUND_COLOR 0xBA963E
+//#define BACKGROUND_COLOR 0xd2b776
+//#define BACKGROUND_COLOR 0x7E7D73
 //#define BACKGROUND_COLOR 0x80809F
 //#define BACKGROUND_COLOR 0x789D8C
 
@@ -449,7 +452,7 @@ void display_gamemode_choice()
 
 void draw_unicorn(POINT origin, COULEUR color)
 {
-    int top_margin = 15;
+    int top_margin = 18;
     int bot_margin = 20;
     int side_margin = 25;
 
@@ -465,7 +468,7 @@ void draw_unicorn(POINT origin, COULEUR color)
 
 void draw_paladin(POINT origin, COULEUR color)
 {
-    int top_margin = 15;
+    int top_margin = 18;
     int bot_margin = 20;
     int side_margin = 25;
 
@@ -487,6 +490,22 @@ void draw_gameboard(int interface)
     POINT cursor;
     NumBox n;
     fill_screen(BACKGROUND_COLOR);
+    POINT p1 = { MARGIN - 3, MARGIN - 3 };
+    POINT p2 = { MARGIN + BOARD_WIDTH + 3, MARGIN };
+
+    draw_fill_rectangle(p1, p2, black);
+
+    p2.x = MARGIN; p2.y = MARGIN + BOARD_HEIGHT + 3;
+    draw_fill_rectangle(p1, p2, black);
+
+
+    p1.x = MARGIN + BOARD_WIDTH; p1.y = MARGIN - 3;
+    p2.x = MARGIN + BOARD_WIDTH + 3; p2.y = MARGIN + BOARD_WIDTH + 3;
+    draw_fill_rectangle(p1, p2, EDGING_COLOR);
+
+    p1.x = MARGIN - 3; p1.y = MARGIN + BOARD_HEIGHT;
+    p2.x = MARGIN + BOARD_WIDTH + 3; p2.y = MARGIN + BOARD_HEIGHT + 3;
+    draw_fill_rectangle(p1, p2, EDGING_COLOR);
 
     for (row = 0; row != 6; row++)
     {
@@ -517,7 +536,7 @@ void draw_pawn(Box pawn, POINT origin)
 
 void draw_edging(POINT bl_corner, int number)
 {
-    int c;
+    int c, f = 5;
     POINT center;
 
     center.x = bl_corner.x + CIRCLE_RADIUS;
@@ -525,9 +544,9 @@ void draw_edging(POINT bl_corner, int number)
 
     for (c = 1; c != number + 1; c++)
     {
-        draw_circle(center, CIRCLE_RADIUS - c * 4, EDGING_COLOR);
-        draw_circle(center, CIRCLE_RADIUS - (c * 4) - 1, salmon);
-        draw_circle(center, CIRCLE_RADIUS - (c * 4) - 2, salmon);
+        draw_circle(center, CIRCLE_RADIUS - c * f, EDGING_COLOR);
+        draw_circle(center, CIRCLE_RADIUS - (c * f) - 1, EDGING_COLOR);
+        draw_circle(center, CIRCLE_RADIUS - (c * f) - 2, EDGING_COLOR);
     }
 }
 
@@ -552,10 +571,12 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
         p.x += CIRCLE_RADIUS;
         p.y += CIRCLE_RADIUS;
 
+        draw_fill_circle(p, CIRCLE_RADIUS / 3, color);
+        /*
         draw_circle(p, CIRCLE_RADIUS, color);
         draw_circle(p, CIRCLE_RADIUS - 1, color);
         draw_circle(p, CIRCLE_RADIUS - 2, color);
-        draw_circle(p, CIRCLE_RADIUS - 3, color);
+        draw_circle(p, CIRCLE_RADIUS - 3, color);*/
     }
 
     affiche_all();
@@ -597,7 +618,7 @@ void erase_information()
     start.x = 0;
     start.y = HEIGHT;
     end.x = WIDTH;
-    end.y = MARGIN + BOARD_HEIGHT;
+    end.y = MARGIN + BOARD_HEIGHT + 6;
     draw_fill_rectangle(start, end, BACKGROUND_COLOR);
 
     start.y = 0;
@@ -638,11 +659,11 @@ void display_informations(Coul playerColor, int lastEdging)
 
         label.x = MID_WIDTH;
         label.y = MARGIN - size;
-        draw_fill_circle(label, radius - 10, textColor);
+        draw_fill_circle(label, radius / 2, textColor);
         for (i = 0; i != lastEdging; i++)
         {
             draw_circle(label, radius - (i * 4), EDGING_COLOR);
-            draw_circle(label, radius - (i * 4) - 1, darkred);
+            draw_circle(label, radius - (i * 4) - 1, EDGING_COLOR);
         }
         label.x += 30;
         label.y += radius / 2;
