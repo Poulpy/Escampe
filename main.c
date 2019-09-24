@@ -10,12 +10,15 @@
 #define DEBUG printf("**%d**\n", __LINE__);
 
 #define EDGING_COLOR red
+#define EDGING_WHITE_COLOR magenta
 #define HIGHLIGHT_COLOR orange
-#define BACKGROUND_COLOR black
+#define BACKGROUND_COLOR 0x7E7D73
+//#define BACKGROUND_COLOR 0x80809F
+//#define BACKGROUND_COLOR 0x789D8C
 
-#define CELL_WIDTH 65
-#define CELL_HEIGHT 65
-#define CIRCLE_RADIUS 32
+#define CIRCLE_RADIUS 35
+#define CELL_WIDTH 70
+#define CELL_HEIGHT CELL_WIDTH
 
 #define MARGIN 100
 
@@ -70,7 +73,6 @@ void init_gamepawns_2();
 void move_pawn(NumBox start, NumBox end);
 int is_edging_valid(int lastEdging, NumBox start);
 int is_any_pawn_playable(Coul color, int* lastEdging);
-int  possible_moves(NumBox **poss_moves, NumBox pos, int moves);
 int  out_of_range(NumBox pos);
 void get_neighbours(NumBox *cells, int *offset, NumBox pawn);
 NumBox *get_possible_moves(int *len, NumBox pos);
@@ -196,7 +198,7 @@ int main()
         display_endgame_menu(color);
         click1 = wait_clic();
         inGame = replay(click1);
-        fill_screen(black);
+        fill_screen(BACKGROUND_COLOR);
     } while (inGame);
 
     return 0;
@@ -326,8 +328,8 @@ void random_move(Coul color, NumBox *start, NumBox *end)
 NumBox *get_possible_moves(int *len, NumBox pos)
 {
     int moves = gameboard[pos.y][pos.x].edging, i, j;
-    int cells_count = 1, neigh_count = 0, remove_count = 0;
-    NumBox neighbours[14], to_remove[14], *cells;
+    int cells_count = 1, neigh_count = 0;
+    NumBox neighbours[14], *cells;
 
     cells = (NumBox *) malloc(sizeof(NumBox) * 14);
     cells[0] = pos;
@@ -337,7 +339,7 @@ NumBox *get_possible_moves(int *len, NumBox pos)
         for (j = 0; j != cells_count; j++)
         {
             get_neighbours(neighbours, &neigh_count, cells[j]);
-            append(to_remove, &remove_count, cells[j]);
+            remove_numbox(neighbours, &neigh_count, cells[j]);
         }
 
         cells_count = 0;
@@ -345,7 +347,6 @@ NumBox *get_possible_moves(int *len, NumBox pos)
         neigh_count = 0;
     }
 
-    remove_numboxes(cells, &cells_count, to_remove, remove_count);
     *len = cells_count;
 
     return cells;
@@ -382,7 +383,7 @@ void display_interface_choice()
     POINT top, bottom, label;
     int size;
 
-    fill_screen(black);
+    fill_screen(BACKGROUND_COLOR);
     size = 30;
     label.x = MID_WIDTH - (size * 2) - 15;
     label.y = HEIGHT - size;
@@ -416,7 +417,7 @@ void display_gamemode_choice()
     label.x = MID_WIDTH - (size * 3);
     label.y = HEIGHT - size;
 
-    fill_screen(black);
+    fill_screen(BACKGROUND_COLOR);
     aff_pol("Mode de jeu", size, label, orange);
 
     top.x = MID_WIDTH;
@@ -448,9 +449,9 @@ void display_gamemode_choice()
 
 void draw_unicorn(POINT origin, COULEUR color)
 {
-    int top_margin = 10;
-    int bot_margin = 15;
-    int side_margin = 20;
+    int top_margin = 15;
+    int bot_margin = 20;
+    int side_margin = 25;
 
     POINT top = { origin.x + CIRCLE_RADIUS,
                   origin.y + CELL_HEIGHT - top_margin };
@@ -464,9 +465,9 @@ void draw_unicorn(POINT origin, COULEUR color)
 
 void draw_paladin(POINT origin, COULEUR color)
 {
-    int top_margin = 10;
-    int bot_margin = 15;
-    int side_margin = 20;
+    int top_margin = 15;
+    int bot_margin = 20;
+    int side_margin = 25;
 
     draw_unicorn(origin, color);
 
@@ -485,7 +486,7 @@ void draw_gameboard(int interface)
     int row, col;
     POINT cursor;
     NumBox n;
-    fill_screen(black);
+    fill_screen(BACKGROUND_COLOR);
 
     for (row = 0; row != 6; row++)
     {
@@ -522,9 +523,11 @@ void draw_edging(POINT bl_corner, int number)
     center.x = bl_corner.x + CIRCLE_RADIUS;
     center.y = bl_corner.y + CIRCLE_RADIUS;
 
-    for (c = 0; c != number; c++)
+    for (c = 1; c != number + 1; c++)
     {
         draw_circle(center, CIRCLE_RADIUS - c * 4, EDGING_COLOR);
+        draw_circle(center, CIRCLE_RADIUS - (c * 4) - 1, salmon);
+        draw_circle(center, CIRCLE_RADIUS - (c * 4) - 2, salmon);
     }
 }
 
@@ -549,7 +552,10 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
         p.x += CIRCLE_RADIUS;
         p.y += CIRCLE_RADIUS;
 
-        draw_fill_circle(p, 10, color);
+        draw_circle(p, CIRCLE_RADIUS, color);
+        draw_circle(p, CIRCLE_RADIUS - 1, color);
+        draw_circle(p, CIRCLE_RADIUS - 2, color);
+        draw_circle(p, CIRCLE_RADIUS - 3, color);
     }
 
     affiche_all();
@@ -557,7 +563,7 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
 
 void display_endgame_menu(Coul color)
 {
-    fill_screen(black);
+    fill_screen(BACKGROUND_COLOR);
 
     POINT top, bottom, label;
     int size = 30;
@@ -592,13 +598,12 @@ void erase_information()
     start.y = HEIGHT;
     end.x = WIDTH;
     end.y = MARGIN + BOARD_HEIGHT;
-    draw_fill_rectangle(start, end, black);
+    draw_fill_rectangle(start, end, BACKGROUND_COLOR);
 
     start.y = 0;
     end.x = WIDTH;
     end.y = MARGIN - 5;
-    draw_fill_rectangle(start, end, black);
-
+    draw_fill_rectangle(start, end, BACKGROUND_COLOR);
 }
 
 void display_informations(Coul playerColor, int lastEdging)
@@ -627,14 +632,26 @@ void display_informations(Coul playerColor, int lastEdging)
 
     if (lastEdging != 0)
     {
+        int radius = 25;
         char requiredEdging[1];
         sprintf(requiredEdging, "%d", lastEdging);
 
-        label.x = size;
-        label.y = MARGIN - size;
-        aff_pol("Liseres:", size, label, white);
         label.x = MID_WIDTH;
-        aff_pol(requiredEdging, size, label, white);
+        label.y = MARGIN - size;
+        draw_fill_circle(label, radius - 10, textColor);
+        draw_circle(label, radius, EDGING_COLOR);
+        draw_circle(label, radius - 1, salmon);
+        draw_circle(label, radius - 4, EDGING_COLOR);
+        draw_circle(label, radius - 5, salmon);
+        draw_circle(label, radius - 8, EDGING_COLOR);
+        draw_circle(label, radius - 9, salmon);
+        //aff_pol("Liseres:", size, label, white);
+        /*label.x -= 5;
+        label.y += radius / 2 + 5;
+        aff_pol(requiredEdging, 20, label, white);*/
+        label.x += 30;
+        label.y += radius / 2;
+        aff_pol(requiredEdging, 20, label, black);
     }
     affiche_all();
 }
