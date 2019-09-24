@@ -77,8 +77,8 @@ void display_interface_choice();
 void display_gamemode_choice();
 int  is_on_board(POINT click);
 void display_endgame_menu(Coul color);
-void erase_previous_messages();
-void write_messages(Coul playerColor, int lastEdging);
+void erase_information();
+void display_informations(Coul playerColor, int lastEdging);
 
 /* Controller */
 
@@ -100,18 +100,19 @@ int main()
 {
     NumBox n1, n2;
     POINT choice, click1, click2, p1, p2;
-    int interface, gamemode, finished = 0, inGame = 1, type1, type2, lastEdging = 0;
+    int interface, gamemode, type1, type2, finished = 0, inGame = 1, lastEdging = 0;
     init_gameboard();
     Coul color;
 
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
 
-    while (inGame)
+    do
     {
         color = WHITE;
         lastEdging = 0;
         finished = 0;
+
         display_interface_choice();
         choice = wait_clic();
         interface = get_interface_choice(choice);
@@ -126,8 +127,8 @@ int main()
 
         do
         {
+            display_informations(color, lastEdging);
 
-            write_messages(color, lastEdging);
             do
             {
                 click1 = wait_clic();
@@ -140,12 +141,13 @@ int main()
             {
                 click2 = wait_clic();
                 n2 = point_to_numbox(click2, interface);
-                type2 = gameboard[n2.y][n2.x].type;
             } while (is_on_player_side(click2, interface, color));
 
+            type2 = gameboard[n2.y][n2.x].type;
 
             p1 = numbox_to_point(n1, interface);
             p2 = numbox_to_point(n2, interface);
+
             erase_pawn(p1);
             move_pawn(n1, n2);
             lastEdging = gameboard[n2.y][n2.x].edging;
@@ -169,7 +171,7 @@ int main()
         click1 = wait_clic();
         inGame = replay(click1);
         fill_screen(black);
-    }
+    } while (inGame);
 
     return 0;
 }
@@ -431,7 +433,7 @@ void display_endgame_menu(Coul color)
 
     POINT top, bottom, label;
     int size = 30;
-    label.x = MARGIN + (size / 2);
+    label.x = MARGIN + size;
     label.y = HEIGHT - size;
 
     if (color == 0) aff_pol("Le joueur 1 gagne !", size, label, skyblue);
@@ -454,7 +456,7 @@ void display_endgame_menu(Coul color)
     affiche_all();
 }
 
-void erase_previous_messages()
+void erase_information()
 {
     POINT start, end;
 
@@ -471,9 +473,9 @@ void erase_previous_messages()
 
 }
 
-void write_messages(Coul playerColor, int lastEdging)
+void display_informations(Coul playerColor, int lastEdging)
 {
-    erase_previous_messages();
+    erase_information();
     POINT label;
     char* text;
     COULEUR textColor;
