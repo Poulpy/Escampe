@@ -118,7 +118,7 @@ int  eql(NumBox n1, NumBox n2);
 void remove_numbox(NumBox *ns, int *len, NumBox n);
 void append(NumBox *ns, int *len, NumBox n);
 void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
-void copy(NumBox *n1, int offset, NumBox *n2, int len2);
+void copy(NumBox *n1, int *offset, NumBox *n2, int len2);
 int  contains(NumBox *ns, int len, NumBox n);
 
 /* Main */
@@ -327,9 +327,9 @@ NumBox *get_possible_moves(int *len, NumBox pos)
 {
     int moves = gameboard[pos.y][pos.x].edging, i, j;
     int cells_count = 1, neigh_count = 0, remove_count = 0;
-    NumBox neighbours[13], to_remove[13], *cells;
+    NumBox neighbours[14], to_remove[14], *cells;
 
-    cells = (NumBox *) malloc(sizeof(NumBox) * 13);
+    cells = (NumBox *) malloc(sizeof(NumBox) * 14);
     cells[0] = pos;
 
     for (i = 0; i != moves; i++)
@@ -340,8 +340,8 @@ NumBox *get_possible_moves(int *len, NumBox pos)
             append(to_remove, &remove_count, cells[j]);
         }
 
-        copy(cells, 0, neighbours, neigh_count);
-        cells_count = neigh_count;
+        cells_count = 0;
+        copy(cells, &cells_count, neighbours, neigh_count);
         neigh_count = 0;
     }
 
@@ -784,13 +784,13 @@ void remove_numbox(NumBox *ns, int *len, NumBox n)
     }
 }
 
-void copy(NumBox *n1, int offset, NumBox *n2, int len2)
+void copy(NumBox *n1, int *offset, NumBox *n2, int len2)
 {
     int i;
 
     for (i = 0; i != len2; i++)
     {
-        n1[offset++] = n2[i];
+        append(n1, offset, n2[i]);
     }
 }
 
