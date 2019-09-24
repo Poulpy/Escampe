@@ -642,14 +642,8 @@ void display_informations(Coul playerColor, int lastEdging)
         for (i = 0; i != lastEdging; i++)
         {
             draw_circle(label, radius - (i * 4), EDGING_COLOR);
-            draw_circle(label, radius - (i * 4) - 1, EDGING_COLOR);
+            draw_circle(label, radius - (i * 4) - 1, darkred);
         }
-        /*draw_circle(label, radius, EDGING_COLOR);
-        draw_circle(label, radius - 1, salmon);
-        draw_circle(label, radius - 4, EDGING_COLOR);
-        draw_circle(label, radius - 5, salmon);
-        draw_circle(label, radius - 8, EDGING_COLOR);
-        draw_circle(label, radius - 9, salmon);*/
         label.x += 30;
         label.y += radius / 2;
         aff_pol(requiredEdging, 20, label, black);
