@@ -79,6 +79,7 @@ int  out_of_range(NumBox pos);
 int  can_override(NumBox start, NumBox end);
 int  is_cell_occupied(NumBox pos);
 int  is_unicorn_alive(Type start, Type end);
+int box_eql(Box b1, Box b2);
 NumBox *get_possible_moves(int *len, NumBox pos);
 NumBox *get_cells_by_color(Coul color);
 
@@ -132,14 +133,16 @@ int main()
 {
     NumBox n1, n2, *moves;
     POINT choice, click1, click2;
-    int interface, moves_count, gamemode, type1, type2, inGame = 1, lastEdging = 0;
+    int interface, moves_count, gamemode, turn = 0, inGame = 1, lastEdging = 0;
     Coul color;
+    Type type1, type2;
     COULEUR colors[2] = { BLACK_PLAYER_COLOR, WHITE_PLAYER_COLOR };
 
     init_gameboard();
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
 
+    // Game loop
     do
     {
         color = WHITE;
@@ -157,8 +160,12 @@ int main()
         init_gamepawns_2();
         draw_gameboard(interface);
 
+        // Turn loop
         do
         {
+            if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging)) color = WHITE;
+            else if (color == WHITE && is_any_pawn_playable(BLACK, &lastEdging)) color = BLACK;
+
             display_informations(color, lastEdging);
 
             do
@@ -187,10 +194,6 @@ int main()
             move_pawn(n1, n2);
             lastEdging = gameboard[n2.y][n2.x].edging;
             draw_pawn(gameboard[n2.y][n2.x], numbox_to_point(n2, interface));
-
-
-                if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging)) color = WHITE;
-                else if (is_any_pawn_playable(BLACK, &lastEdging)) color = BLACK;
 
             affiche_all();
         } while (!is_unicorn_alive(type1, type2));
@@ -285,11 +288,12 @@ int is_unicorn_alive(Type start, Type end)
 int is_any_pawn_playable(Coul color, int* lastEdging)
 {
     int i, j;
+
     for (i = 0; i < 6; i++)
     {
         for (j = 0; j < 6; j++)
         {
-            if (gameboard[i][j].color == color && gameboard[i][j].type != EMPTY && gameboard[i][j].edging == *lastEdging) return 1;
+            if (gameboard[i][j].type != EMPTY && gameboard[i][j].color == color && gameboard[i][j].edging == *lastEdging) return 1;
         }
     }
 
