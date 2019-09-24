@@ -9,9 +9,13 @@
 
 #define DEBUG printf("**%d**\n", __LINE__);
 
+
 #define EDGING_COLOR 0x22211d
 #define HIGHLIGHT_COLOR green
 #define BACKGROUND_COLOR 0xBA963E
+#define WHITE_PLAYER_COLOR white
+#define BLACK_PLAYER_COLOR blue
+
 
 #define CIRCLE_RADIUS 35
 #define CELL_WIDTH 70
@@ -64,18 +68,19 @@ Box gameboard[6][6];
 /** Model **/
 
 void init_gameboard();
-int  is_cell_occupied(NumBox pos);
 void init_gamepawns_1();
 void init_gamepawns_2();
 void move_pawn(NumBox start, NumBox end);
-int is_edging_valid(int lastEdging, NumBox start);
-int is_any_pawn_playable(Coul color, int* lastEdging);
-int  out_of_range(NumBox pos);
 void get_neighbours(NumBox *cells, int *offset, NumBox pawn);
+void random_move(Coul color, NumBox *start, NumBox *end);
+int  is_edging_valid(int lastEdging, NumBox start);
+int  is_any_pawn_playable(Coul color, int* lastEdging);
+int  out_of_range(NumBox pos);
+int  can_override(NumBox start, NumBox end);
+int  is_cell_occupied(NumBox pos);
+int  is_unicorn_alive(Type start, Type end);
 NumBox *get_possible_moves(int *len, NumBox pos);
 NumBox *get_cells_by_color(Coul color);
-int can_override(NumBox start, NumBox end);
-void random_move(Coul color, NumBox *start, NumBox *end);
 
 /** View **/
 
@@ -87,7 +92,6 @@ void erase_pawn(POINT origin);
 void draw_pawn(Box pawn, POINT origin);
 void display_interface_choice();
 void display_gamemode_choice();
-int  is_on_board(POINT click);
 void display_endgame_menu(Coul color);
 void erase_information();
 void display_informations(Coul playerColor, int lastEdging);
@@ -95,6 +99,7 @@ void highlight_cell(NumBox cell, COULEUR color, int interface);
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
 void erase_highlighting(NumBox *cells, int len, int interface);
 void erase_highlight(NumBox cell, int interface);
+int  is_on_board(POINT click);
 
 /** Controller **/
 
@@ -107,7 +112,6 @@ NumBox point_to_numbox_ig2(POINT p);
 int  get_interface_choice(POINT click);
 int  get_gamemode_choice(POINT click);
 int  replay(POINT click);
-void set_game_finished(int* finished);
 int  is_on_player_side(POINT click, int interface, Coul color);
 NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *click2, int *moves_count, int interface);
 
@@ -128,9 +132,9 @@ int main()
 {
     NumBox n1, n2, *moves;
     POINT choice, click1, click2;
-    int interface, moves_count, gamemode, type1, type2, finished = 0, inGame = 1, lastEdging = 0;
+    int interface, moves_count, gamemode, type1, type2, inGame = 1, lastEdging = 0;
     Coul color;
-    COULEUR colors[2] = { blue, white };
+    COULEUR colors[2] = { BLACK_PLAYER_COLOR, WHITE_PLAYER_COLOR };
 
     init_gameboard();
     init_graphics(WIDTH, HEIGHT);
@@ -140,7 +144,6 @@ int main()
     {
         color = WHITE;
         lastEdging = 0;
-        finished = 0;
 
         display_interface_choice();
         choice = wait_clic();
@@ -185,18 +188,12 @@ int main()
             lastEdging = gameboard[n2.y][n2.x].edging;
             draw_pawn(gameboard[n2.y][n2.x], numbox_to_point(n2, interface));
 
-            if (type1 == PALADIN && type2 == UNICORN )
-            {
-                set_game_finished(&finished);
-            }
-            else
-            {
+
                 if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging)) color = WHITE;
                 else if (is_any_pawn_playable(BLACK, &lastEdging)) color = BLACK;
-            }
 
             affiche_all();
-        } while (!finished);
+        } while (!is_unicorn_alive(type1, type2));
 
         display_endgame_menu(color);
         click1 = wait_clic();
@@ -277,6 +274,12 @@ void move_pawn(NumBox start, NumBox end)
 int is_edging_valid(int lastEdging, NumBox start)
 {
     return (lastEdging == 0 || lastEdging == gameboard[start.y][start.x].edging);
+}
+
+// or is_unicorn_captured()
+int is_unicorn_alive(Type start, Type end)
+{
+    return start == PALADIN && end == UNICORN;
 }
 
 int is_any_pawn_playable(Coul color, int* lastEdging)
@@ -527,8 +530,8 @@ void draw_pawn(Box pawn, POINT origin)
 {
     COULEUR color;
 
-    if (pawn.color == BLACK) color = blue;
-    else color = white;
+    if (pawn.color == BLACK) color = BLACK_PLAYER_COLOR;
+    else color = WHITE_PLAYER_COLOR;
 
     if (pawn.type == UNICORN) draw_unicorn(origin, color);
     else if (pawn.type == PALADIN) draw_paladin(origin, color);
@@ -672,12 +675,12 @@ void display_informations(Coul playerColor, int lastEdging)
     if (playerColor == BLACK)
     {
         text = "Joueur 1";
-        textColor = blue;
+        textColor = BLACK_PLAYER_COLOR;
     }
     else
     {
         text = "Joueur 2";
-        textColor = white;
+        textColor = WHITE_PLAYER_COLOR;
     }
 
     aff_pol(text, size, label, textColor);
