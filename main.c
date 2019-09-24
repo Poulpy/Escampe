@@ -562,7 +562,7 @@ int is_on_board(POINT click)
 
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
 {
-    int i;
+    int i, c, f = 5, number;
     POINT p;
 
     for (i = 0; i != len; i++)
@@ -570,17 +570,31 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
         p = numbox_to_point(cells[i], interface);
         p.x += CIRCLE_RADIUS;
         p.y += CIRCLE_RADIUS;
+        number = gameboard[cells[i].y][cells[i].x].edging;
 
-        draw_fill_circle(p, CIRCLE_RADIUS / 3, color);
+        //draw_fill_circle(p, CIRCLE_RADIUS / 3, color);
         /*
         draw_circle(p, CIRCLE_RADIUS, color);
         draw_circle(p, CIRCLE_RADIUS - 1, color);
         draw_circle(p, CIRCLE_RADIUS - 2, color);
         draw_circle(p, CIRCLE_RADIUS - 3, color);*/
+        for (c = 1; c != number + 1; c++)
+        {
+            draw_circle(p, CIRCLE_RADIUS - c * f - 3, color);
+            draw_circle(p, CIRCLE_RADIUS - (c * f) - 4, color);
+            draw_circle(p, CIRCLE_RADIUS - (c * f) - 5, color);
+        }
     }
 
     affiche_all();
 }
+
+void erase_highlighting(NumBox *cells, int len, int interface)
+{
+    highlight_cells(cells, len, BACKGROUND_COLOR, interface);
+    free(cells);
+}
+
 
 void display_endgame_menu(Coul color)
 {
@@ -671,12 +685,6 @@ void display_informations(Coul playerColor, int lastEdging)
     }
     affiche_all();
 }
-void erase_highlighting(NumBox *cells, int len, int interface)
-{
-    highlight_cells(cells, len, BACKGROUND_COLOR, interface);
-    free(cells);
-}
-
 
 /* Controller */
 
