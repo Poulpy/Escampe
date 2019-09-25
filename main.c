@@ -427,9 +427,6 @@ void random_move(Coul color, NumBox *start, NumBox *end)
     *end = ends[alea_int(len)];
 }
 
-
-
-
 int out_of_range(NumBox pos)
 {
     return !(pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5);
@@ -497,28 +494,6 @@ int can_move(NumBox pawnCell)
     }
 }*/
 
-void place_pawnsV2(Coul color, int interface, Border border)
-{
-    int i;
-    POINT click;
-    NumBox pawns[6];
-    Type pawnsTypes[6] = {UNICORN, PALADIN, PALADIN, PALADIN, PALADIN, PALADIN};
-
-    for (i = 0; i != 6; i++)
-    {
-        do
-        {
-            click = wait_clic();
-            pawns[i] = point_to_numbox(click, interface);
-        } while (!is_in_border(pawns[i], border));
-
-        gameboard[pawns[i].y][pawns[i].x].type = pawnsTypes[i];
-        gameboard[pawns[i].y][pawns[i].x].color = color;
-
-        draw_pawn(gameboard[pawns[i].y][pawns[i].x], numbox_to_point(pawns[i], interface));
-        affiche_all();
-    }
-}
 
 /* View */
 
@@ -594,7 +569,6 @@ void display_gamemode_choice()
 void display_border_choice(/*POINT squarePoints[4][2]*/)
 {
     char* positions[4] = {"H", "G", "D", "B"};
-    POINT start, end, label;
     int i, squareSize= 75, textSize = 50;
     POINT squarePoints[4][2] = {{ (POINT) {MID_WIDTH - (squareSize / 2), HEIGHT - MARGIN},
                                  (POINT) {MID_WIDTH  + (squareSize / 2), HEIGHT - MARGIN - squareSize }},
@@ -1069,6 +1043,29 @@ int is_cell_valid(POINT click, int lastEdging, int interface)
 {
     NumBox selectedCell = point_to_numbox(click, interface);
     return (lastEdging == 0 || lastEdging == gameboard[selectedCell.y][selectedCell.x].edging) && gameboard[selectedCell.y][selectedCell.x].type != EMPTY;
+}
+
+void place_pawnsV2(Coul color, int interface, Border border)
+{
+    int i;
+    POINT click;
+    NumBox pawns[6];
+    Type pawnsTypes[6] = {UNICORN, PALADIN, PALADIN, PALADIN, PALADIN, PALADIN};
+
+    for (i = 0; i != 6; i++)
+    {
+        do
+        {
+            click = wait_clic();
+            pawns[i] = point_to_numbox(click, interface);
+        } while (!is_in_border(pawns[i], border));
+
+        gameboard[pawns[i].y][pawns[i].x].type = pawnsTypes[i];
+        gameboard[pawns[i].y][pawns[i].x].color = color;
+
+        draw_pawn(gameboard[pawns[i].y][pawns[i].x], numbox_to_point(pawns[i], interface));
+        affiche_all();
+    }
 }
 
 /* Helpers */
