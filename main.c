@@ -138,6 +138,8 @@ int get_border_choice(POINT click/*, POINT squarePoints[4][2]*/);
 void players_place_pawns(Border bor, int interface);
 COULEUR get_color_by_player(Coul color);
 Border player_choose_border();
+int player_choose_interface();
+Gamemode player_choose_gamemode();
 
 /** Helpers **/
 
@@ -175,12 +177,10 @@ int main()
         lastEdging = 0;
 
         display_interface_choice();
-        choice = wait_clic();
-        interface = get_interface_choice(choice);
+        interface = player_choose_interface();
 
         display_gamemode_choice();
-        choice = wait_clic();
-        mode = get_gamemode_choice(choice);
+        mode = player_choose_gamemode();
 
         init_gameboard();
         //init_gamepawns_1();
@@ -190,7 +190,6 @@ int main()
         draw_gameboard(interface);
 
         players_place_pawns(bor, interface);
-        //
         // Turn loop
 
         if (!is_any_pawn_playable(WHITE, &lastEdging)) color = BLACK;
@@ -1018,10 +1017,20 @@ NumBox point_to_numbox_ig2(POINT p)
     return n;
 }
 
+int player_choose_interface()
+{
+    return get_interface_choice(wait_clic());
+}
+
 int get_interface_choice(POINT click)
 {
     if (click.x >= 0 && click.x < MID_WIDTH) return 1;
     else return 2;
+}
+
+Gamemode player_choose_gamemode()
+{
+    return get_gamemode_choice(wait_clic());
 }
 
 Gamemode get_gamemode_choice(POINT click)
