@@ -71,16 +71,17 @@ void init_gameboard();
 void init_gamepawns_1();
 void init_gamepawns_2();
 void move_pawn(NumBox start, NumBox end);
-void get_neighbours(NumBox *cells, int *offset, NumBox pawn);
+void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden);
 void random_move(Coul color, NumBox *start, NumBox *end);
+void uniq(NumBox *ns, int *len);
 int  is_edging_valid(int lastEdging, NumBox start);
 int  is_any_pawn_playable(Coul color, int* lastEdging);
 int  out_of_range(NumBox pos);
 int  can_override(NumBox start, NumBox end);
 int  is_cell_occupied(NumBox pos);
 int  is_unicorn_alive(Type start, Type end);
-int box_eql(Box b1, Box b2);
-NumBox *get_possible_moves(int *len, NumBox pos);
+int  box_eql(Box b1, Box b2);
+NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
 
 /** View **/
@@ -106,10 +107,10 @@ void display_turn_helper(COULEUR textColor, int lastEdging);
 /** Controller **/
 
 POINT  numbox_to_point(NumBox n, int interface);
-NumBox point_to_numbox(POINT p, int interface);
 POINT  numbox_to_point_ig1(NumBox n);
-NumBox point_to_numbox_ig1(POINT p);
 POINT  numbox_to_point_ig2(NumBox n);
+NumBox point_to_numbox(POINT p, int interface);
+NumBox point_to_numbox_ig1(POINT p);
 NumBox point_to_numbox_ig2(POINT p);
 int  get_interface_choice(POINT click);
 int  get_gamemode_choice(POINT click);
@@ -134,7 +135,7 @@ int main()
 {
     NumBox n1, n2, *moves;
     POINT choice, click1, click2;
-    int interface, moves_count, gamemode, turn = 0, inGame = 1, lastEdging = 0;
+    int interface, moves_count, gamemode, inGame = 1, lastEdging = 0;
     Coul color;
     Type type1, type2;
     COULEUR colors[2] = { BLACK_PLAYER_COLOR, WHITE_PLAYER_COLOR };
@@ -178,7 +179,7 @@ int main()
             highlight_cell(n1, colors[color], interface);
             type1 = gameboard[n1.y][n1.x].type;
 
-            moves = get_possible_moves(&moves_count, n1);
+            moves = get_moves(&moves_count, n1);
             highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
 
             do
@@ -302,26 +303,42 @@ int is_any_pawn_playable(Coul color, int* lastEdging)
     return 0;
 }
 
-void get_neighbours(NumBox *cells, int *offset, NumBox pawn)
+void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden)
 {
     int i;
-    NumBox n[4];
+    NumBox neigh[4];
 
-    n[0] = (NumBox) { pawn.x + 1, pawn.y };
-    n[1] = (NumBox) { pawn.x - 1, pawn.y };
-    n[2] = (NumBox) { pawn.x, pawn.y - 1 };
-    n[3] = (NumBox) { pawn.x, pawn.y + 1 };
+    neigh[0] = (NumBox) { pawn.x + 1, pawn.y };
+    neigh[1] = (NumBox) { pawn.x - 1, pawn.y };
+    neigh[2] = (NumBox) { pawn.x, pawn.y - 1 };
+    neigh[3] = (NumBox) { pawn.x, pawn.y + 1 };
 
     for (i = 0; i != 4; i++)
     {
-        if (!out_of_range(n[i]))
+        if (!out_of_range(neigh[i]) && !eql(neigh[i], forbidden))
         {
-            if (!is_cell_occupied(n[i]) || can_override(pawn, n[i]))
+            if (!is_cell_occupied(neigh[i]) || can_override(pawn, neigh[i]))
             {
-                cells[(*offset)++] = n[i];
+                if (moves == 0) append(cells, offset, neigh[i]);
+                else get_neighbours(cells, offset, neigh[i], moves - 1, pawn);
             }
         }
     }
+}
+
+
+NumBox *get_moves(int *moves_count, NumBox pawn)
+{
+    int m = gameboard[pawn.y][pawn.x].edging;
+    NumBox forbidden = { -1, -1 };
+
+    *moves_count = 0;
+    NumBox *moves = (NumBox *) malloc(sizeof(NumBox) * m * 5);
+
+    get_neighbours(moves, moves_count, pawn, m - 1, forbidden);
+    uniq(moves, moves_count);
+
+    return moves;
 }
 
 void random_move(Coul color, NumBox *start, NumBox *end)
@@ -332,36 +349,13 @@ void random_move(Coul color, NumBox *start, NumBox *end)
     cells = get_cells_by_color(color);
     *start = cells[alea_int(6)];
 
-    ends = get_possible_moves(&len, *start);
+    ends = get_moves(&len, *start);
     *end = ends[alea_int(len)];
 }
 
-NumBox *get_possible_moves(int *len, NumBox pos)
-{
-    int moves = gameboard[pos.y][pos.x].edging, i, j;
-    int cells_count = 1, neigh_count = 0;
-    NumBox neighbours[14], *cells;
 
-    cells = (NumBox *) malloc(sizeof(NumBox) * 14);
-    cells[0] = pos;
 
-    for (i = 0; i != moves; i++)
-    {
-        for (j = 0; j != cells_count; j++)
-        {
-            get_neighbours(neighbours, &neigh_count, cells[j]);
-            remove_numbox(neighbours, &neigh_count, cells[j]);
-        }
 
-        cells_count = 0;
-        copy(cells, &cells_count, neighbours, neigh_count);
-        neigh_count = 0;
-    }
-
-    *len = cells_count;
-
-    return cells;
-}
 
 int out_of_range(NumBox pos)
 {
@@ -736,7 +730,7 @@ NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *cli
 
     *click1 = wait_clic();
     *start = point_to_numbox(*click1, interface);
-    moves = get_possible_moves(moves_count, *start);
+    moves = get_moves(moves_count, *start);
     highlight_cells(moves, *moves_count, HIGHLIGHT_COLOR, interface);
 
     *click2 = wait_clic();
@@ -843,6 +837,16 @@ void print_numboxes(NumBox *n, int len)
     }
 }
 
+void remove_numboxes_offset(NumBox *n1, int offset, int *len1, NumBox *n2, int len2)
+{
+    int i;
+
+    for (i = offset; i != len2; i++)
+    {
+        remove_numbox(n1, len1, n2[i]);
+    }
+}
+
 void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2)
 {
     int i;
@@ -896,5 +900,18 @@ int contains(NumBox *ns, int len, NumBox n)
             return 1;
 
     return 0;
+}
+
+void uniq(NumBox *ns, int *len)
+{
+    int i, j;
+
+    for (i = 0; i != *len; i++)
+    {
+        for (j = i + 1; j != *len; j++)
+        {
+            if (eql(ns[i], ns[j])) ns[j--] = ns[--(*len)];
+        }
+    }
 }
 
