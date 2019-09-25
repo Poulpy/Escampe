@@ -101,6 +101,7 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
 void erase_highlighting(NumBox *cells, int len, int interface);
 void erase_highlight(NumBox cell, int interface);
 int  is_on_board(POINT click);
+void display_turn_helper(COULEUR textColor, int lastEdging);
 
 /** Controller **/
 
@@ -688,26 +689,42 @@ void display_informations(Coul playerColor, int lastEdging)
     }
 
     aff_pol(text, size, label, textColor);
+    display_turn_helper(textColor, lastEdging);
 
-    if (lastEdging != 0)
-    {
-        int radius = 25, i;
-        char requiredEdging[1];
-        sprintf(requiredEdging, "%d", lastEdging);
-
-        label.x = MID_WIDTH;
-        label.y = MARGIN - size;
-        draw_fill_circle(label, radius / 2, textColor);
-        for (i = 0; i != lastEdging; i++)
-        {
-            draw_circle(label, radius - (i * 4), EDGING_COLOR);
-            draw_circle(label, radius - (i * 4) - 1, EDGING_COLOR);
-        }
-        label.x += 30;
-        label.y += radius / 2;
-        aff_pol(requiredEdging, 20, label, black);
-    }
     affiche_all();
+}
+
+void display_turn_helper(COULEUR textColor, int lastEdging)
+{
+    POINT label;
+    char requiredEdging[5];
+    int size = 35, radius = 25, i;
+
+    if (lastEdging == 0)
+    {
+        strcpy(requiredEdging, "1-3");
+        lastEdging = 3;
+    }
+    else
+    {
+        sprintf(requiredEdging, "%d", lastEdging);
+    }
+
+    label.x = MID_WIDTH;
+    label.y = MARGIN - size;
+    draw_fill_circle(label, radius / 2, textColor);
+
+    for (i = 0; i != lastEdging; i++)
+    {
+        draw_circle(label, radius - (i * 4), EDGING_COLOR);
+        draw_circle(label, radius - (i * 4) - 1, EDGING_COLOR);
+    }
+
+    label.x += 30;
+    label.y += radius / 2;
+    aff_pol(requiredEdging, 20, label, black);
+    label.y += 1;
+    aff_pol(requiredEdging, 20, label, black);
 }
 
 /* Controller */
