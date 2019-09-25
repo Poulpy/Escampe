@@ -90,17 +90,17 @@ int  can_override(NumBox start, NumBox end);
 int  is_cell_occupied(NumBox pos);
 int  is_unicorn_alive(Type start, Type end);
 int  box_eql(Box b1, Box b2);
+int  is_in_border(NumBox pos, Border bor);
+int  can_move(NumBox pawnCell);
 NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
-int is_in_border(NumBox pos, Border bor);
-int can_move(NumBox pawnCell);
 Border opposite_border(Border bor);
 
 /** View **/
 
 void draw_edging(POINT center, int number);
 void draw_gameboard(int interface);
-void position_pawns(NumBox pos[6], Border bor, int interface);
+void position_pawns(NumBox pos[6], Border bor, Coul color, int interface);
 void draw_unicorn(POINT origin, COULEUR color);
 void draw_paladin(POINT origin, COULEUR color);
 void erase_pawn(POINT origin);
@@ -114,11 +114,10 @@ void highlight_cell(NumBox cell, COULEUR color, int interface);
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
 void erase_highlighting(NumBox *cells, int len, int interface);
 void erase_highlight(NumBox cell, int interface);
-int  is_on_board(POINT click);
 void display_turn_helper(COULEUR textColor, int lastEdging);
 void display_border_choice(/*POINT squarePoints[][2]*/);
+int  is_on_board(POINT click);
 int is_between_points(POINT p1, POINT c1, POINT c2);
-void draw_pawns(NumBox pos[6], Coul color, int interface);
 
 
 /** Controller **/
@@ -136,7 +135,9 @@ int  is_on_player_side(POINT click, int interface, Coul color);
 NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *click2, int *moves_count, int interface);
 int is_cell_valid(POINT click, int lastEdging, int interface);
 int get_border_choice(POINT click/*, POINT squarePoints[4][2]*/);
+void players_place_pawns(Border bor, int interface);
 COULEUR get_color_by_player(Coul color);
+Border player_choose_border();
 
 /** Helpers **/
 
@@ -154,7 +155,7 @@ void place_pawns(NumBox pawns[6], Coul color);
 
 int main()
 {
-    NumBox n1, n2, *moves, white_pawns[6], black_pawns[6];
+    NumBox n1, n2, *moves;
     POINT choice, click1, click2/*, borderPoints[4][2]*/;
     int interface, moves_count, inGame = 1, lastEdging = 0;
     Coul color;
@@ -185,19 +186,11 @@ int main()
         //init_gamepawns_1();
         display_border_choice(/*borderPoints*/);
 
-        do
-        {
-            choice = wait_clic();
-            bor = get_border_choice(choice/*, borderPoints*/);
-        } while (bor == -1);
+        bor = player_choose_border();
         draw_gameboard(interface);
-        position_pawns(black_pawns, bor, interface);
-        place_pawns(black_pawns, BLACK);
-        draw_pawns(black_pawns, BLACK, interface);
-        position_pawns(white_pawns, opposite_border(bor), interface);
-        place_pawns(white_pawns, WHITE);
-        draw_pawns(white_pawns, WHITE, interface);
 
+        players_place_pawns(bor, interface);
+        //
         // Turn loop
 
         if (!is_any_pawn_playable(WHITE, &lastEdging)) color = BLACK;
@@ -445,20 +438,15 @@ NumBox *get_cells_by_color(Coul color)
 
 int is_in_border(NumBox pos, Border bor)
 {
-    printf("bor %d", bor);
     switch (bor)
     {
     case TOP:
-        printf("test %d\n", pos.y == 4 || pos.y == 5);
         return pos.y == 4 || pos.y == 5;
     case BOTTOM:
-        printf("test %d\n", pos.y == 0 || pos.y == 1);
         return pos.y == 0 || pos.y == 1;
     case LEFT:
-        printf("test %d\n", pos.x == 0 || pos.x == 1);
         return pos.x == 0 || pos.x == 1;
     case RIGHT:
-        printf("test %d\n", pos.x == 4 || pos.x == 5);
         return pos.x == 4 || pos.x == 5;
     }
 
@@ -560,7 +548,6 @@ void display_gamemode_choice()
 void display_border_choice(/*POINT squarePoints[4][2]*/)
 {
     char* positions[4] = {"H", "G", "D", "B"};
-    POINT start, end, label;
     int i, squareSize= 75, textSize = 50;
     POINT squarePoints[4][2] = {{ (POINT) {MID_WIDTH - (squareSize / 2), HEIGHT - MARGIN},
                                  (POINT) {MID_WIDTH  + (squareSize / 2), HEIGHT - MARGIN - squareSize }},
@@ -618,16 +605,7 @@ int is_between_points(POINT p1, POINT c1, POINT c2)
 }
 
 
-void draw_pawns(NumBox pos[6], Coul color, int interface)
-{
-    int i;
 
-    draw_unicorn(numbox_to_point(pos[0], interface), get_color_by_player(color));
-    for (i = 1; i != 6; i++)
-    {
-        draw_paladin(numbox_to_point(pos[i], interface), get_color_by_player(color));
-    }
-}
 
 COULEUR get_color_by_player(Coul color)
 {
@@ -636,19 +614,30 @@ COULEUR get_color_by_player(Coul color)
 }
 
 
-void position_pawns(NumBox pos[6], Border bor, int interface)
+void position_pawns(NumBox pos[6], Border bor, Coul color, int interface)
 {
     int i;
     POINT click;
+    do
+    {
+        click = wait_clic();
+        pos[0] = point_to_numbox(click, interface);
+        //print_numbox(pos[0]);
+    } while (!is_in_border(pos[0], bor));
 
-    for (i = 0; i != 6; i++)
+    draw_unicorn(numbox_to_point(pos[0], interface), get_color_by_player(color));
+    affiche_all();
+
+    for (i = 1; i != 6; i++)
     {
         do
         {
             click = wait_clic();
             pos[i] = point_to_numbox(click, interface);
-            print_numbox(pos[i]);
-        } while (!is_in_border(pos[i], bor));
+            //print_numbox(pos[i]);
+        } while (!is_in_border(pos[i], bor) || contains(pos, i, pos[i]));
+        draw_paladin(numbox_to_point(pos[i], interface), get_color_by_player(color));
+        affiche_all();
     }
 }
 
@@ -932,6 +921,34 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
 }
 
 /* Controller */
+
+
+// TODO: some prob with unicorn
+void players_place_pawns(Border bor, int interface)
+{
+    NumBox white_pawns[6], black_pawns[6];
+
+    position_pawns(black_pawns, bor, BLACK, interface);
+    place_pawns(black_pawns, BLACK);
+
+    position_pawns(white_pawns, opposite_border(bor), WHITE, interface);
+    place_pawns(white_pawns, WHITE);
+}
+
+Border player_choose_border()
+{
+    Border bor;
+    POINT choice;
+
+    do
+    {
+        choice = wait_clic();
+        bor = get_border_choice(choice/*, borderPoints*/);
+    } while (bor == -1);
+
+    return bor;
+}
+
 
 /* Doesn't work */
 NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *click2, int *moves_count, int interface)
