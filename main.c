@@ -137,6 +137,7 @@ NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *cli
 int is_cell_valid(POINT click, int lastEdging, int interface);
 int get_border_choice(POINT click/*, POINT squarePoints[4][2]*/);
 COULEUR get_color_by_player(Coul color);
+void place_pawnsV2(Coul color, int interface, Border border);
 
 /** Helpers **/
 
@@ -191,21 +192,22 @@ int main()
             bor = get_border_choice(choice/*, borderPoints*/);
         } while (bor == -1);
         draw_gameboard(interface);
-        position_pawns(black_pawns, bor, interface);
+        /*position_pawns(black_pawns, bor, interface);
         place_pawns(black_pawns, BLACK);
         draw_pawns(black_pawns, BLACK, interface);
         position_pawns(white_pawns, opposite_border(bor), interface);
         place_pawns(white_pawns, WHITE);
-        draw_pawns(white_pawns, WHITE, interface);
+        draw_pawns(white_pawns, WHITE, interface);*/
+
+        place_pawnsV2(BLACK, interface, bor);
+        place_pawnsV2(WHITE, interface, opposite_border(bor));
 
         // Turn loop
 
         if (!is_any_pawn_playable(WHITE, &lastEdging)) color = BLACK;
+
         do
         {
-            if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging)) color = WHITE;
-            else if (color == WHITE && is_any_pawn_playable(BLACK, &lastEdging)) color = BLACK;
-
             display_informations(color, lastEdging);
 
             if (color == BLACK && mode == PVC)
@@ -258,6 +260,9 @@ int main()
             type2 = gameboard[n2.y][n2.x].type;
 
             affiche_all();
+
+            if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging)) color = WHITE;
+            else if (color == WHITE && is_any_pawn_playable(BLACK, &lastEdging)) color = BLACK;
         } while (!is_unicorn_alive(type1, type2));
 
         display_endgame_menu(color);
@@ -352,14 +357,20 @@ int is_any_pawn_playable(Coul color, int* lastEdging)
 {
     int i, j;
     NumBox pawnCell;
-
     for (i = 0; i < 6; i++)
     {
         for (j = 0; j < 6; j++)
         {
             pawnCell.x = j;
             pawnCell.y = i;
-            if (gameboard[i][j].type != EMPTY && gameboard[i][j].color == color && gameboard[i][j].edging == *lastEdging && can_move(pawnCell)) return 1;
+            /* printf("\n");
+            printf("type: %d\n", gameboard[i][j].type != EMPTY);
+            printf("color: %d\n", gameboard[i][j].color == color);
+            printf("edging: %d\n", gameboard[i][j].edging);
+            printf("valid edging: %d\n", is_edging_valid(*lastEdging, pawnCell));
+            printf("moves: %d\n", can_move(pawnCell));
+            printf("\n"); */
+            if (gameboard[i][j].type != EMPTY && gameboard[i][j].color == color && is_edging_valid(*lastEdging, pawnCell) && can_move(pawnCell)) return 1;
         }
     }
 
@@ -473,7 +484,7 @@ int can_move(NumBox pawnCell)
     return moves_count != 0;
 }
 
-void place_pawns(NumBox pawns[6], Coul color)
+/*void place_pawns(NumBox pawns[6], Coul color)
 {
     int i;
     gameboard[pawns[0].y][pawns[0].x].type = UNICORN;
@@ -483,6 +494,29 @@ void place_pawns(NumBox pawns[6], Coul color)
     {
         gameboard[pawns[i].y][pawns[i].x].type = PALADIN;
         gameboard[pawns[i].y][pawns[i].x].color = color;
+    }
+}*/
+
+void place_pawnsV2(Coul color, int interface, Border border)
+{
+    int i;
+    POINT click;
+    NumBox pawns[6];
+    Type pawnsTypes[6] = {UNICORN, PALADIN, PALADIN, PALADIN, PALADIN, PALADIN};
+
+    for (i = 0; i != 6; i++)
+    {
+        do
+        {
+            click = wait_clic();
+            pawns[i] = point_to_numbox(click, interface);
+        } while (!is_in_border(pawns[i], border));
+
+        gameboard[pawns[i].y][pawns[i].x].type = pawnsTypes[i];
+        gameboard[pawns[i].y][pawns[i].x].color = color;
+
+        draw_pawn(gameboard[pawns[i].y][pawns[i].x], numbox_to_point(pawns[i], interface));
+        affiche_all();
     }
 }
 
