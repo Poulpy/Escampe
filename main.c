@@ -80,7 +80,7 @@ void init_gameboard();
 void init_gamepawns_1();
 void init_gamepawns_2();
 void move_pawn(NumBox start, NumBox end);
-void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden);
+void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player);
 void random_move(Coul color, NumBox *start, NumBox *end);
 void uniq(NumBox *ns, int *len);
 int  is_edging_valid(int lastEdging, NumBox start);
@@ -158,7 +158,7 @@ void place_pawns(NumBox pawns[6], Coul color);
 int main()
 {
     NumBox n1, n2, *moves;
-    POINT choice, click1, click2/*, borderPoints[4][2]*/;
+    POINT click1, click2/*, borderPoints[4][2]*/;
     int interface, moves_count, inGame = 1, lastEdging = 0;
     Coul color;
     Type type1, type2;
@@ -190,9 +190,9 @@ int main()
         draw_gameboard(interface);
 
         players_place_pawns(bor, interface);
-        // Turn loop
 
         if (!is_any_pawn_playable(WHITE, &lastEdging)) color = BLACK;
+
         do
         {
             if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging)) color = WHITE;
@@ -203,6 +203,8 @@ int main()
             if (color == BLACK && mode == PVC)
             {
                 random_move(color, &n1, &n2);
+                type1 = gameboard[n1.y][n1.x].type;
+                type2 = gameboard[n2.y][n2.x].type;
                 erase_pawn(numbox_to_point(n1, interface));
                 move_pawn(n1, n2);
                 lastEdging = gameboard[n2.y][n2.x].edging;
@@ -238,6 +240,9 @@ int main()
                     else n2 = point_to_numbox(click2, interface);
                 } while (!contains(moves, moves_count, n2));
 
+                type1 = gameboard[n1.y][n1.x].type;
+                type2 = gameboard[n2.y][n2.x].type;
+
                 erase_pawn(numbox_to_point(n1, interface));
                 erase_highlighting(moves, moves_count, interface);
                 erase_highlight(n1, interface);
@@ -246,8 +251,6 @@ int main()
                 draw_pawn(gameboard[n2.y][n2.x], numbox_to_point(n2, interface));
             }
 
-            type1 = gameboard[n1.y][n1.x].type;
-            type2 = gameboard[n2.y][n2.x].type;
 
             affiche_all();
         } while (!is_unicorn_alive(type1, type2));
@@ -359,7 +362,7 @@ int is_any_pawn_playable(Coul color, int* lastEdging)
     return 0;
 }
 
-void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden)
+void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player)
 {
     int i;
     NumBox neigh[4];
@@ -373,10 +376,10 @@ void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox f
     {
         if (!out_of_range(neigh[i]) && !eql(neigh[i], forbidden))
         {
-            if (!is_cell_occupied(neigh[i]) || can_override(pawn, neigh[i]))
+            if (!is_cell_occupied(neigh[i]) || can_override(player, neigh[i]))
             {
                 if (moves == 0) append(cells, offset, neigh[i]);
-                else get_neighbours(cells, offset, neigh[i], moves - 1, pawn);
+                else get_neighbours(cells, offset, neigh[i], moves - 1, pawn, player);
             }
         }
     }
@@ -388,9 +391,9 @@ NumBox *get_moves(int *moves_count, NumBox pawn)
     NumBox forbidden = { -1, -1 };
 
     *moves_count = 0;
-    NumBox *moves = (NumBox *) malloc(sizeof(NumBox) * m * 5);
+    NumBox *moves = (NumBox *) malloc(sizeof(NumBox) * m * 4);
 
-    get_neighbours(moves, moves_count, pawn, m - 1, forbidden);
+    get_neighbours(moves, moves_count, pawn, m - 1, forbidden, pawn);
     uniq(moves, moves_count);
 
     return moves;
