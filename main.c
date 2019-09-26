@@ -1,7 +1,7 @@
 /* Escampe project by HAUSER Joshua & REPAIN Paul */
 /* IATIC3 2019 */
 
-/* Librairies */
+/* Libraries */
 
 #include "graphics.h"
 
@@ -177,24 +177,12 @@ int main()
         color = WHITE;
         lastEdging = 0;
 
-        /*display_interface_choice();
-        interface = player_choose_interface();
-
-        display_gamemode_choice();
-        mode = player_choose_gamemode();
-
-        init_gameboard();
-        display_border_choice();
-
-        bor = player_choose_border();
-        draw_gameboard(interface);*/
-
         init_game(&interface, &mode, &bor);
-
         players_place_pawns(bor, interface, mode);
 
         //if (!is_any_pawn_playable(WHITE, &lastEdging)) color = BLACK;
 
+        // Turn loop
         do
         {
             if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging) && turns != 0) color = WHITE;
