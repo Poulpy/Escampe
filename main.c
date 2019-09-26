@@ -935,6 +935,17 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
     aff_pol(requiredEdging, 20, label, black);
     label.y += 1;
     aff_pol(requiredEdging, 20, label, black);
+    POINT p = { 0, HEIGHT };
+    draw_fill_circle(p, 100, FIRST_COLOR);
+    if (lastEdging >= 2)
+    draw_fill_circle(p, 90, SECON_COLOR);
+    if (lastEdging >= 3)
+    draw_fill_circle(p, 80, THIRD_COLOR);
+    label.x = 10;
+    label.y = HEIGHT - 10;
+    aff_pol(requiredEdging, 30, label, black);
+    label.y += 1;
+    aff_pol(requiredEdging, 30, label, black);
 }
 
 
