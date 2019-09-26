@@ -123,6 +123,7 @@ int is_between_points(POINT p1, POINT c1, POINT c2);
 
 /** Controller **/
 
+void init_game(int *interface, Gamemode *mode, Border *bor);
 POINT  numbox_to_point(NumBox n, int interface);
 POINT  numbox_to_point_ig1(NumBox n);
 POINT  numbox_to_point_ig2(NumBox n);
@@ -176,7 +177,7 @@ int main()
         color = WHITE;
         lastEdging = 0;
 
-        display_interface_choice();
+        /*display_interface_choice();
         interface = player_choose_interface();
 
         display_gamemode_choice();
@@ -186,7 +187,9 @@ int main()
         display_border_choice();
 
         bor = player_choose_border();
-        draw_gameboard(interface);
+        draw_gameboard(interface);*/
+
+        init_game(&interface, &mode, &bor);
 
         players_place_pawns(bor, interface, mode);
 
@@ -948,6 +951,20 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
 
 /* Controller */
 
+void init_game(int *interface, Gamemode *mode, Border *bor)
+{
+    display_interface_choice();
+    *interface = player_choose_interface();
+
+    display_gamemode_choice();
+    *mode = player_choose_gamemode();
+
+    init_gameboard();
+
+    display_border_choice();
+    *bor = player_choose_border();
+    draw_gameboard(*interface);
+}
 
 // TODO: some prob with unicorn
 void players_place_pawns(Border bor, int interface, Gamemode mode)
