@@ -14,8 +14,13 @@
 #define HIGHLIGHT_COLOR green
 #define BACKGROUND_COLOR 0xBA963E
 
+#define SHADE 0x141414
+#define FIRST_COLOR (BACKGROUND_COLOR - SHADE)
+#define SECON_COLOR (FIRST_COLOR - SHADE)
+#define THIRD_COLOR (SECON_COLOR - SHADE)
+
 #define WHITE_PLAYER_COLOR white
-#define WHITE_SHADING 0x1f1f1f
+#define WHITE_SHADING 0x171717
 #define BLACK_PLAYER_COLOR 0x1906de
 #define BLACK_SHADING 0x0f0f00
 
@@ -574,8 +579,8 @@ void display_border_choice(/*POINT squarePoints[4][2]*/)
 
     for (i = 0; i < 4; i++)
     {
-        draw_fill_rectangle(squarePoints[i][0], squarePoints[i][1], black);
-        aff_pol(positions[i], textSize, textPoints[i], white);
+        draw_fill_rectangle(squarePoints[i][0], squarePoints[i][1], FIRST_COLOR);
+        aff_pol(positions[i], textSize, textPoints[i], THIRD_COLOR);
     }
 
     affiche_all();
@@ -660,25 +665,30 @@ Border opposite_border(Border bor)
 
 void draw_unicorn(POINT origin, COULEUR color)
 {
-    int i, top_margin = 30, bot_margin = 29, side_margin = 25;
+    int i, bot_margin = 30, side_margin = 25;
     COULEUR shading;
+
+    POINT botl = { origin.x + side_margin,
+                   origin.y + bot_margin };
+    POINT botr = { origin.x + CELL_WIDTH -  side_margin,
+                   origin.y + bot_margin };
+
 
     if (color == WHITE_PLAYER_COLOR)
     {
         shading = WHITE_SHADING;
     }
-    else
+    else if (color == BLACK_PLAYER_COLOR)
     {
         shading = BLACK_SHADING;
     }
-
-
-    POINT top = { origin.x + CIRCLE_RADIUS - 10,
-                  origin.y + CELL_HEIGHT - top_margin };
-    POINT botl = { origin.x + side_margin,
-                   origin.y + bot_margin };
-    POINT botr = { origin.x + CELL_WIDTH -  side_margin,
-                   origin.y + bot_margin };
+    else
+    {
+        POINT center = { origin.x + CIRCLE_RADIUS,
+                         origin.y + CIRCLE_RADIUS };
+        draw_fill_circle(center, CIRCLE_RADIUS - 20, color);
+        return;
+    }
 
 
     for (i = 0; botl.x < botr.x ; i++)
@@ -694,18 +704,17 @@ void draw_unicorn(POINT origin, COULEUR color)
 
 void draw_paladin(POINT origin, COULEUR color)
 {
-    int top_margin = 20;
     int bot_margin = 24;
     int side_margin = 25;
 
     draw_unicorn(origin, color);
 
-    POINT botl = { origin.x + side_margin +10,
+    POINT botl = { origin.x + side_margin + 2,
                    origin.y + bot_margin + 20};
-    POINT botr = { origin.x + CELL_WIDTH - side_margin-10,
+    POINT botr = { origin.x + CELL_WIDTH - side_margin-8,
                    origin.y + bot_margin +20};
 
-    draw_fill_ellipse(botl, botr, 2, slategray);
+    draw_fill_ellipse(botl, botr, 2, color);
 }
 
 void draw_gameboard(int interface)
@@ -714,22 +723,6 @@ void draw_gameboard(int interface)
     POINT cursor;
     NumBox n;
     fill_screen(BACKGROUND_COLOR);
-    POINT p1 = { MARGIN - 3, MARGIN - 3 };
-    POINT p2 = { MARGIN + BOARD_WIDTH + 3, MARGIN };
-
-    draw_fill_rectangle(p1, p2, black);
-
-    p2.x = MARGIN; p2.y = MARGIN + BOARD_HEIGHT + 3;
-    draw_fill_rectangle(p1, p2, black);
-
-
-    p1.x = MARGIN + BOARD_WIDTH; p1.y = MARGIN - 3;
-    p2.x = MARGIN + BOARD_WIDTH + 3; p2.y = MARGIN + BOARD_WIDTH + 3;
-    draw_fill_rectangle(p1, p2, EDGING_COLOR);
-
-    p1.x = MARGIN - 3; p1.y = MARGIN + BOARD_HEIGHT;
-    p2.x = MARGIN + BOARD_WIDTH + 3; p2.y = MARGIN + BOARD_HEIGHT + 3;
-    draw_fill_rectangle(p1, p2, EDGING_COLOR);
 
     for (row = 0; row != 6; row++)
     {
@@ -761,6 +754,7 @@ void draw_pawn(Box pawn, POINT origin)
 void draw_edging(POINT bl_corner, int number)
 {
     int c, f = 5;
+    COULEUR colors[] = { FIRST_COLOR, SECON_COLOR, THIRD_COLOR };
     POINT center;
 
     center.x = bl_corner.x + CIRCLE_RADIUS;
@@ -768,20 +762,13 @@ void draw_edging(POINT bl_corner, int number)
 
     for (c = 1; c != number + 1; c++)
     {
-        draw_circle(center, CIRCLE_RADIUS - c * f, EDGING_COLOR);
-        draw_circle(center, CIRCLE_RADIUS - (c * f) - 1, EDGING_COLOR);
-        draw_circle(center, CIRCLE_RADIUS - (c * f) - 2, EDGING_COLOR);
-        center.x++;
-        center.y--;
-        draw_circle(center, CIRCLE_RADIUS - (c * f), BACKGROUND_COLOR);
-        center.y++;
-        center.x--;
+        draw_fill_circle(center, CIRCLE_RADIUS - c * f, colors[c - 1]);
     }
 }
 
 void erase_pawn(POINT origin)
 {
-   draw_unicorn(origin, BACKGROUND_COLOR);
+   draw_unicorn(origin, THIRD_COLOR);
 }
 
 int is_on_board(POINT click)
@@ -791,7 +778,7 @@ int is_on_board(POINT click)
 
 void erase_highlight(NumBox cell, int interface)
 {
-    highlight_cell(cell, BACKGROUND_COLOR, interface);
+    draw_edging(numbox_to_point(cell, interface), gameboard[cell.y][cell.x].edging);
 }
 
 void highlight_cell(NumBox cell, COULEUR color, int interface)
@@ -837,7 +824,9 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
 
 void erase_highlighting(NumBox *cells, int len, int interface)
 {
-    highlight_cells(cells, len, BACKGROUND_COLOR, interface);
+    int i;
+    for (i = 0; i != len; i++)
+        erase_highlight(cells[i], interface);
     free(cells);
 }
 
