@@ -13,8 +13,11 @@
 #define EDGING_COLOR 0x22211d
 #define HIGHLIGHT_COLOR green
 #define BACKGROUND_COLOR 0xBA963E
+
 #define WHITE_PLAYER_COLOR white
-#define BLACK_PLAYER_COLOR blue
+#define WHITE_SHADING 0x1f1f1f
+#define BLACK_PLAYER_COLOR 0x1906de
+#define BLACK_SHADING 0x0f0f00
 
 #define CIRCLE_RADIUS 35
 #define CELL_WIDTH 70
@@ -139,7 +142,9 @@ void players_place_pawns(Border bor, int interface);
 COULEUR get_color_by_player(Coul color);
 Border player_choose_border();
 int player_choose_interface();
+int player_choose_to_replay();
 Gamemode player_choose_gamemode();
+NumBox *highlight_player_and_moves(NumBox *n1, Coul color, int *moves_count, int interface);
 
 /** Helpers **/
 
@@ -212,30 +217,30 @@ int main()
             }
             else{
 
+                // FIRST CLIC
                 do
                 {
                     click1 = wait_clic();
-                    n1 = point_to_numbox(click1, interface);
                 } while (!is_cell_valid(click1, lastEdging, interface) || !is_on_player_side(click1, interface, color));
 
-                highlight_cell(n1, colors[color], interface);
+                n1 = point_to_numbox(click1, interface);
+                moves = highlight_player_and_moves(&n1, color, &moves_count, interface);
 
-                moves = get_moves(&moves_count, n1);
-                highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
-
+                // SECOND CLIC
                 do
                 {
                     click2 = wait_clic();
 
                     if(is_on_player_side(click2, interface, color) && is_cell_valid(click2, lastEdging, interface))
                     {
+                        // REMOVE HIGHLIGHT
                         erase_highlighting(moves, moves_count, interface);
                         erase_highlight(n1, interface);
-                        n1 = point_to_numbox(click2, interface);
-                        highlight_cell(n1, colors[color], interface);
 
-                        moves = get_moves(&moves_count, n1);
-                        highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
+                        // FIRST CLIC
+                        n1 = point_to_numbox(click2, interface);
+                        // HIGHLIGHT MOVES
+                        moves = highlight_player_and_moves(&n1, color, &moves_count, interface);
                     }
                     else n2 = point_to_numbox(click2, interface);
                 } while (!contains(moves, moves_count, n2));
@@ -243,6 +248,7 @@ int main()
                 type1 = gameboard[n1.y][n1.x].type;
                 type2 = gameboard[n2.y][n2.x].type;
 
+                // MOVE PAWN AND REMOVE HIGHLIGHT
                 erase_pawn(numbox_to_point(n1, interface));
                 erase_highlighting(moves, moves_count, interface);
                 erase_highlight(n1, interface);
@@ -256,8 +262,7 @@ int main()
         } while (!is_unicorn_alive(type1, type2));
 
         display_endgame_menu(color);
-        click1 = wait_clic();
-        inGame = replay(click1);
+        inGame = player_choose_to_replay();
         fill_screen(BACKGROUND_COLOR);
     } while (inGame);
 
@@ -655,18 +660,36 @@ Border opposite_border(Border bor)
 
 void draw_unicorn(POINT origin, COULEUR color)
 {
-    int top_margin = 20;
-    int bot_margin = 24;
-    int side_margin = 25;
+    int i, top_margin = 30, bot_margin = 29, side_margin = 25;
+    COULEUR shading;
 
-    POINT top = { origin.x + CIRCLE_RADIUS,
+    if (color == WHITE_PLAYER_COLOR)
+    {
+        shading = WHITE_SHADING;
+    }
+    else
+    {
+        shading = BLACK_SHADING;
+    }
+
+
+    POINT top = { origin.x + CIRCLE_RADIUS - 10,
                   origin.y + CELL_HEIGHT - top_margin };
     POINT botl = { origin.x + side_margin,
                    origin.y + bot_margin };
     POINT botr = { origin.x + CELL_WIDTH -  side_margin,
                    origin.y + bot_margin };
 
-    draw_fill_triangle(top, botl, botr, color);
+
+    for (i = 0; botl.x < botr.x ; i++)
+    {
+        color += shading;
+        draw_fill_ellipse(botl, botr, 7, color);
+        botl.y += 2;
+        botl.x++;
+        botr.x -= 2;
+        botr.y += 2;
+    }
 }
 
 void draw_paladin(POINT origin, COULEUR color)
@@ -677,14 +700,12 @@ void draw_paladin(POINT origin, COULEUR color)
 
     draw_unicorn(origin, color);
 
-    POINT top = { origin.x + CIRCLE_RADIUS,
-                  origin.y + CELL_HEIGHT - top_margin };
-    POINT botl = { origin.x + side_margin,
-                   origin.y + bot_margin + 20 };
-    POINT botr = { origin.x + CELL_WIDTH - side_margin,
-                   origin.y + bot_margin + 20 };
+    POINT botl = { origin.x + side_margin +10,
+                   origin.y + bot_margin + 20};
+    POINT botr = { origin.x + CELL_WIDTH - side_margin-10,
+                   origin.y + bot_margin +20};
 
-    draw_fill_triangle(top, botl, botr, BACKGROUND_COLOR);
+    draw_fill_ellipse(botl, botr, 2, slategray);
 }
 
 void draw_gameboard(int interface)
@@ -750,6 +771,11 @@ void draw_edging(POINT bl_corner, int number)
         draw_circle(center, CIRCLE_RADIUS - c * f, EDGING_COLOR);
         draw_circle(center, CIRCLE_RADIUS - (c * f) - 1, EDGING_COLOR);
         draw_circle(center, CIRCLE_RADIUS - (c * f) - 2, EDGING_COLOR);
+        center.x++;
+        center.y--;
+        draw_circle(center, CIRCLE_RADIUS - (c * f), BACKGROUND_COLOR);
+        center.y++;
+        center.x--;
     }
 }
 
@@ -922,10 +948,20 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
     aff_pol(requiredEdging, 20, label, black);
 }
 
+
+NumBox *highlight_player_and_moves(NumBox *n1, Coul color, int *moves_count, int interface)
+{
+    NumBox *moves;
+    highlight_cell(*n1, get_color_by_player(color), interface);
+    moves = get_moves(moves_count, *n1);
+    highlight_cells(moves, *moves_count, HIGHLIGHT_COLOR, interface);
+
+    return moves;
+}
+
 /* Controller */
 
 
-// TODO: some prob with unicorn
 void players_place_pawns(Border bor, int interface)
 {
     NumBox white_pawns[6], black_pawns[6];
@@ -1049,10 +1085,15 @@ int is_on_player_side(POINT click, int interface, Coul color)
     return (is_on_board(click) && (gameboard[cell.y][cell.x].type == PALADIN || gameboard[cell.y][cell.x].type == UNICORN ) && gameboard[cell.y][cell.x].color == color);
 }
 
+
+int player_choose_to_replay()
+{
+    return replay(wait_clic());
+}
+
 int replay(POINT click)
 {
-    if (click.y >= 0 && click.x < MID_WIDTH) return 1;
-    else return 0;
+    return click.y >= 0 && click.x < MID_WIDTH;
 }
 
 void set_game_finished(int* finished)
