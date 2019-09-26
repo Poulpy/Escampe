@@ -659,6 +659,7 @@ void position_AI_pawns(NumBox pos[6], Border bor, int interface)
         draw_paladin(numbox_to_point(pos[i], interface), WHITE_PLAYER_COLOR);
         affiche_all();
     }
+    sleep(1);
 }
 
 Border opposite_border(Border bor)
