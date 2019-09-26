@@ -203,6 +203,7 @@ int main()
                 AI_game(interface, &n1, &n2, color, &type1, &type2, &lastEdging);
             }*/
 
+            // AI game function
             if (color == WHITE && mode == PVC) AI_game(interface, &n1, &n2, color, &type1, &type2, &lastEdging);
             else{
 
@@ -597,9 +598,6 @@ int is_between_points(POINT p1, POINT c1, POINT c2)
 {
     return p1.x >= c1.x && p1.x <= c2.x && p1.y <= c1.y && p1.y >= c2.y;
 }
-
-
-
 
 COULEUR get_color_by_player(Coul color)
 {
