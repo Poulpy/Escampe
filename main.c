@@ -191,17 +191,19 @@ int main()
 
             display_informations(color, lastEdging);
 
-            if (color == WHITE && mode == PVC)
+            /*if (color == WHITE && mode == PVC)
             {
-                /*random_move(color, &n1, &n2);
+                random_move(color, &n1, &n2);
                 type1 = gameboard[n1.y][n1.x].type;
                 type2 = gameboard[n2.y][n2.x].type;
                 erase_pawn(numbox_to_point(n1, interface));
                 move_pawn(n1, n2);
                 lastEdging = gameboard[n2.y][n2.x].edging;
-                draw_pawn(gameboard[n2.y][n2.x], numbox_to_point(n2, interface));*/
+                draw_pawn(gameboard[n2.y][n2.x], numbox_to_point(n2, interface));
                 AI_game(interface, &n1, &n2, color, &type1, &type2, &lastEdging);
-            }
+            }*/
+
+            if (color == WHITE && mode == PVC) AI_game(interface, &n1, &n2, color, &type1, &type2, &lastEdging);
             else{
 
                 do
@@ -242,7 +244,6 @@ int main()
                 lastEdging = gameboard[n2.y][n2.x].edging;
                 draw_pawn(gameboard[n2.y][n2.x], numbox_to_point(n2, interface));
             }
-
 
             affiche_all();
             turns++;
