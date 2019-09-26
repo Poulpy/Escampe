@@ -11,17 +11,18 @@
 
 
 #define EDGING_COLOR 0x22211d
-#define HIGHLIGHT_COLOR green
+#define HIGHLIGHT_COLOR darkolivegreen
 #define BACKGROUND_COLOR 0xBA963E
 
 #define SHADE 0x141414
 #define FIRST_COLOR (BACKGROUND_COLOR - SHADE)
 #define SECON_COLOR (FIRST_COLOR - SHADE)
 #define THIRD_COLOR (SECON_COLOR - SHADE)
+#define FOURT_COLOR (THIRD_COLOR - SHADE)
 
 #define WHITE_PLAYER_COLOR white
 #define WHITE_SHADING 0x171717
-#define BLACK_PLAYER_COLOR 0x1906de
+#define BLACK_PLAYER_COLOR 0x6d6fc6
 #define BLACK_SHADING 0x0f0f00
 
 #define CIRCLE_RADIUS 35
@@ -103,6 +104,7 @@ int  can_move(NumBox pawnCell);
 NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
 Border opposite_border(Border bor);
+int in_range(NumBox pos);
 
 /** View **/
 
@@ -125,7 +127,7 @@ void erase_highlight(NumBox cell, int interface);
 void display_turn_helper(COULEUR textColor, int lastEdging);
 void display_border_choice(/*POINT squarePoints[][2]*/);
 int  is_on_board(POINT click);
-int is_between_points(POINT p1, POINT c1, POINT c2);
+int  is_between_points(POINT p1, POINT c1, POINT c2);
 
 
 /** Controller **/
@@ -173,7 +175,6 @@ int main()
     Coul color;
     Type type1, type2;
     Gamemode mode;
-    COULEUR colors[2] = { BLACK_PLAYER_COLOR, WHITE_PLAYER_COLOR };
     Border bor;
 
     init_gameboard();
@@ -384,7 +385,7 @@ void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox f
 
     for (i = 0; i != 4; i++)
     {
-        if (!out_of_range(neigh[i]) && !eql(neigh[i], forbidden))
+        if (in_range(neigh[i]) && !eql(neigh[i], forbidden))
         {
             if (!is_cell_occupied(neigh[i]) || can_override(player, neigh[i]))
             {
@@ -422,6 +423,10 @@ void random_move(Coul color, NumBox *start, NumBox *end)
 }
 
 
+int in_range(NumBox pos)
+{
+    return pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5;
+}
 
 
 int out_of_range(NumBox pos)
@@ -634,7 +639,6 @@ void position_pawns(NumBox pos[6], Border bor, Coul color, int interface)
     {
         click = wait_clic();
         pos[0] = point_to_numbox(click, interface);
-        //print_numbox(pos[0]);
     } while (!is_in_border(pos[0], bor));
 
     draw_unicorn(numbox_to_point(pos[0], interface), get_color_by_player(color));
@@ -646,7 +650,6 @@ void position_pawns(NumBox pos[6], Border bor, Coul color, int interface)
         {
             click = wait_clic();
             pos[i] = point_to_numbox(click, interface);
-            //print_numbox(pos[i]);
         } while (!is_in_border(pos[i], bor) || contains(pos, i, pos[i]));
         draw_paladin(numbox_to_point(pos[i], interface), get_color_by_player(color));
         affiche_all();
@@ -665,56 +668,54 @@ Border opposite_border(Border bor)
 
 void draw_unicorn(POINT origin, COULEUR color)
 {
-    int i, bot_margin = 30, side_margin = 25;
-    COULEUR shading;
+    //COULEUR shading;
+    int top_margin = 20;
+    int bot_margin = 24;
+    int side_margin = 25;
 
+    POINT top = { origin.x + CIRCLE_RADIUS,
+                  origin.y + CELL_HEIGHT - top_margin };
     POINT botl = { origin.x + side_margin,
                    origin.y + bot_margin };
     POINT botr = { origin.x + CELL_WIDTH -  side_margin,
                    origin.y + bot_margin };
 
+    top.x -= 2;
+    draw_fill_triangle(top, botl, botr, color);
+    top.x += 4;
+    draw_fill_triangle(top, botl, botr, color);
 
-    if (color == WHITE_PLAYER_COLOR)
-    {
-        shading = WHITE_SHADING;
-    }
-    else if (color == BLACK_PLAYER_COLOR)
-    {
-        shading = BLACK_SHADING;
-    }
-    else
-    {
-        POINT center = { origin.x + CIRCLE_RADIUS,
-                         origin.y + CIRCLE_RADIUS };
-        draw_fill_circle(center, CIRCLE_RADIUS - 20, color);
-        return;
-    }
-
-
-    for (i = 0; botl.x < botr.x ; i++)
-    {
-        color += shading;
-        draw_fill_ellipse(botl, botr, 7, color);
-        botl.y += 2;
-        botl.x++;
-        botr.x -= 2;
-        botr.y += 2;
-    }
+    top.x -= 2;
+    top.y--;
+    draw_fill_circle(top, 2, color);
+    draw_fill_ellipse(botl, botr, 2, color);
 }
 
 void draw_paladin(POINT origin, COULEUR color)
 {
+    int top_margin = 30;
     int bot_margin = 24;
     int side_margin = 25;
 
-    draw_unicorn(origin, color);
+    POINT top = { origin.x + CIRCLE_RADIUS,
+                  origin.y + CELL_HEIGHT - top_margin };
+    POINT botl = { origin.x + side_margin,
+                   origin.y + bot_margin };
+    POINT botr = { origin.x + CELL_WIDTH -  side_margin,
+                   origin.y + bot_margin };
 
-    POINT botl = { origin.x + side_margin + 2,
-                   origin.y + bot_margin + 20};
-    POINT botr = { origin.x + CELL_WIDTH - side_margin-8,
-                   origin.y + bot_margin +20};
+    draw_fill_triangle(top, botl, botr, color);
+    top.x -= 5;
+    draw_fill_triangle(top, botl, botr, color);
+    top.x += 10;
+    draw_fill_triangle(top, botl, botr, color);
 
     draw_fill_ellipse(botl, botr, 2, color);
+    botl.x = top.x - 9;
+    botr.x = top.x - 1;
+    botl.y = top.y;
+    botr.y = top.y;
+    draw_fill_ellipse(botl, botr, 3, color - 0x070707);
 }
 
 void draw_gameboard(int interface)
@@ -768,7 +769,10 @@ void draw_edging(POINT bl_corner, int number)
 
 void erase_pawn(POINT origin)
 {
-   draw_unicorn(origin, THIRD_COLOR);
+    POINT center;
+    center.x = origin.x + CIRCLE_RADIUS;
+    center.y = origin.y + CIRCLE_RADIUS;
+    draw_fill_circle(center, CIRCLE_RADIUS - 15, THIRD_COLOR);
 }
 
 int is_on_board(POINT click)
@@ -778,45 +782,28 @@ int is_on_board(POINT click)
 
 void erase_highlight(NumBox cell, int interface)
 {
-    draw_edging(numbox_to_point(cell, interface), gameboard[cell.y][cell.x].edging);
+    highlight_cell(cell, BACKGROUND_COLOR, interface);
 }
 
 void highlight_cell(NumBox cell, COULEUR color, int interface)
 {
-    int c, f = 5, number;
     POINT p;
 
     p = numbox_to_point(cell, interface);
     p.x += CIRCLE_RADIUS;
     p.y += CIRCLE_RADIUS;
 
-    number = gameboard[cell.y][cell.x].edging;
-
-    for (c = 1; c != number + 1; c++)
-    {
-        draw_circle(p, CIRCLE_RADIUS - c * f - 3, color);
-        draw_circle(p, CIRCLE_RADIUS - (c * f) - 4, color);
-    }
+    draw_circle(p, CIRCLE_RADIUS - 3, color);
+    draw_circle(p, CIRCLE_RADIUS - 4, color);
 }
 
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
 {
-    int i, c, f = 5, number;
-    POINT p;
+    int i;
 
     for (i = 0; i != len; i++)
     {
-        p = numbox_to_point(cells[i], interface);
-        p.x += CIRCLE_RADIUS;
-        p.y += CIRCLE_RADIUS;
-
-        number = gameboard[cells[i].y][cells[i].x].edging;
-
-        for (c = 1; c != number + 1; c++)
-        {
-            draw_circle(p, CIRCLE_RADIUS - c * f - 3, color);
-            draw_circle(p, CIRCLE_RADIUS - (c * f) - 4, color);
-        }
+        highlight_cell(cells[i], color, interface);
     }
 
     affiche_all();
@@ -878,12 +865,12 @@ void erase_information()
 
 void display_informations(Coul playerColor, int lastEdging)
 {
-    erase_information();
     POINT label;
     char* text;
     COULEUR textColor;
     int size = 35;
 
+    erase_information();
     label.x = MID_WIDTH - (size * 2);
     label.y = MARGIN + BOARD_HEIGHT + (size * 2);
 
@@ -906,9 +893,10 @@ void display_informations(Coul playerColor, int lastEdging)
 
 void display_turn_helper(COULEUR textColor, int lastEdging)
 {
-    POINT label;
     char requiredEdging[5];
-    int size = 35, radius = 25, i;
+    int textSize = 35, i, radii[] = { 100, 90, 80 };
+    POINT label, p = { 0, HEIGHT };
+    COULEUR colors[] = { FIRST_COLOR, SECON_COLOR, THIRD_COLOR };
 
     if (lastEdging == 0)
     {
@@ -920,32 +908,13 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
         sprintf(requiredEdging, "%d", lastEdging);
     }
 
-    label.x = MID_WIDTH;
-    label.y = MARGIN - size;
-    draw_fill_circle(label, radius / 2, textColor);
-
     for (i = 0; i != lastEdging; i++)
     {
-        draw_circle(label, radius - (i * 4), EDGING_COLOR);
-        draw_circle(label, radius - (i * 4) - 1, EDGING_COLOR);
+        draw_fill_circle(p, radii[i], colors[i]);
     }
-
-    label.x += 30;
-    label.y += radius / 2;
-    aff_pol(requiredEdging, 20, label, black);
-    label.y += 1;
-    aff_pol(requiredEdging, 20, label, black);
-    POINT p = { 0, HEIGHT };
-    draw_fill_circle(p, 100, FIRST_COLOR);
-    if (lastEdging >= 2)
-    draw_fill_circle(p, 90, SECON_COLOR);
-    if (lastEdging >= 3)
-    draw_fill_circle(p, 80, THIRD_COLOR);
     label.x = 10;
-    label.y = HEIGHT - 10;
-    aff_pol(requiredEdging, 30, label, black);
-    label.y += 1;
-    aff_pol(requiredEdging, 30, label, black);
+    label.y = HEIGHT - 15;
+    aff_pol(requiredEdging, textSize, label, BACKGROUND_COLOR);
 }
 
 
