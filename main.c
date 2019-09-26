@@ -116,7 +116,7 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
 void erase_highlighting(NumBox *cells, int len, int interface);
 void erase_highlight(NumBox cell, int interface);
 void display_turn_helper(COULEUR textColor, int lastEdging);
-void display_border_choice(/*POINT squarePoints[][2]*/);
+void display_border_choice();
 int  is_on_board(POINT click);
 int is_between_points(POINT p1, POINT c1, POINT c2);
 
@@ -135,7 +135,7 @@ int  replay(POINT click);
 int  is_on_player_side(POINT click, int interface, Coul color);
 NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *click2, int *moves_count, int interface);
 int is_cell_valid(POINT click, int lastEdging, int interface);
-int get_border_choice(POINT click/*, POINT squarePoints[4][2]*/);
+int get_border_choice(POINT click);
 void players_place_pawns(Border bor, int interface, Gamemode mode);
 COULEUR get_color_by_player(Coul color);
 Border player_choose_border();
@@ -159,7 +159,7 @@ void place_pawns(NumBox pawns[6], Coul color);
 int main()
 {
     NumBox n1, n2, *moves;
-    POINT click1, click2/*, borderPoints[4][2]*/;
+    POINT click1, click2;
     int interface, moves_count, inGame = 1, lastEdging = 0, turns = 0;
     Coul color;
     Type type1, type2;
@@ -183,8 +183,7 @@ int main()
         mode = player_choose_gamemode();
 
         init_gameboard();
-        //init_gamepawns_1();
-        display_border_choice(/*borderPoints*/);
+        display_border_choice();
 
         bor = player_choose_border();
         draw_gameboard(interface);
@@ -546,7 +545,7 @@ void display_gamemode_choice()
     affiche_all();
 }
 
-void display_border_choice(/*POINT squarePoints[4][2]*/)
+void display_border_choice()
 {
     char* positions[4] = {"H", "G", "D", "B"};
     int i, squareSize= 75, textSize = 50;
