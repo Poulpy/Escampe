@@ -131,6 +131,7 @@ void display_turn_helper(COULEUR textColor, int lastEdging);
 void display_border_choice();
 int  is_on_board(POINT click);
 int is_between_points(POINT p1, POINT c1, POINT c2);
+void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface);
 
 
 /** Controller **/
@@ -175,9 +176,8 @@ void place_pawns(NumBox pawns[6], Coul color);
 
 int main()
 {
-    NumBox n1, n2, *moves;
-    POINT click1, click2;
-    int interface, moves_count, inGame = 1, lastEdging = 0, turns = 0;
+    NumBox n1, n2;
+    int interface, inGame = 1, lastEdging = 0, turns = 0;
     Coul color;
     Type type1, type2;
     Gamemode mode;
@@ -202,8 +202,6 @@ int main()
 
             display_informations(color, lastEdging);
 
-
-            // AI game function
             if (color == WHITE && mode == PVC) AI_game(interface, &n1, &n2, color, &type1, &type2, &lastEdging);
             else
                 player_play_turn(interface, &n1, &n2, color, &type1, &type2, &lastEdging);
@@ -332,7 +330,7 @@ void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox f
     {
         if (in_range(neigh[i]) && !eql(neigh[i], forbidden))
         {
-            if (!is_cell_occupied(neigh[i]) || can_override(player, neigh[i]))
+            if (!is_cell_occupied(neigh[i]) || (can_override(player, neigh[i] && move == 1)))
             {
                 if (moves == 1) append(cells, offset, neigh[i]);
                 else get_neighbours(cells, offset, neigh[i], moves - 1, pawn, player);
@@ -897,6 +895,12 @@ NumBox *highlight_player_and_moves(NumBox *n1, Coul color, int *moves_count, int
     return moves;
 }
 
+void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface)
+{
+    erase_highlight(pawn, interface);
+    erase_highlighting(moves, moves_count, interface);
+}
+
 /* Controller */
 
 void init_game(int *interface, Gamemode *mode, Border *bor)
@@ -1081,8 +1085,7 @@ void player_play_turn(int interface, NumBox *n1, NumBox *n2, Coul color, Type *t
 
         if(is_on_player_side(click2, interface, color) && is_cell_valid(click2, *lastEdging, interface))
         {
-            erase_highlighting(moves, moves_count, interface);
-            erase_highlight(*n1, interface);
+            erase_highlightings(moves, *n1, moves_count, interface);
 
             *n1 = point_to_numbox(click2, interface);
             moves = highlight_player_and_moves(n1, color, &moves_count, interface);
@@ -1094,8 +1097,7 @@ void player_play_turn(int interface, NumBox *n1, NumBox *n2, Coul color, Type *t
     *type2 = gameboard[n2->y][n2->x].type;
 
     erase_pawn(*n1, interface);
-    erase_highlighting(moves, moves_count, interface);
-    erase_highlight(*n1, interface);
+    erase_highlightings(moves, *n1, moves_count, interface);
     move_pawn(*n1, *n2);
     *lastEdging = gameboard[n2->y][n2->x].edging;
     draw_pawn(gameboard[n2->y][n2->x], numbox_to_point(*n2, interface));
@@ -1104,10 +1106,13 @@ void player_play_turn(int interface, NumBox *n1, NumBox *n2, Coul color, Type *t
 void AI_game(int interface, NumBox *start, NumBox *end, Coul color, Type *type1, Type *type2, int *lastEdging)
 {
     random_move(color, start, end);
+    puts("debug");
     *type1 = gameboard[start->y][start->x].type;
     *type2 = gameboard[end->y][end->x].type;
     erase_pawn(*start, interface);
+    puts("debug2");
     move_pawn(*start, *end);
+    puts("debug3");
     *lastEdging = gameboard[end->y][end->x].edging;
     draw_pawn(gameboard[end->y][end->x], numbox_to_point(*end, interface));
 }
