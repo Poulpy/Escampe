@@ -7,15 +7,16 @@ void display_interface_choice()
     int size;
 
     fill_screen(BACKGROUND_COLOR);
+
     size = 30;
-    label.x = MID_WIDTH - (size * 2) - 15;
+    label.x = MID_WIDTH - (size * 1.5 * 2) - 15;
     label.y = HEIGHT - size;
-    aff_pol("Interface", size, label, red);
+    aff_pol("Escampe", size * 1.5, label, red);
 
     top.x = MID_WIDTH;
     top.y = MID_HEIGHT + (MARGIN * 2);
     bottom.x = MID_WIDTH;
-    bottom.y = MARGIN / 2;
+    bottom.y = MARGIN / 3;
 
     draw_line(top, bottom, white);
 
@@ -85,6 +86,12 @@ void display_border_choice()
                                    { MARGIN + BOARD_WIDTH + buttonWidth, MARGIN + BOARD_HEIGHT } },
                                  { { MARGIN, MARGIN - buttonWidth },
                                    { MARGIN + BOARD_WIDTH, MARGIN } } };
+
+    POINT top = { MID_WIDTH - 20 * 8, HEIGHT };
+    POINT bottom = { MID_WIDTH - 20 * 8, MARGIN - buttonWidth };
+    aff_pol("Choisissez votre bordure", 20, top, white);
+    aff_pol("Puis placez vos pions dessus", 20, bottom, white);
+
 
     for (i = 0; i < 4; i++)
     {
