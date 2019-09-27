@@ -34,11 +34,11 @@ typedef struct Box
 Box gameboard[6][6];
 
 int  is_edging_valid(int lastEdging, NumBox start);
-int  is_any_pawn_playable(Coul color, int* lastEdging);
+int  can_any_pawn_move(Coul color, int* lastEdging);
 int  out_of_range(NumBox pos);
 int  can_override(NumBox start, NumBox end);
 int  is_cell_occupied(NumBox pos);
-int  is_unicorn_alive(Type start, Type end);
+int  is_unicorn_captured(Type start, Type end);
 int  can_move(NumBox pawnCell);
 int  in_range(NumBox pos);
 int  get_edging(NumBox n);
@@ -57,7 +57,7 @@ void append(NumBox *ns, int *len, NumBox n);
 void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
 void copy(NumBox *n1, int *offset, NumBox *n2, int len2);
 void place_pawns(NumBox pawns[6], Coul color);
-void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player);
+void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player);
 NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
 Border opposite_border(Border bor);

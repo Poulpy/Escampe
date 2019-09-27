@@ -7,7 +7,6 @@
 
 /* Global variables */
 
-Box gameboard[6][6];
 
 /* Main */
 
@@ -34,8 +33,8 @@ int main()
         // Turn loop
         do
         {
-            if (color == BLACK && is_any_pawn_playable(WHITE, &lastEdging) && turns != 0) color = WHITE;
-            else if (color == WHITE && is_any_pawn_playable(BLACK, &lastEdging) && turns != 0) color = BLACK;
+            if (color == BLACK && can_any_pawn_move(WHITE, &lastEdging) && turns != 0) color = WHITE;
+            else if (color == WHITE && can_any_pawn_move(BLACK, &lastEdging) && turns != 0) color = BLACK;
 
             display_informations(color, lastEdging);
 
@@ -45,7 +44,7 @@ int main()
 
             affiche_all();
             turns++;
-        } while (is_unicorn_alive(type1, type2));
+        } while (!is_unicorn_captured(type1, type2));
 
         display_endgame_menu(color);
         inGame = player_choose_to_replay();

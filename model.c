@@ -68,12 +68,13 @@ int is_edging_valid(int lastEdging, NumBox start)
 {
     return (lastEdging == 0 || lastEdging == gameboard[start.y][start.x].edging);
 }
-int is_unicorn_alive(Type start, Type end)
+
+int is_unicorn_captured(Type start, Type end)
 {
-    return !(start == PALADIN && end == UNICORN);
+    return start == PALADIN && end == UNICORN;
 }
 
-int is_any_pawn_playable(Coul color, int* lastEdging)
+int can_any_pawn_move(Coul color, int* lastEdging)
 {
     int i, j;
     NumBox pawnCell;
@@ -92,7 +93,7 @@ int is_any_pawn_playable(Coul color, int* lastEdging)
     return 0;
 }
 
-void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player)
+void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player)
 {
     int i;
     NumBox neigh[4];
@@ -109,7 +110,7 @@ void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox f
             if (!is_cell_occupied(neigh[i]) || (can_override(player, neigh[i]) && moves == 1))
             {
                 if (moves == 1) append(cells, offset, neigh[i]);
-                else get_neighbours(cells, offset, neigh[i], moves - 1, pawn, player);
+                else depth_first_search(cells, offset, neigh[i], moves - 1, pawn, player);
             }
         }
     }
@@ -123,7 +124,7 @@ NumBox *get_moves(int *moves_count, NumBox pawn)
     *moves_count = 0;
     NumBox *moves = (NumBox *) malloc(sizeof(NumBox) * m * 5);
 
-    get_neighbours(moves, moves_count, pawn, m, forbidden, pawn);
+    depth_first_search(moves, moves_count, pawn, m, forbidden, pawn);
     uniq(moves, moves_count);
 
     return moves;
@@ -140,7 +141,6 @@ void random_move(Coul color, NumBox *start, NumBox *end)
     ends = get_moves(&len, *start);
     *end = ends[alea_int(len)];
 }
-
 
 int in_range(NumBox pos)
 {
@@ -210,7 +210,6 @@ void place_pawns(NumBox pawns[6], Coul color)
     }
 }
 
-
 void append(NumBox *ns, int *len, NumBox n)
 {
     if (contains(ns, *len, n)) return;
@@ -232,7 +231,6 @@ int contains(NumBox *ns, int len, NumBox n)
 
     return 0;
 }
-
 
 void uniq(NumBox *ns, int *len)
 {
@@ -294,13 +292,10 @@ void print_numboxes(NumBox *n, int len)
     }
 }
 
-
-
 int get_edging(NumBox n)
 {
     return gameboard[n.y][n.x].edging;
 }
-
 
 Border opposite_border(Border bor)
 {
@@ -310,5 +305,4 @@ Border opposite_border(Border bor)
     if (bor == TOP)    return BOTTOM;
     return BOTTOM;
 }
-
 
