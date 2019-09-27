@@ -2,16 +2,15 @@
 
 int get_border_choice(POINT click)
 {
-    int i, squareSize= 75;
-    POINT squarePoints[4][2] = {{ (POINT) {MID_WIDTH - (squareSize / 2), HEIGHT - MARGIN},
-                                 (POINT) {MID_WIDTH  + (squareSize / 2), HEIGHT - MARGIN - squareSize }},
-                                { (POINT) {(MID_WIDTH) / 4 + (squareSize / 2), MID_HEIGHT + (squareSize / 2)},
-                                 (POINT) {(MID_WIDTH) / 4 + (squareSize / 2) + squareSize, MID_HEIGHT - (squareSize / 2)}},
-                                { (POINT) {MID_WIDTH + ((MID_WIDTH) / 2) - (squareSize / 2), MID_HEIGHT + (squareSize / 2)},
-                                 (POINT) {MID_WIDTH + ((MID_WIDTH) / 2) + (squareSize / 2), MID_HEIGHT - (squareSize / 2)}},
-                                { (POINT) {MID_WIDTH - (squareSize / 2), MARGIN + squareSize},
-                                 (POINT) {MID_WIDTH + (squareSize / 2), MARGIN}}
-                                };
+    int i, buttonWidth = 70;
+    POINT squarePoints[4][2] = { { { MARGIN, BOARD_HEIGHT + MARGIN },
+                                   { MARGIN + BOARD_WIDTH, BOARD_HEIGHT + MARGIN + buttonWidth } },
+                                 { { MARGIN - buttonWidth, MARGIN },
+                                   { MARGIN, BOARD_HEIGHT + MARGIN } },
+                                 { { MARGIN + BOARD_WIDTH, MARGIN },
+                                   { MARGIN + BOARD_WIDTH + buttonWidth, MARGIN + BOARD_HEIGHT } },
+                                 { { MARGIN, MARGIN - buttonWidth },
+                                   { MARGIN + BOARD_WIDTH, MARGIN } } };
     Border choice[] = { TOP, LEFT, RIGHT, BOTTOM };
 
     for (i = 0; i != 4; i++)
@@ -27,7 +26,7 @@ int get_border_choice(POINT click)
 
 int is_between_points(POINT p1, POINT c1, POINT c2)
 {
-    return p1.x >= c1.x && p1.x <= c2.x && p1.y <= c1.y && p1.y >= c2.y;
+    return p1.x >= c1.x && p1.x <= c2.x && p1.y >= c1.y && p1.y <= c2.y;
 }
 
 COULEUR get_color_by_player(Coul color)
@@ -102,9 +101,11 @@ void init_game(int *interface, Gamemode *mode, Border *bor)
 
     init_gameboard();
 
+    draw_gameboard(*interface);
+
     display_border_choice();
     *bor = player_choose_border();
-    draw_gameboard(*interface);
+    erase_window_except_gameboard();
 }
 
 void players_place_pawns(Border bor, int interface, Gamemode mode)

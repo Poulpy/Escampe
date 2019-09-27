@@ -71,56 +71,43 @@ void display_gamemode_choice()
 }
 void display_border_choice()
 {
-    char* positions[4] = {"H", "G", "D", "B"};
-    int i, squareSize= 75, textSize = 50;
-    POINT squarePoints[4][2] = {{ (POINT) {MID_WIDTH - (squareSize / 2), HEIGHT - MARGIN},
-                                 (POINT) {MID_WIDTH  + (squareSize / 2), HEIGHT - MARGIN - squareSize }},
-                                { (POINT) {(MID_WIDTH) / 4 + (squareSize / 2), MID_HEIGHT + (squareSize / 2)},
-                                 (POINT) {(MID_WIDTH) / 4 + (squareSize / 2) + squareSize, MID_HEIGHT - (squareSize / 2)}},
-                                { (POINT) {MID_WIDTH + ((MID_WIDTH) / 2) - (squareSize / 2), MID_HEIGHT + (squareSize / 2)},
-                                 (POINT) {MID_WIDTH + ((MID_WIDTH) / 2) + (squareSize / 2), MID_HEIGHT - (squareSize / 2)}},
-                                { (POINT) {MID_WIDTH - (squareSize / 2), MARGIN + squareSize},
-                                 (POINT) {MID_WIDTH + (squareSize / 2), MARGIN}}
-                                };
-    POINT textPoints[4] = {{MID_WIDTH - (squareSize / 2) + (textSize / 3), HEIGHT - MARGIN - 5},
-                           {((MID_WIDTH) / 4) + (squareSize / 2) + (textSize / 3), MID_HEIGHT + (squareSize / 2) - 5},
-                           {MID_WIDTH + ((MID_WIDTH) / 2) - (squareSize / 2) + (textSize / 3), MID_HEIGHT + (squareSize / 2) - 5},
-                           {MID_WIDTH - (squareSize / 2) + (textSize / 3), MARGIN + squareSize - 5}
-                            };
-    fill_screen(BACKGROUND_COLOR);
+    char* positions[4] = { "H", "G", "D", "B" };
+    int i, textSize = 50, padding = 24, buttonWidth = 70;
+    POINT textPoints[4] = { { MID_WIDTH - padding, MARGIN + BOARD_HEIGHT + buttonWidth },
+                            { MARGIN - buttonWidth * 0.75, MID_HEIGHT + textSize },
+                            { MARGIN + BOARD_WIDTH + buttonWidth * 0.25, MID_HEIGHT + textSize },
+                            { MID_WIDTH - padding, MARGIN } };
+    POINT squarePoints[4][2] = { { { MARGIN, BOARD_HEIGHT + MARGIN },
+                                   { MARGIN + BOARD_WIDTH, BOARD_HEIGHT + MARGIN + buttonWidth } },
+                                 { { MARGIN - buttonWidth, MARGIN },
+                                   { MARGIN, BOARD_HEIGHT + MARGIN } },
+                                 { { MARGIN + BOARD_WIDTH, MARGIN },
+                                   { MARGIN + BOARD_WIDTH + buttonWidth, MARGIN + BOARD_HEIGHT } },
+                                 { { MARGIN, MARGIN - buttonWidth },
+                                   { MARGIN + BOARD_WIDTH, MARGIN } } };
 
     for (i = 0; i < 4; i++)
     {
         draw_fill_rectangle(squarePoints[i][0], squarePoints[i][1], FIRST_COLOR);
         aff_pol(positions[i], textSize, textPoints[i], THIRD_COLOR);
     }
-    draw_tiny_gameboard(0);
 
     affiche_all();
 }
 
-void draw_tiny_gameboard(int interface)
+void erase_window_except_gameboard()
 {
-    int row, col;
-    POINT cursor = { 10, 10 };
-    NumBox n;
-    fill_screen(BACKGROUND_COLOR);
-
-    for (row = 0; row != 6; row++)
-    {
-        cursor.x = 0;
-        for (col = 0; col != 6; col++)
-        {
-            n.x = col;
-            n.y = row;
-
-            draw_fill_circle(cursor, 3, FOURT_COLOR);
-            cursor.x += 10;
-        }
-        cursor.y += 10;
-    }
-
-    affiche_all();
+    POINT p = { 0, 0 };
+    POINT p2 = { WIDTH, MARGIN };
+    POINT p3 = { MARGIN, HEIGHT };
+    POINT p4 = { WIDTH, HEIGHT };
+    draw_fill_rectangle(p, p2, BACKGROUND_COLOR);
+    draw_fill_rectangle(p, p3, BACKGROUND_COLOR);
+    p2.x -= MARGIN;
+    p2.y -= MARGIN;
+    draw_fill_rectangle(p2, p4, BACKGROUND_COLOR);
+    p3.y -= MARGIN;
+    draw_fill_rectangle(p3, p4, BACKGROUND_COLOR);
 }
 
 void draw_unicorn(POINT origin, COULEUR color)
@@ -363,8 +350,8 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
     {
         draw_fill_circle(p, radii[i], colors[i]);
     }
-    label.x = 10;
-    label.y = HEIGHT - 15;
+    label.x = 15;
+    label.y = HEIGHT - 10;
     aff_pol(requiredEdging, textSize, label, BACKGROUND_COLOR);
 }
 
