@@ -98,22 +98,25 @@ int  out_of_range(NumBox pos);
 int  can_override(NumBox start, NumBox end);
 int  is_cell_occupied(NumBox pos);
 int  is_unicorn_alive(Type start, Type end);
-int  box_eql(Box b1, Box b2);
-int  is_in_border(NumBox pos, Border bor, int interface);
 int  can_move(NumBox pawnCell);
 NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
 Border opposite_border(Border bor);
 int in_range(NumBox pos);
-void erase_pawn(NumBox pawn, int interface);
 int get_edging(NumBox n);
-
+void print_numboxes(NumBox *n, int len);
+void print_numbox(NumBox n);
+int  eql(NumBox n1, NumBox n2);
+void remove_numbox(NumBox *ns, int *len, NumBox n);
+void append(NumBox *ns, int *len, NumBox n);
+void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
+void copy(NumBox *n1, int *offset, NumBox *n2, int len2);
+int  contains(NumBox *ns, int len, NumBox n);
+void place_pawns(NumBox pawns[6], Coul color);
 /** View **/
 
 void draw_edging(POINT center, int number);
 void draw_gameboard(int interface);
-void position_pawns(NumBox pos[6], Border bor, Coul color, int interface);
-void position_AI_pawns(NumBox pos[6], Border bor, int interface);
 void draw_unicorn(POINT origin, COULEUR color);
 void draw_paladin(POINT origin, COULEUR color);
 void draw_edging(POINT bl_corner, int number);
@@ -129,10 +132,9 @@ void erase_highlighting(NumBox *cells, int len, int interface);
 void erase_highlight(NumBox cell, int interface);
 void display_turn_helper(COULEUR textColor, int lastEdging);
 void display_border_choice();
-int  is_on_board(POINT click);
-int is_between_points(POINT p1, POINT c1, POINT c2);
 void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface);
-
+void erase_pawn(NumBox pawn, int interface);
+NumBox *highlight_player_and_moves(NumBox *n1, Coul color, int *moves_count, int interface);
 
 /** Controller **/
 
@@ -147,30 +149,22 @@ int  get_interface_choice(POINT click);
 Gamemode  get_gamemode_choice(POINT click);
 int  replay(POINT click);
 int  is_on_player_side(POINT click, int interface, Coul color);
-NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *click2, int *moves_count, int interface);
 void AI_game(int interface, NumBox *start, NumBox *end, Coul color, Type *type1, Type *type2, int *lastEdging);
 void player_play_turn(int interface, NumBox *n1, NumBox *n2, Coul color, Type *type1, Type *type2, int *lastEdging);
 int is_cell_valid(POINT click, int lastEdging, int interface);
 int player_choose_to_replay();
-NumBox *highlight_player_and_moves(NumBox *n1, Coul color, int *moves_count, int interface);
 int get_border_choice(POINT click);
 void players_place_pawns(Border bor, int interface, Gamemode mode);
 COULEUR get_color_by_player(Coul color);
 Border player_choose_border();
 int player_choose_interface();
 Gamemode player_choose_gamemode();
+int  is_in_border(NumBox pos, Border bor, int interface);
+void position_pawns(NumBox pos[6], Border bor, Coul color, int interface);
+void position_AI_pawns(NumBox pos[6], Border bor, int interface);
+int  is_on_board(POINT click);
+int is_between_points(POINT p1, POINT c1, POINT c2);
 
-/** Helpers **/
-
-void print_numboxes(NumBox *n, int len);
-void print_numbox(NumBox n);
-int  eql(NumBox n1, NumBox n2);
-void remove_numbox(NumBox *ns, int *len, NumBox n);
-void append(NumBox *ns, int *len, NumBox n);
-void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
-void copy(NumBox *n1, int *offset, NumBox *n2, int len2);
-int  contains(NumBox *ns, int len, NumBox n);
-void place_pawns(NumBox pawns[6], Coul color);
 
 /* Main */
 
@@ -330,7 +324,7 @@ void get_neighbours(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox f
     {
         if (in_range(neigh[i]) && !eql(neigh[i], forbidden))
         {
-            if (!is_cell_occupied(neigh[i]) || (can_override(player, neigh[i] && move == 1)))
+            if (!is_cell_occupied(neigh[i]) || (can_override(player, neigh[i]) && moves == 1))
             {
                 if (moves == 1) append(cells, offset, neigh[i]);
                 else get_neighbours(cells, offset, neigh[i], moves - 1, pawn, player);
@@ -925,16 +919,10 @@ void players_place_pawns(Border bor, int interface, Gamemode mode)
     position_pawns(black_pawns, bor, BLACK, interface);
     place_pawns(black_pawns, BLACK);
 
-    if (mode == PVC)
-    {
-        position_AI_pawns(white_pawns, opposite_border(bor), interface);
-        place_pawns(white_pawns, WHITE);
-    }
-    else
-    {
-        position_pawns(white_pawns, opposite_border(bor), WHITE, interface);
-        place_pawns(white_pawns, WHITE);
-    }
+    if (mode == PVC) position_AI_pawns(white_pawns, opposite_border(bor), interface);
+    else position_pawns(white_pawns, opposite_border(bor), WHITE, interface);
+
+    place_pawns(white_pawns, WHITE);
 }
 
 Border player_choose_border()
@@ -945,7 +933,7 @@ Border player_choose_border()
     do
     {
         choice = wait_clic();
-        bor = get_border_choice(choice/*, borderPoints*/);
+        bor = get_border_choice(choice);
     } while (bor == -1);
 
     return bor;
@@ -953,20 +941,6 @@ Border player_choose_border()
 
 
 /* Doesn't work */
-NumBox *pick_pawn_and_move(NumBox *start, NumBox *end, POINT *click1, POINT *click2, int *moves_count, int interface)
-{
-    NumBox *moves;
-
-    *click1 = wait_clic();
-    *start = point_to_numbox(*click1, interface);
-    moves = get_moves(moves_count, *start);
-    highlight_cells(moves, *moves_count, HIGHLIGHT_COLOR, interface);
-
-    *click2 = wait_clic();
-    *end = point_to_numbox(*click2, interface);
-
-    return moves;
-}
 
 POINT numbox_to_point(NumBox n, int interface)
 {
@@ -1120,7 +1094,7 @@ void AI_game(int interface, NumBox *start, NumBox *end, Coul color, Type *type1,
 int is_cell_valid(POINT click, int lastEdging, int interface)
 {
     NumBox selectedCell = point_to_numbox(click, interface);
-    return (lastEdging == 0 || lastEdging == gameboard[selectedCell.y][selectedCell.x].edging) && gameboard[selectedCell.y][selectedCell.x].type != EMPTY;
+    return is_edging_valid(lastEdging, selectedCell) && is_cell_occupied(selectedCell);
 }
 
 /* Helpers */
