@@ -52,6 +52,7 @@ void display_border_choice();
 void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface);
 void erase_pawn(NumBox pawn, int interface);
 void draw_move(NumBox start, NumBox end, int interface);
+void draw_tiny_gameboard(int interface);
 
 #endif
 

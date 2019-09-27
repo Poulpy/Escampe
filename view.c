@@ -94,11 +94,34 @@ void display_border_choice()
         draw_fill_rectangle(squarePoints[i][0], squarePoints[i][1], FIRST_COLOR);
         aff_pol(positions[i], textSize, textPoints[i], THIRD_COLOR);
     }
+    draw_tiny_gameboard(0);
 
     affiche_all();
 }
 
+void draw_tiny_gameboard(int interface)
+{
+    int row, col;
+    POINT cursor = { 10, 10 };
+    NumBox n;
+    fill_screen(BACKGROUND_COLOR);
 
+    for (row = 0; row != 6; row++)
+    {
+        cursor.x = 0;
+        for (col = 0; col != 6; col++)
+        {
+            n.x = col;
+            n.y = row;
+
+            draw_fill_circle(cursor, 3, FOURT_COLOR);
+            cursor.x += 10;
+        }
+        cursor.y += 10;
+    }
+
+    affiche_all();
+}
 
 void draw_unicorn(POINT origin, COULEUR color)
 {
