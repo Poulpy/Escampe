@@ -57,11 +57,16 @@ int is_cell_occupied(NumBox pos)
     return gameboard[pos.y][pos.x].type != EMPTY;
 }
 
-void move_pawn(NumBox start, NumBox end)
+int move_pawn(NumBox start, NumBox end)
 {
+    Type enemy = gameboard[end.y][end.x].type;
+    printf("START: %d %d\n", start.y, start.x);
+    printf("END: %d %d\n", end.y, end.x);
     gameboard[end.y][end.x].type = gameboard[start.y][start.x].type;
     gameboard[end.y][end.x].color = gameboard[start.y][start.x].color;
     gameboard[start.y][start.x].type = EMPTY;
+
+    return enemy == UNICORN;
 }
 
 int is_edging_valid(int lastEdging, NumBox start)
@@ -140,6 +145,8 @@ void random_move(Coul color, NumBox *start, NumBox *end)
 
     ends = get_moves(&len, *start);
     *end = ends[alea_int(len)];
+
+    //sleep(2);
 }
 
 int in_range(NumBox pos)
@@ -306,3 +313,32 @@ Border opposite_border(Border bor)
     return BOTTOM;
 }
 
+int can_other_player_move(Coul player, int lastEdging)
+{
+    int i, j;
+    Coul otherPlayer = get_other_player(player);
+    NumBox pawnCell;
+
+    for (i = 0; i < 6; i++)
+    {
+        for (j = 0; j < 6; j++)
+        {
+            pawnCell.x = j;
+            pawnCell.y = i;
+            if (gameboard[i][j].type != EMPTY && gameboard[i][j].color == otherPlayer && is_edging_valid(lastEdging, pawnCell) && can_move(pawnCell)) return 1;
+        }
+    }
+
+    return 0;
+}
+
+
+Coul get_other_player(Coul currentPlayer)
+{
+    return currentPlayer == BLACK ? WHITE : BLACK;
+}
+
+int is_AI_turn(Coul currentPlayer, Gamemode mode)
+{
+    return currentPlayer == WHITE && mode == PVC;
+}

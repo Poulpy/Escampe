@@ -168,21 +168,23 @@ void draw_gameboard(int interface)
             cursor = numbox_to_point(n, interface);
 
             draw_edging(cursor, gameboard[row][col].edging);
-            draw_pawn(gameboard[row][col], cursor);
+            draw_pawn(n, interface);
         }
     }
 
     affiche_all();
 }
-void draw_pawn(Box pawn, POINT origin)
+
+void draw_pawn(NumBox pawn, int interface)
 {
     COULEUR color;
+    Box cell = gameboard[pawn.y][pawn.x];
+    POINT origin = numbox_to_point(pawn, interface);
 
-    if (pawn.color == BLACK) color = BLACK_PLAYER_COLOR;
-    else color = WHITE_PLAYER_COLOR;
+    color = get_color_by_player(cell.color);
 
-    if (pawn.type == UNICORN) draw_unicorn(origin, color);
-    else if (pawn.type == PALADIN) draw_paladin(origin, color);
+    if (cell.type == UNICORN) draw_unicorn(origin, color);
+    else if (cell.type == PALADIN) draw_paladin(origin, color);
 }
 
 void draw_edging(POINT bl_corner, int number)
@@ -343,21 +345,14 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
     aff_pol(requiredEdging, textSize, label, BACKGROUND_COLOR);
 }
 
-
-NumBox *highlight_player_and_moves(NumBox *n1, Coul color, int *moves_count, int interface)
-{
-    NumBox *moves;
-    highlight_cell(*n1, get_color_by_player(color), interface);
-    moves = get_moves(moves_count, *n1);
-    highlight_cells(moves, *moves_count, HIGHLIGHT_COLOR, interface);
-
-    return moves;
-}
-
 void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface)
 {
     erase_highlight(pawn, interface);
     erase_highlighting(moves, moves_count, interface);
 }
 
-
+ void draw_move(NumBox start, NumBox end, int interface)
+{
+    erase_pawn(start, interface);
+    draw_pawn(end, interface);
+}

@@ -12,12 +12,12 @@
 
 int main()
 {
-    NumBox n1, n2;
-    int interface, inGame = 1, lastEdging = 0, turns = 0;
-    Coul color;
-    Type type1, type2;
+    NumBox n1, n2, *moves;
+    int interface, moves_count, gameFinished = 0, inGame = 1, lastEdging = 0, turn = 0;
+    Coul player;
     Gamemode mode;
     Border bor;
+    POINT click1, click2;
 
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
@@ -25,7 +25,7 @@ int main()
     // Game loop
     do
     {
-        color = WHITE;
+        player = WHITE;
         lastEdging = 0;
         init_game(&interface, &mode, &bor);
         players_place_pawns(bor, interface, mode);
@@ -33,20 +33,60 @@ int main()
         // Turn loop
         do
         {
-            if (color == BLACK && can_any_pawn_move(WHITE, &lastEdging) && turns != 0) color = WHITE;
-            else if (color == WHITE && can_any_pawn_move(BLACK, &lastEdging) && turns != 0) color = BLACK;
+            if (turn++ != 0)
+            {
+                if (can_other_player_move(player, lastEdging)) player = get_other_player(player);
+                else lastEdging = 0;
+            }
 
-            display_informations(color, lastEdging);
+            display_informations(player, lastEdging);
 
-            if (color == WHITE && mode == PVC) AI_game(interface, &n1, &n2, color, &type1, &type2, &lastEdging);
+            if (is_AI_turn(player, mode))
+            {
+                random_move(player, &n1, &n2);
+            }
             else
-                player_play_turn(interface, &n1, &n2, color, &type1, &type2, &lastEdging);
+            {
+                do
+                {
+                    click1 = wait_clic();
+                    n1 = point_to_numbox(click1, interface);
+                } while (!is_on_board(click1) || !is_cell_valid(n1, lastEdging, interface) || !is_on_player_side(n1, interface, player));
+
+                moves = get_moves(&moves_count, n1);
+
+                highlight_cell(n1, get_color_by_player(player), interface);
+                highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
+
+                do
+                {
+                    click2 = wait_clic();
+                    n2 = point_to_numbox(click2, interface);
+                    if(is_on_player_side(n2, interface, player) && is_cell_valid(n2, lastEdging, interface))
+                    {
+                        erase_highlightings(moves, n1, moves_count, interface);
+
+                        n1 = point_to_numbox(click2, interface);
+                        moves = get_moves(&moves_count, n1);
+
+                        highlight_cell(n1, get_color_by_player(player), interface);
+                        highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
+                    }
+                } while (!contains(moves, moves_count, n2));
+
+
+                erase_highlightings(moves, n1, moves_count, interface);
+            }
+
+            gameFinished = move_pawn(n1, n2);
+            draw_move(n1, n2, interface);
+            lastEdging = gameboard[n2.y][n2.x].edging;
 
             affiche_all();
-            turns++;
-        } while (!is_unicorn_captured(type1, type2));
+            // Change function to get pawns types
+        } while (!gameFinished);
 
-        display_endgame_menu(color);
+        display_endgame_menu(player);
         inGame = player_choose_to_replay();
         fill_screen(BACKGROUND_COLOR);
     } while (inGame);

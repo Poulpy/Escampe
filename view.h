@@ -37,8 +37,8 @@ void draw_gameboard(int interface);
 void draw_unicorn(POINT origin, COULEUR color);
 void draw_paladin(POINT origin, COULEUR color);
 void draw_edging(POINT bl_corner, int number);
-void draw_pawn(Box pawn, POINT origin);
 void display_interface_choice();
+void draw_pawn(NumBox pawn, int interface);
 void display_gamemode_choice();
 void display_endgame_menu(Coul color);
 void erase_information();
@@ -51,7 +51,7 @@ void display_turn_helper(COULEUR textColor, int lastEdging);
 void display_border_choice();
 void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface);
 void erase_pawn(NumBox pawn, int interface);
-NumBox *highlight_player_and_moves(NumBox *n1, Coul color, int *moves_count, int interface);
+void draw_move(NumBox start, NumBox end, int interface);
 
 #endif
 

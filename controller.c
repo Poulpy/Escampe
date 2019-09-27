@@ -210,11 +210,9 @@ Gamemode get_gamemode_choice(POINT click)
     else return PVC;
 }
 
-int is_on_player_side(POINT click, int interface, Coul color)
+int is_on_player_side(NumBox cell, int interface, Coul color)
 {
-    NumBox cell = point_to_numbox(click, interface);
-
-    return (is_on_board(click) && (gameboard[cell.y][cell.x].type == PALADIN || gameboard[cell.y][cell.x].type == UNICORN ) && gameboard[cell.y][cell.x].color == color);
+    return is_cell_occupied(cell) && gameboard[cell.y][cell.x].color == color;
 }
 
 
@@ -233,62 +231,8 @@ void set_game_finished(int* finished)
      *finished = 1;
 }
 
-void player_play_turn(int interface, NumBox *n1, NumBox *n2, Coul color, Type *type1, Type *type2, int *lastEdging)
+int is_cell_valid(NumBox selectedCell, int lastEdging, int interface)
 {
-    int moves_count;
-    POINT click1, click2;
-    NumBox *moves;
-
-    do
-    {
-        click1 = wait_clic();
-    } while (!is_cell_valid(click1, *lastEdging, interface) || !is_on_player_side(click1, interface, color));
-
-    *n1 = point_to_numbox(click1, interface);
-    moves = highlight_player_and_moves(n1, color, &moves_count, interface);
-
-    do
-    {
-        click2 = wait_clic();
-
-        if(is_on_player_side(click2, interface, color) && is_cell_valid(click2, *lastEdging, interface))
-        {
-            erase_highlightings(moves, *n1, moves_count, interface);
-
-            *n1 = point_to_numbox(click2, interface);
-            moves = highlight_player_and_moves(n1, color, &moves_count, interface);
-        }
-        else *n2 = point_to_numbox(click2, interface);
-    } while (!contains(moves, moves_count, *n2));
-
-    *type1 = gameboard[n1->y][n1->x].type;
-    *type2 = gameboard[n2->y][n2->x].type;
-
-    erase_pawn(*n1, interface);
-    erase_highlightings(moves, *n1, moves_count, interface);
-    move_pawn(*n1, *n2);
-    *lastEdging = gameboard[n2->y][n2->x].edging;
-    draw_pawn(gameboard[n2->y][n2->x], numbox_to_point(*n2, interface));
-}
-
-void AI_game(int interface, NumBox *start, NumBox *end, Coul color, Type *type1, Type *type2, int *lastEdging)
-{
-    random_move(color, start, end);
-    puts("debug");
-    *type1 = gameboard[start->y][start->x].type;
-    *type2 = gameboard[end->y][end->x].type;
-    erase_pawn(*start, interface);
-    puts("debug2");
-    move_pawn(*start, *end);
-    puts("debug3");
-    *lastEdging = gameboard[end->y][end->x].edging;
-    draw_pawn(gameboard[end->y][end->x], numbox_to_point(*end, interface));
-}
-
-int is_cell_valid(POINT click, int lastEdging, int interface)
-{
-    NumBox selectedCell = point_to_numbox(click, interface);
     return is_edging_valid(lastEdging, selectedCell) && is_cell_occupied(selectedCell);
 }
-
 
