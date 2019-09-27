@@ -105,6 +105,8 @@ NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
 Border opposite_border(Border bor);
 int in_range(NumBox pos);
+void erase_pawn(NumBox pawn, int interface);
+int get_edging(NumBox n);
 
 /** View **/
 
@@ -114,7 +116,7 @@ void position_pawns(NumBox pos[6], Border bor, Coul color, int interface);
 void position_AI_pawns(NumBox pos[6], Border bor, int interface);
 void draw_unicorn(POINT origin, COULEUR color);
 void draw_paladin(POINT origin, COULEUR color);
-void erase_pawn(POINT origin);
+void draw_edging(POINT bl_corner, int number);
 void draw_pawn(Box pawn, POINT origin);
 void display_interface_choice();
 void display_gamemode_choice();
@@ -249,7 +251,7 @@ int main()
                 type2 = gameboard[n2.y][n2.x].type;
 
                 // MOVE PAWN AND REMOVE HIGHLIGHT
-                erase_pawn(numbox_to_point(n1, interface));
+                erase_pawn(n1, interface);
                 erase_highlighting(moves, moves_count, interface);
                 erase_highlight(n1, interface);
                 move_pawn(n1, n2);
@@ -782,13 +784,16 @@ void draw_edging(POINT bl_corner, int number)
     }
 }
 
-void erase_pawn(POINT origin)
+void erase_pawn(NumBox pawn, int interface)
 {
-    POINT center;
-    center.x = origin.x + CIRCLE_RADIUS;
-    center.y = origin.y + CIRCLE_RADIUS;
-    draw_fill_circle(center, CIRCLE_RADIUS - 15, THIRD_COLOR);
+    draw_edging(numbox_to_point(pawn, interface), get_edging(pawn));
 }
+
+int get_edging(NumBox n)
+{
+    return gameboard[n.y][n.x].edging;
+}
+
 
 int is_on_board(POINT click)
 {
@@ -1112,7 +1117,7 @@ void AI_game(int interface, NumBox *start, NumBox *end, Coul color, Type *type1,
     random_move(color, start, end);
     *type1 = gameboard[start->y][start->x].type;
     *type2 = gameboard[end->y][end->x].type;
-    erase_pawn(numbox_to_point(*start, interface));
+    erase_pawn(*start, interface);
     move_pawn(*start, *end);
     *lastEdging = gameboard[end->y][end->x].edging;
     draw_pawn(gameboard[end->y][end->x], numbox_to_point(*end, interface));
