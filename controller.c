@@ -26,7 +26,9 @@ int get_border_choice(POINT click)
 
 int is_between_points(POINT p1, POINT c1, POINT c2)
 {
-    return p1.x >= c1.x && p1.x <= c2.x && p1.y >= c1.y && p1.y <= c2.y;
+    if (c1.y < c2.y)
+        return p1.x >= c1.x && p1.x <= c2.x && p1.y >= c1.y && p1.y <= c2.y;
+    return p1.x >= c1.x && p1.x <= c2.x && p1.y <= c1.y && p1.y >= c2.y;
 }
 
 COULEUR get_color_by_player(Coul color)
@@ -191,13 +193,31 @@ NumBox point_to_numbox_ig2(POINT p)
 
 int player_choose_interface()
 {
-    return get_interface_choice(wait_clic());
+    int choice;
+
+    do
+    {
+        choice = get_interface_choice(wait_clic());
+    } while (choice == -1);
+
+    return choice;
 }
 
 int get_interface_choice(POINT click)
 {
-    if (click.x >= 0 && click.x < MID_WIDTH) return 1;
-    else return 2;
+    POINT p1, p2, p3, p4;
+    p1.x = MARGIN / 2;
+    p1.y = MID_HEIGHT + 20;
+    p2.y = p1.y - 80;
+    p2.x = p1.x + 250;
+
+    p3 = p1;
+    p3.x = MID_WIDTH;
+    p4.y = p3.y - 80;
+    p4.x = p3.x + 250;
+    if (is_between_points(click, p1, p2)) return 1;
+    else if (is_between_points(click, p3, p4)) return 2;
+    return -1;
 }
 
 Gamemode player_choose_gamemode()

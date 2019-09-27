@@ -3,35 +3,41 @@
 
 void display_interface_choice()
 {
-    POINT top, bottom, label;
+    POINT p1, p2;
     int size;
 
     fill_screen(BACKGROUND_COLOR);
 
-    size = 30;
-    label.x = MID_WIDTH - (size * 1.5 * 2) - 15;
-    label.y = HEIGHT - size;
-    aff_pol("Escampe", size * 1.5, label, red);
-
-    top.x = MID_WIDTH;
-    top.y = MID_HEIGHT + (MARGIN * 2);
-    bottom.x = MID_WIDTH;
-    bottom.y = MARGIN / 3;
-
-    draw_line(top, bottom, white);
+    size = 80;
+    p1.x = MID_WIDTH - (size * 2.4);
+    p1.y = HEIGHT - size;
+    aff_pol("Escampe", size, p1, THIRD_COLOR);
 
     size = 25;
-    label.x = ((MID_WIDTH / 2) / 4) + size;
-    label.y = MID_HEIGHT + 20;
+    p1.x = MARGIN / 2;
+    p1.y = MID_HEIGHT + 20;
+    p2.y = p1.y - 80;
+    p2.x = p1.x + 250;
 
-    aff_pol("Interface 1", size, label, white);
+    display_button("Interface 1", p1, p2, FIRST_COLOR, white, 30);
 
-    label.x = MID_WIDTH + ((MID_WIDTH / 2) / 4) + size;
+    p1.x = MID_WIDTH;
+    p2.y = p1.y - 80;
+    p2.x = p1.x + 250;
 
-    aff_pol("Interface 2", size, label, white);
+    display_button("Interface 2", p1, p2, FIRST_COLOR, white, 30);
 
     affiche_all();
 }
+
+void display_button(char *text, POINT bl_corner, POINT ur_corner, COULEUR back, COULEUR front, int textSize)
+{
+    draw_fill_rectangle(bl_corner, ur_corner, back);
+    bl_corner.y += (ur_corner.y - bl_corner.y) * 0.3;
+    bl_corner.x += (ur_corner.x - bl_corner.x) * 0.1;
+    aff_pol(text, textSize, bl_corner, front);
+}
+
 
 void display_gamemode_choice()
 {

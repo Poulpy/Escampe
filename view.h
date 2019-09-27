@@ -41,6 +41,7 @@ void display_interface_choice();
 void draw_pawn(NumBox pawn, int interface);
 void display_gamemode_choice();
 void display_endgame_menu(Coul color);
+void display_button(char *text, POINT bl_corner, POINT ur_corner, COULEUR back, COULEUR front, int textSize);
 void erase_information();
 void display_informations(Coul playerColor, int lastEdging);
 void highlight_cell(NumBox cell, COULEUR color, int interface);
