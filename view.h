@@ -44,7 +44,7 @@ void display_endgame_menu(Coul color);
 void display_button(char *text, POINT bl_corner, POINT ur_corner, COULEUR back, COULEUR front, int textSize);
 void erase_information();
 void display_informations(Coul playerColor, int lastEdging);
-void highlight_cell(NumBox cell, COULEUR color, int interface);
+void highlight_cell(NumBox cell, COULEUR color, int interface, int display);
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
 void erase_highlighting(NumBox *cells, int len, int interface);
 void erase_highlight(NumBox cell, int interface);

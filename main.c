@@ -5,19 +5,17 @@
 
 #include "controller.h"
 
-/* Global variables */
-
-
 /* Main */
 
 int main()
 {
+    int interface, moves_count, lastEdging, turn;
+    int gameFinished = 0, inGame = 1;
     NumBox n1, n2, *moves;
-    int interface, moves_count, gameFinished = 0, inGame = 1, lastEdging = 0, turn = 0;
+    POINT click1, click2;
     Coul player;
     Gamemode mode;
     Border bor;
-    POINT click1, click2;
 
     init_graphics(WIDTH, HEIGHT);
     affiche_auto_off();
@@ -27,6 +25,7 @@ int main()
     {
         player = WHITE;
         lastEdging = 0;
+        turn = 0;
         init_game(&interface, &mode, &bor);
         players_place_pawns(bor, interface, mode);
 
@@ -35,8 +34,10 @@ int main()
         {
             if (turn++ != 0)
             {
-                if (can_other_player_move(player, lastEdging)) player = get_other_player(player);
-                else lastEdging = 0;
+                if (can_other_player_move(player, lastEdging))
+                    player = get_other_player(player);
+                else
+                    lastEdging = 0;
             }
 
             display_informations(player, lastEdging);
@@ -44,6 +45,9 @@ int main()
             if (is_AI_turn(player, mode))
             {
                 random_move(player, &n1, &n2);
+                highlight_cell(n2, get_color_by_player(player), interface, 1);
+                sleep(2);
+                erase_highlight(n2, interface);
             }
             else
             {
@@ -51,29 +55,31 @@ int main()
                 {
                     click1 = wait_clic();
                     n1 = point_to_numbox(click1, interface);
-                } while (!is_on_board(click1) || !is_cell_valid(n1, lastEdging, interface) || !is_on_player_side(n1, interface, player));
+                } while (!is_on_board(click1) ||
+                         !is_cell_valid(n1, lastEdging, interface) ||
+                         !is_on_player_side(n1, interface, player));
 
                 moves = get_moves(&moves_count, n1);
 
-                highlight_cell(n1, get_color_by_player(player), interface);
+                highlight_cell(n1, get_color_by_player(player), interface, 0);
                 highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
 
                 do
                 {
                     click2 = wait_clic();
                     n2 = point_to_numbox(click2, interface);
-                    if(is_on_player_side(n2, interface, player) && is_cell_valid(n2, lastEdging, interface))
+                    if(is_on_player_side(n2, interface, player) &&
+                       is_cell_valid(n2, lastEdging, interface))
                     {
                         erase_highlightings(moves, n1, moves_count, interface);
 
                         n1 = point_to_numbox(click2, interface);
                         moves = get_moves(&moves_count, n1);
 
-                        highlight_cell(n1, get_color_by_player(player), interface);
+                        highlight_cell(n1, get_color_by_player(player), interface, 0);
                         highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
                     }
                 } while (!contains(moves, moves_count, n2));
-
 
                 erase_highlightings(moves, n1, moves_count, interface);
             }

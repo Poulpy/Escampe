@@ -234,10 +234,10 @@ void erase_pawn(NumBox pawn, int interface)
 
 void erase_highlight(NumBox cell, int interface)
 {
-    highlight_cell(cell, BACKGROUND_COLOR, interface);
+    highlight_cell(cell, BACKGROUND_COLOR, interface, 0);
 }
 
-void highlight_cell(NumBox cell, COULEUR color, int interface)
+void highlight_cell(NumBox cell, COULEUR color, int interface, int display)
 {
     POINT p;
 
@@ -247,6 +247,8 @@ void highlight_cell(NumBox cell, COULEUR color, int interface)
 
     draw_circle(p, CIRCLE_RADIUS - 3, color);
     draw_circle(p, CIRCLE_RADIUS - 4, color);
+
+    if (display) affiche_all();
 }
 
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
@@ -255,7 +257,7 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
 
     for (i = 0; i != len; i++)
     {
-        highlight_cell(cells[i], color, interface);
+        highlight_cell(cells[i], color, interface, 0);
     }
 
     affiche_all();
