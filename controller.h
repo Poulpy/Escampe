@@ -6,8 +6,9 @@
 
 void init_game(int *interface, Gamemode *mode, Border *bor);
 void players_place_pawns(Border bor, int interface, Gamemode mode);
-void position_pawns(NumBox pos[6], Border bor, Coul color, int interface);
-void position_AI_pawns(NumBox pos[6], Border bor, int interface);
+void place_random_pawn(NumBox *cell, Border bor, int interface);
+void player_place_pawn(NumBox *cell, Border bor, int interface);
+void position_pawns(NumBox pawns[6], Border bor, Coul player, int interface, int is_ai);
 int  get_interface_choice(POINT click);
 int  is_on_player_side(NumBox cell, int interface, Coul color);
 int  is_cell_valid(NumBox selectedCell, int lastEdging, int interface);
@@ -22,7 +23,6 @@ NumBox point_to_numbox(POINT p, int interface);
 NumBox point_to_numbox_ig1(POINT p);
 NumBox point_to_numbox_ig2(POINT p);
 Gamemode player_choose_gamemode();
-Gamemode get_gamemode_choice(POINT click);
 POINT numbox_to_point(NumBox n, int interface);
 POINT numbox_to_point_ig1(NumBox n);
 POINT numbox_to_point_ig2(NumBox n);

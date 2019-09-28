@@ -38,56 +38,54 @@ COULEUR get_color_by_player(Coul color)
     return WHITE_PLAYER_COLOR;
 }
 
-void position_pawns(NumBox pos[6], Border bor, Coul color, int interface)
+void player_place_pawn(NumBox *cell, Border bor, int interface)
 {
-    int i;
     POINT click;
 
     do
     {
         click = wait_clic();
-        pos[0] = point_to_numbox(click, interface);
-    } while (!is_in_border(pos[0], bor, interface) || !is_on_board(click));
-
-    draw_unicorn(numbox_to_point(pos[0], interface), get_color_by_player(color));
-    affiche_all();
-
-    for (i = 1; i != 6; i++)
-    {
-        do
-        {
-            click = wait_clic();
-            pos[i] = point_to_numbox(click, interface);
-        } while (!is_in_border(pos[i], bor, interface) ||
-                 contains(pos, i, pos[i]) || !is_on_board(click));
-        draw_paladin(numbox_to_point(pos[i], interface), get_color_by_player(color));
-        affiche_all();
-    }
+        *cell = point_to_numbox(click, interface);
+    } while (!is_on_board(click) || !is_in_border(*cell, bor, interface));
 }
 
-void position_AI_pawns(NumBox pos[6], Border bor, int interface)
+void place_random_pawn(NumBox *cell, Border bor, int interface)
 {
-    int i;
-
     do
     {
-        pos[0].x = alea_int(6);
-        pos[0].y = alea_int(6);
-    } while (!is_in_border(pos[0], bor, interface));
-    draw_unicorn(numbox_to_point(pos[0], interface), WHITE_PLAYER_COLOR);
+        cell->x = alea_int(6);
+        cell->y = alea_int(6);
+    } while (!is_in_border(*cell, bor, interface));
+}
+
+void position_pawns(NumBox pawns[6], Border bor, Coul player, int interface, int is_ai)
+{
+    int i;
+    COULEUR color = get_color_by_player(player);
+
+    if (is_ai)
+    {
+        place_random_pawn(&(pawns[0]), bor, interface);
+    }
+    else
+    {
+        player_place_pawn(&(pawns[0]), bor, interface);
+    }
+
+    draw_unicorn(numbox_to_point(pawns[0], interface), color);
     affiche_all();
+
     for (i = 1; i != 6; i++)
     {
         do
         {
-            pos[i].x = alea_int(6);
-            pos[i].y = alea_int(6);
-        } while (!is_in_border(pos[i], bor, interface) ||
-                 contains(pos, i, pos[i]));
+            if (is_ai) place_random_pawn(&(pawns[i]), bor, interface);
+            else player_place_pawn(&(pawns[i]), bor, interface);
+        } while (contains(pawns, i, pawns[i]));
 
-        draw_paladin(numbox_to_point(pos[i], interface), WHITE_PLAYER_COLOR);
+        draw_paladin(numbox_to_point(pawns[i], interface), color);
+        affiche_all();
     }
-    affiche_all();
 }
 
 // Check if a point click is on the gameboard
@@ -116,19 +114,34 @@ void init_game(int *interface, Gamemode *mode, Border *bor)
     erase_window_except_gameboard();
 }
 
+// let the user place first the white pawns;
+// if the mode is set to Player VS Computer,
+// the AI places its pawns
 void players_place_pawns(Border bor, int interface, Gamemode mode)
 {
     NumBox white_pawns[6], black_pawns[6];
 
-    position_pawns(black_pawns, bor, BLACK, interface);
-    place_pawns(black_pawns, BLACK);
-
-    if (mode == PVC)
-        position_AI_pawns(white_pawns, get_opposite_border(bor), interface);
+    if (PVC == mode)
+    {
+        if (AI_COLOR == BLACK)
+        {
+            position_pawns(black_pawns, bor, BLACK, interface, 1);
+            position_pawns(white_pawns, get_opposite_border(bor), WHITE, interface, 0);
+        }
+        else
+        {
+            position_pawns(black_pawns, bor, BLACK, interface, 0);
+            position_pawns(white_pawns, get_opposite_border(bor), WHITE, interface, 1);
+        }
+    }
     else
-        position_pawns(white_pawns, get_opposite_border(bor), WHITE, interface);
+    {
+        position_pawns(black_pawns, bor, BLACK, interface, 0);
+        position_pawns(white_pawns, get_opposite_border(bor), WHITE, interface, 0);
+    }
 
-    place_pawns(white_pawns, WHITE);
+    set_pawns(black_pawns, BLACK);
+    set_pawns(white_pawns, WHITE);
 }
 
 Border player_choose_border()
@@ -223,6 +236,7 @@ int get_interface_choice(POINT click)
     p3.x = MID_WIDTH;
     p4.y = p3.y - 80;
     p4.x = p3.x + 250;
+
     if (is_between_points(click, p1, p2)) return 1;
     else if (is_between_points(click, p3, p4)) return 2;
     return -1;
@@ -230,11 +244,8 @@ int get_interface_choice(POINT click)
 
 Gamemode player_choose_gamemode()
 {
-    return get_gamemode_choice(wait_clic());
-}
+    POINT click = wait_clic();
 
-Gamemode get_gamemode_choice(POINT click)
-{
     if (click.x >= 0 && click.x < MID_WIDTH) return PVP;
     else return PVC;
 }
@@ -253,6 +264,7 @@ int player_choose_to_replay()
 
 int is_cell_valid(NumBox selectedCell, int lastEdging, int interface)
 {
-    return is_edging_valid(lastEdging, selectedCell) && is_cell_occupied(selectedCell);
+    return is_edging_valid(lastEdging, selectedCell) &&
+           is_cell_occupied(selectedCell);
 }
 

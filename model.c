@@ -169,6 +169,8 @@ void random_move(Coul color, NumBox *start, NumBox *end)
     } while (0 == len);
 
     *end = ends[alea_int(len)];
+
+    free(ends);
 }
 
 int in_range(NumBox pos)
@@ -222,7 +224,7 @@ int can_move(NumBox pawnCell)
     return 0 != moves_count;
 }
 
-void place_pawns(NumBox pawns[6], Coul color)
+void set_pawns(NumBox pawns[6], Coul color)
 {
     int i;
 
@@ -370,6 +372,6 @@ Coul get_other_player(Coul currentPlayer)
 
 int is_AI_turn(Coul currentPlayer, Gamemode mode)
 {
-    return currentPlayer == WHITE && mode == PVC;
+    return currentPlayer == AI_COLOR && mode == PVC;
 }
 
