@@ -10,7 +10,7 @@
 int main()
 {
     int interface, moves_count, lastEdging, turn;
-    int gameFinished = 0, inGame = 1;
+    int gameFinished, inGame;
     NumBox n1, n2, *moves;
     POINT click1, click2;
     Coul player;
