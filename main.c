@@ -85,6 +85,7 @@ int main()
 
                 erase_highlights(moves, moves_count, interface, 0);
             }
+
             erase_highlight(n1, interface, 0);
 
             gameFinished = move_pawn(n1, n2);
@@ -95,7 +96,6 @@ int main()
 
         display_endgame_menu(player);
         inGame = player_choose_to_replay();
-        fill_screen(BACKGROUND_COLOR);
     } while (inGame);
 
     return 0;

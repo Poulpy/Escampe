@@ -140,13 +140,16 @@ void random_move(Coul color, NumBox *start, NumBox *end)
     int len;
     NumBox *cells, *ends;
 
-    cells = get_cells_by_color(color);
-    *start = cells[alea_int(6)];
+    do
+    {
+        cells = get_cells_by_color(color);
+        *start = cells[alea_int(6)];
 
-    ends = get_moves(&len, *start);
+        ends = get_moves(&len, *start);
+    }
+    while (len == 0);
+
     *end = ends[alea_int(len)];
-
-    //sleep(2);
 }
 
 int in_range(NumBox pos)

@@ -95,6 +95,8 @@ int is_on_board(POINT click)
 
 void init_game(int *interface, Gamemode *mode, Border *bor)
 {
+    fill_screen(BACKGROUND_COLOR);
+
     display_interface_choice();
     *interface = player_choose_interface();
 
