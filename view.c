@@ -1,6 +1,5 @@
 #include "view.h"
 
-
 void display_interface_choice()
 {
     POINT p1, p2;
@@ -37,7 +36,6 @@ void display_button(char *text, POINT bl_corner, POINT ur_corner, COULEUR back, 
     bl_corner.x += (ur_corner.x - bl_corner.x) * 0.1;
     aff_pol(text, textSize, bl_corner, front);
 }
-
 
 void display_gamemode_choice()
 {
@@ -76,6 +74,7 @@ void display_gamemode_choice()
     aff_pol("IA", size, label, white);
     affiche_all();
 }
+
 void display_border_choice()
 {
     char* positions[4] = { "H", "G", "D", "B" };
@@ -98,7 +97,6 @@ void display_border_choice()
     aff_pol("Choisissez votre bordure", 20, top, white);
     aff_pol("Puis placez vos pions dessus", 20, bottom, white);
 
-
     for (i = 0; i < 4; i++)
     {
         draw_fill_rectangle(squarePoints[i][0], squarePoints[i][1], FIRST_COLOR);
@@ -108,6 +106,7 @@ void display_border_choice()
     affiche_all();
 }
 
+// Erase everything in the window except the gameboard in the center
 void erase_window_except_gameboard()
 {
     POINT p = { 0, 0 };
@@ -147,7 +146,6 @@ void draw_unicorn(POINT origin, COULEUR color)
     draw_fill_ellipse(botl, botr, 2, color);
 }
 
-
 void draw_paladin(POINT origin, COULEUR color)
 {
     int top_margin = 30;
@@ -175,6 +173,7 @@ void draw_paladin(POINT origin, COULEUR color)
     draw_fill_ellipse(botl, botr, 3, color - 0x070707);
 }
 
+// Draw the gameboard, along with the edgings and the pawns
 void draw_gameboard(int interface)
 {
     int row, col;
@@ -198,6 +197,7 @@ void draw_gameboard(int interface)
     affiche_all();
 }
 
+// Draw a pawn on a cell of the gameboard
 void draw_pawn(NumBox pawn, int interface)
 {
     COULEUR color;
@@ -210,6 +210,7 @@ void draw_pawn(NumBox pawn, int interface)
     else if (cell.type == PALADIN) draw_paladin(origin, color);
 }
 
+// Draw edgings on a cell of the gameboard
 void draw_edging(POINT bl_corner, int number)
 {
     int c, f = 5;
@@ -230,6 +231,7 @@ void erase_pawn(NumBox pawn, int interface)
     draw_edging(numbox_to_point(pawn, interface), get_edging(pawn));
 }
 
+// Show which player won
 void display_endgame_menu(Coul color)
 {
     fill_screen(BACKGROUND_COLOR);
@@ -258,6 +260,7 @@ void display_endgame_menu(Coul color)
 
     affiche_all();
 }
+
 void erase_information()
 {
     POINT start, end;
@@ -274,6 +277,7 @@ void erase_information()
     draw_fill_rectangle(start, end, BACKGROUND_COLOR);
 }
 
+// Show the player's turn (Player 1, Player 2)
 void display_informations(Coul playerColor, int lastEdging)
 {
     POINT label;
@@ -302,6 +306,7 @@ void display_informations(Coul playerColor, int lastEdging)
     affiche_all();
 }
 
+// Show the number of edgings to play
 void display_turn_helper(COULEUR textColor, int lastEdging)
 {
     char requiredEdging[5];
@@ -327,6 +332,8 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
     label.y = HEIGHT - 10;
     aff_pol(requiredEdging, textSize, label, BACKGROUND_COLOR);
 }
+
+// Draw a circle surrounding a cell of the gameboard
 void highlight_cell(NumBox cell, COULEUR color, int interface, int display)
 {
     POINT p;
@@ -341,7 +348,7 @@ void highlight_cell(NumBox cell, COULEUR color, int interface, int display)
     if (display) affiche_all();
 }
 
-
+// Draw circles around cells of the gameboard
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface, int display)
 {
     int i;
@@ -353,7 +360,6 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface, int d
 
     if (display) affiche_all();
 }
-
 
 void erase_highlight(NumBox cell, int interface, int display)
 {
@@ -371,6 +377,7 @@ void erase_highlights(NumBox *cells, int len, int interface, int display)
     if (display) affiche_all();
 }
 
+// Erase where the pawn was and draw the pawn to its destination
 void draw_move(NumBox start, NumBox end, int interface)
 {
     erase_pawn(start, interface);

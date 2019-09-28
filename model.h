@@ -41,10 +41,8 @@ typedef struct Box
 Box gameboard[6][6];
 
 int  is_edging_valid(int lastEdging, NumBox start);
-int  can_any_pawn_move(Coul color, int* lastEdging);
 int  can_override(NumBox start, NumBox end);
 int  is_cell_occupied(NumBox pos);
-int  is_unicorn_captured(Type start, Type end);
 int  can_move(NumBox pawnCell);
 int  in_range(NumBox pos);
 int  get_edging(NumBox n);

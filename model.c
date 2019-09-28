@@ -18,6 +18,9 @@ void init_gameboard()
     }
 }
 
+// Fill the gameboard with a pre-arranged set of pawns (white & black)
+// Could have done it even smaller with only one array, because the
+// number of white pawns, paladins and unicorns are limited
 void init_gamepawns_1()
 {
     int i;
@@ -54,6 +57,9 @@ void init_gamepawns_2()
         gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
+// Check if the pawn can crush the pawn at the destination; that is,
+// check if the pawn is a paladin and the pawn at the destination is
+// a unicorn
 int can_override(NumBox start, NumBox end)
 {
     return (gameboard[start.y][start.x].type == PALADIN &&
@@ -61,11 +67,13 @@ int can_override(NumBox start, NumBox end)
             gameboard[start.y][start.x].color != gameboard[end.y][end.x].color);
 }
 
+// Check if the cell is occupied any pawn
 int is_cell_occupied(NumBox pos)
 {
     return gameboard[pos.y][pos.x].type != EMPTY;
 }
 
+// Move a pawn in the gameboard
 int move_pawn(NumBox start, NumBox end)
 {
     Type enemy = gameboard[end.y][end.x].type;
@@ -83,35 +91,11 @@ int is_edging_valid(int lastEdging, NumBox start)
     return lastEdging == 0 || lastEdging == gameboard[start.y][start.x].edging;
 }
 
-int is_unicorn_captured(Type start, Type end)
-{
-    return start == PALADIN && end == UNICORN;
-}
+// Check if any pawn of a player can move, according
+// to the last edging played
 
-int can_any_pawn_move(Coul color, int* lastEdging)
-{
-    int i, j;
-    NumBox pawnCell;
 
-    for (i = 0; i < 6; i++)
-    {
-        for (j = 0; j < 6; j++)
-        {
-            pawnCell.x = j;
-            pawnCell.y = i;
-            if (gameboard[i][j].type != EMPTY &&
-                gameboard[i][j].color == color &&
-                is_edging_valid(*lastEdging, pawnCell) &&
-                can_move(pawnCell))
-                return 1;
-        }
-    }
-
-    *lastEdging = 0;
-
-    return 0;
-}
-
+// Get the 4 surrounding neighbours of a cell
 void get_neighbours(NumBox neigh[4], NumBox cell)
 {
     neigh[0] = (NumBox) { cell.x + 1, cell.y };
@@ -120,6 +104,12 @@ void get_neighbours(NumBox neigh[4], NumBox cell)
     neigh[3] = (NumBox) { cell.x, cell.y + 1 };
 }
 
+// Searches all reachable cells for a NumBox pawn;
+// All moves are appended to an array of NumBox cells of size moves;
+// This function shan't turn back, that's the role of the NumBox forbidden;
+// This function checks also if the NumBox pawn (the starting point)
+// can capture the unicorn (the end point; that's why we have to check
+// if there is no more moves to play)
 void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player)
 {
     int i;
@@ -134,13 +124,22 @@ void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumB
             if (!is_cell_occupied(neigh[i]) ||
                 (can_override(player, neigh[i]) && 1 == moves))
             {
-                if (1 == moves) append(cells, offset, neigh[i]);
-                else depth_first_search(cells, offset, neigh[i], moves - 1, pawn, player);
+                // if it is the LAST move, we stop and get the cell
+                if (1 == moves)
+                    append(cells, offset, neigh[i]);
+                else
+                    depth_first_search(cells, offset, neigh[i], moves - 1, pawn, player);
             }
         }
     }
 }
 
+// Call the function depth_first_search
+// The size of the array that stores the possible moves of NumBox pawn
+// is fixed, but could be reallocated
+// 1 move => 4 cells max
+// 2 move => 8 cells max
+// 3 move => 16 cells max
 NumBox *get_moves(int *moves_count, NumBox pawn)
 {
     int m = gameboard[pawn.y][pawn.x].edging;
@@ -155,18 +154,26 @@ NumBox *get_moves(int *moves_count, NumBox pawn)
     return moves;
 }
 
+// Random move for a pawn;
+// Check all possible moves in an array, then
+// get a move with a random number
 void random_move(Coul color, NumBox *start, NumBox *end)
 {
-    int len;
+    int len, go_on = 0;
     NumBox *cells, *ends;
 
     do
     {
         cells = get_cells_by_color(color);
         *start = cells[alea_int(6)];
-
         ends = get_moves(&len, *start);
-    } while (0 == len);
+        // must do that because the array is DYNAMICALLY allocated
+        if (0 == len)
+        {
+            go_on = 0;
+            free(ends);
+        }
+    } while (go_on);
 
     *end = ends[alea_int(len)];
 
@@ -178,6 +185,7 @@ int in_range(NumBox pos)
     return pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5;
 }
 
+// Get all pawns of a player
 NumBox *get_cells_by_color(Coul color)
 {
     int cursor = 0, i, j;
@@ -197,6 +205,7 @@ NumBox *get_cells_by_color(Coul color)
     return cells;
 }
 
+// Check if a NumBox pos is on the border bor (TOP, BOTTOM, etc)
 int is_in_border(NumBox pos, Border bor, int interface)
 {
     switch (bor)
@@ -214,7 +223,7 @@ int is_in_border(NumBox pos, Border bor, int interface)
     return 0;
 }
 
-// Check if a pawn pawnCell can mov
+// Check if a pawn pawnCell can move
 int can_move(NumBox pawnCell)
 {
     int moves_count = 0;
@@ -316,27 +325,13 @@ void copy(NumBox *n1, int *offset, NumBox *n2, int len2)
     }
 }
 
-void print_numbox(NumBox n)
-{
-    printf("x : %d ; y : %d\n", n.x, n.y);
-}
-
-void print_numboxes(NumBox *n, int len)
-{
-    int i;
-
-    for (i = 0; i != len; i++)
-    {
-        print_numbox(n[i]);
-    }
-}
-
 // Returns the number of edgings from a NumBox n
 int get_edging(NumBox n)
 {
     return gameboard[n.y][n.x].edging;
 }
 
+// Returns the opposite border of bor
 Border get_opposite_border(Border bor)
 {
     if (bor == LEFT)   return RIGHT;
@@ -375,8 +370,26 @@ Coul get_other_player(Coul currentPlayer)
     return currentPlayer == BLACK ? WHITE : BLACK;
 }
 
+// Check if it is the computer/AI turn
 int is_AI_turn(Coul currentPlayer, Gamemode mode)
 {
     return currentPlayer == AI_COLOR && mode == PVC;
+}
+
+// Print a NumBox (debug)
+void print_numbox(NumBox n)
+{
+    printf("x : %d ; y : %d\n", n.x, n.y);
+}
+
+// Print an array of NumBox (debug)
+void print_numboxes(NumBox *n, int len)
+{
+    int i;
+
+    for (i = 0; i != len; i++)
+    {
+        print_numbox(n[i]);
+    }
 }
 
