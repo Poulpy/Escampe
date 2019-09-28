@@ -214,6 +214,7 @@ int is_in_border(NumBox pos, Border bor, int interface)
     return 0;
 }
 
+// Check if a pawn pawnCell can mov
 int can_move(NumBox pawnCell)
 {
     int moves_count = 0;
@@ -224,6 +225,7 @@ int can_move(NumBox pawnCell)
     return 0 != moves_count;
 }
 
+// Set the pawns in the gameboard
 void set_pawns(NumBox pawns[6], Coul color)
 {
     int i;
@@ -238,17 +240,20 @@ void set_pawns(NumBox pawns[6], Coul color)
     }
 }
 
+// Add a NumBox n to an array of NumBox ns of size len if the NumBox doesn't already exist
 void append(NumBox *ns, int *len, NumBox n)
 {
     if (contains(ns, *len, n)) return;
     ns[(*len)++] = n;
 }
 
+// Check if two NumBox n1 and n2 are equal
 int eql(NumBox n1, NumBox n2)
 {
     return n1.x == n2.x && n1.y == n2.y;
 }
 
+// Check if an array of NumBox ns of size len contains a NumBox n
 int contains(NumBox *ns, int len, NumBox n)
 {
     int i;

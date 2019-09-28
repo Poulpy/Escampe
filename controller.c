@@ -58,6 +58,7 @@ void place_random_pawn(NumBox *cell, Border bor, int interface)
     } while (!is_in_border(*cell, bor, interface));
 }
 
+// Pawns are placed for one player (AI or human)
 void position_pawns(NumBox pawns[6], Border bor, Coul player, int interface, int is_ai)
 {
     int i;
@@ -95,6 +96,11 @@ int is_on_board(POINT click)
            click.y >= MARGIN && click.y <= (HEIGHT - MARGIN);
 }
 
+// Let the player choose :
+// - an interface
+// - a gamemode
+// - a border
+// The gameboard is also drawn
 void init_game(int *interface, Gamemode *mode, Border *bor)
 {
     fill_screen(BACKGROUND_COLOR);
@@ -114,9 +120,9 @@ void init_game(int *interface, Gamemode *mode, Border *bor)
     erase_window_except_gameboard();
 }
 
-// let the user place first the white pawns;
-// if the mode is set to Player VS Computer,
-// the AI places its pawns
+// Both players place their pawns
+// The black player places his pawns first, according to the border bor
+// The white player places his pawns on the opposite border
 void players_place_pawns(Border bor, int interface, Gamemode mode)
 {
     NumBox white_pawns[6], black_pawns[6];
@@ -144,6 +150,7 @@ void players_place_pawns(Border bor, int interface, Gamemode mode)
     set_pawns(white_pawns, WHITE);
 }
 
+// Let the player choose a border, Top, Bottom, Right, Left, given a click
 Border player_choose_border()
 {
     Border bor;
@@ -212,6 +219,7 @@ NumBox point_to_numbox_ig2(POINT p)
     return n;
 }
 
+// Let the player choose an interface, 1 or 2, given a click
 int player_choose_interface()
 {
     int choice;
@@ -242,6 +250,7 @@ int get_interface_choice(POINT click)
     return -1;
 }
 
+// Let the player choose a mode, Player VS Player or Player VS Computer
 Gamemode player_choose_gamemode()
 {
     POINT click = wait_clic();
@@ -256,6 +265,7 @@ int is_on_player_side(NumBox cell, int interface, Coul color)
     return is_cell_occupied(cell) && gameboard[cell.y][cell.x].color == color;
 }
 
+// Let the player choose to play again or quit
 int player_choose_to_replay()
 {
     POINT click = wait_clic();
