@@ -9,7 +9,6 @@ void players_place_pawns(Border bor, int interface, Gamemode mode);
 void position_pawns(NumBox pos[6], Border bor, Coul color, int interface);
 void position_AI_pawns(NumBox pos[6], Border bor, int interface);
 int  get_interface_choice(POINT click);
-int  replay(POINT click);
 int  is_on_player_side(NumBox cell, int interface, Coul color);
 int  is_cell_valid(NumBox selectedCell, int lastEdging, int interface);
 int  player_choose_to_replay();

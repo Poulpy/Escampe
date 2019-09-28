@@ -24,6 +24,7 @@ int get_border_choice(POINT click)
     return -1;
 }
 
+// Checks if a point p1 is between 2 points c1 and c2
 int is_between_points(POINT p1, POINT c1, POINT c2)
 {
     if (c1.y < c2.y)
@@ -37,11 +38,11 @@ COULEUR get_color_by_player(Coul color)
     return WHITE_PLAYER_COLOR;
 }
 
-
 void position_pawns(NumBox pos[6], Border bor, Coul color, int interface)
 {
     int i;
     POINT click;
+
     do
     {
         click = wait_clic();
@@ -57,7 +58,8 @@ void position_pawns(NumBox pos[6], Border bor, Coul color, int interface)
         {
             click = wait_clic();
             pos[i] = point_to_numbox(click, interface);
-        } while (!is_in_border(pos[i], bor, interface) || contains(pos, i, pos[i]) || !is_on_board(click));
+        } while (!is_in_border(pos[i], bor, interface) ||
+                 contains(pos, i, pos[i]) || !is_on_board(click));
         draw_paladin(numbox_to_point(pos[i], interface), get_color_by_player(color));
         affiche_all();
     }
@@ -80,18 +82,20 @@ void position_AI_pawns(NumBox pos[6], Border bor, int interface)
         {
             pos[i].x = alea_int(6);
             pos[i].y = alea_int(6);
-        } while (!is_in_border(pos[i], bor, interface) || contains(pos, i, pos[i]));
+        } while (!is_in_border(pos[i], bor, interface) ||
+                 contains(pos, i, pos[i]));
 
         draw_paladin(numbox_to_point(pos[i], interface), WHITE_PLAYER_COLOR);
     }
     affiche_all();
 }
+
+// Check if a point click is on the gameboard
 int is_on_board(POINT click)
 {
-    return click.x >= MARGIN && click.x <= (WIDTH - MARGIN) && click.y >= MARGIN && click.y <= (HEIGHT - MARGIN);
+    return click.x >= MARGIN && click.x <= (WIDTH - MARGIN) &&
+           click.y >= MARGIN && click.y <= (HEIGHT - MARGIN);
 }
-
-/* Controller */
 
 void init_game(int *interface, Gamemode *mode, Border *bor)
 {
@@ -119,8 +123,10 @@ void players_place_pawns(Border bor, int interface, Gamemode mode)
     position_pawns(black_pawns, bor, BLACK, interface);
     place_pawns(black_pawns, BLACK);
 
-    if (mode == PVC) position_AI_pawns(white_pawns, opposite_border(bor), interface);
-    else position_pawns(white_pawns, opposite_border(bor), WHITE, interface);
+    if (mode == PVC)
+        position_AI_pawns(white_pawns, get_opposite_border(bor), interface);
+    else
+        position_pawns(white_pawns, get_opposite_border(bor), WHITE, interface);
 
     place_pawns(white_pawns, WHITE);
 }
@@ -233,25 +239,16 @@ Gamemode get_gamemode_choice(POINT click)
     else return PVC;
 }
 
+// Check if the pawn on the NumBox cell is of the same color
 int is_on_player_side(NumBox cell, int interface, Coul color)
 {
     return is_cell_occupied(cell) && gameboard[cell.y][cell.x].color == color;
 }
 
-
 int player_choose_to_replay()
 {
-    return replay(wait_clic());
-}
-
-int replay(POINT click)
-{
+    POINT click = wait_clic();
     return click.y >= 0 && click.x < MID_WIDTH;
-}
-
-void set_game_finished(int* finished)
-{
-     *finished = 1;
 }
 
 int is_cell_valid(NumBox selectedCell, int lastEdging, int interface)

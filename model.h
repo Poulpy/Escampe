@@ -55,6 +55,7 @@ void init_gameboard();
 void init_gamepawns_1();
 void init_gamepawns_2();
 void random_move(Coul color, NumBox *start, NumBox *end);
+void get_neighbours(NumBox neigh[4], NumBox cell);
 void uniq(NumBox *ns, int *len);
 void print_numboxes(NumBox *n, int len);
 void print_numbox(NumBox n);
@@ -66,7 +67,7 @@ void place_pawns(NumBox pawns[6], Coul color);
 void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player);
 NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
-Border opposite_border(Border bor);
+Border get_opposite_border(Border bor);
 Coul get_other_player(Coul currentPlayer);
 
 #endif
