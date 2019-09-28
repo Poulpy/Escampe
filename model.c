@@ -156,12 +156,6 @@ int in_range(NumBox pos)
     return pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5;
 }
 
-
-int out_of_range(NumBox pos)
-{
-    return !(pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5);
-}
-
 NumBox *get_cells_by_color(Coul color)
 {
     int cursor = 0, i, j;
