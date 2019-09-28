@@ -230,48 +230,6 @@ void erase_pawn(NumBox pawn, int interface)
     draw_edging(numbox_to_point(pawn, interface), get_edging(pawn));
 }
 
-
-
-void erase_highlight(NumBox cell, int interface)
-{
-    highlight_cell(cell, BACKGROUND_COLOR, interface, 0);
-}
-
-void highlight_cell(NumBox cell, COULEUR color, int interface, int display)
-{
-    POINT p;
-
-    p = numbox_to_point(cell, interface);
-    p.x += CIRCLE_RADIUS;
-    p.y += CIRCLE_RADIUS;
-
-    draw_circle(p, CIRCLE_RADIUS - 3, color);
-    draw_circle(p, CIRCLE_RADIUS - 4, color);
-
-    if (display) affiche_all();
-}
-
-void highlight_cells(NumBox *cells, int len, COULEUR color, int interface)
-{
-    int i;
-
-    for (i = 0; i != len; i++)
-    {
-        highlight_cell(cells[i], color, interface, 0);
-    }
-
-    affiche_all();
-}
-
-void erase_highlighting(NumBox *cells, int len, int interface)
-{
-    int i;
-    for (i = 0; i != len; i++)
-        erase_highlight(cells[i], interface);
-    free(cells);
-}
-
-
 void display_endgame_menu(Coul color)
 {
     fill_screen(BACKGROUND_COLOR);
@@ -369,15 +327,54 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
     label.y = HEIGHT - 10;
     aff_pol(requiredEdging, textSize, label, BACKGROUND_COLOR);
 }
-
-void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface)
+void highlight_cell(NumBox cell, COULEUR color, int interface, int display)
 {
-    erase_highlight(pawn, interface);
-    erase_highlighting(moves, moves_count, interface);
+    POINT p;
+
+    p = numbox_to_point(cell, interface);
+    p.x += CIRCLE_RADIUS;
+    p.y += CIRCLE_RADIUS;
+
+    draw_circle(p, CIRCLE_RADIUS - 3, color);
+    draw_circle(p, CIRCLE_RADIUS - 4, color);
+
+    if (display) affiche_all();
 }
 
- void draw_move(NumBox start, NumBox end, int interface)
+
+void highlight_cells(NumBox *cells, int len, COULEUR color, int interface, int display)
+{
+    int i;
+
+    for (i = 0; i != len; i++)
+    {
+        highlight_cell(cells[i], color, interface, 0);
+    }
+
+    if (display) affiche_all();
+}
+
+
+void erase_highlight(NumBox cell, int interface, int display)
+{
+    highlight_cell(cell, BACKGROUND_COLOR, interface, display);
+}
+
+void erase_highlights(NumBox *cells, int len, int interface, int display)
+{
+    int i;
+    for (i = 0; i != len; i++)
+        erase_highlight(cells[i], interface, 0);
+
+    free(cells);
+
+    if (display) affiche_all();
+}
+
+void draw_move(NumBox start, NumBox end, int interface)
 {
     erase_pawn(start, interface);
     draw_pawn(end, interface);
+    affiche_all();
 }
+

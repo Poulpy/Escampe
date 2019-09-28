@@ -9,8 +9,7 @@
 
 int main()
 {
-    int interface, moves_count, lastEdging, turn;
-    int gameFinished, inGame;
+    int interface, moves_count, lastEdging, turn, gameFinished, inGame;
     NumBox n1, n2, *moves;
     POINT click1, click2;
     Coul player;
@@ -45,9 +44,11 @@ int main()
             if (is_AI_turn(player, mode))
             {
                 random_move(player, &n1, &n2);
-                highlight_cell(n2, get_color_by_player(player), interface, 1);
-                sleep(2);
-                erase_highlight(n2, interface);
+                highlight_cell(n1, get_color_by_player(player), interface, 1);
+                sleep(1);
+                highlight_cell(n2, HIGHLIGHT_COLOR, interface, 1);
+                sleep(1);
+                erase_highlight(n2, interface, 0);
             }
             else
             {
@@ -62,7 +63,7 @@ int main()
                 moves = get_moves(&moves_count, n1);
 
                 highlight_cell(n1, get_color_by_player(player), interface, 0);
-                highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
+                highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface, 1);
 
                 do
                 {
@@ -71,25 +72,25 @@ int main()
                     if(is_on_player_side(n2, interface, player) &&
                        is_cell_valid(n2, lastEdging, interface))
                     {
-                        erase_highlightings(moves, n1, moves_count, interface);
+                        erase_highlight(n1, interface, 0);
+                        erase_highlights(moves, moves_count, interface, 1);
 
                         n1 = point_to_numbox(click2, interface);
                         moves = get_moves(&moves_count, n1);
 
                         highlight_cell(n1, get_color_by_player(player), interface, 0);
-                        highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface);
+                        highlight_cells(moves, moves_count, HIGHLIGHT_COLOR, interface, 1);
                     }
                 } while (!contains(moves, moves_count, n2));
 
-                erase_highlightings(moves, n1, moves_count, interface);
+                erase_highlights(moves, moves_count, interface, 0);
             }
+            erase_highlight(n1, interface, 0);
 
             gameFinished = move_pawn(n1, n2);
             draw_move(n1, n2, interface);
             lastEdging = gameboard[n2.y][n2.x].edging;
 
-            affiche_all();
-            // Change function to get pawns types
         } while (!gameFinished);
 
         display_endgame_menu(player);

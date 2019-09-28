@@ -45,9 +45,9 @@ void display_button(char *text, POINT bl_corner, POINT ur_corner, COULEUR back, 
 void erase_information();
 void display_informations(Coul playerColor, int lastEdging);
 void highlight_cell(NumBox cell, COULEUR color, int interface, int display);
-void highlight_cells(NumBox *cells, int len, COULEUR color, int interface);
-void erase_highlighting(NumBox *cells, int len, int interface);
-void erase_highlight(NumBox cell, int interface);
+void highlight_cells(NumBox *cells, int len, COULEUR color, int interface, int display);
+void erase_highlight(NumBox cell, int interface, int display);
+void erase_highlights(NumBox *cells, int len, int interface, int display);
 void display_turn_helper(COULEUR textColor, int lastEdging);
 void display_border_choice();
 void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface);
