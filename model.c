@@ -1,5 +1,6 @@
 #include "model.h"
 
+// Initialize the gameboard with the edgings and the type (EMPTY)
 void init_gameboard()
 {
     int edgings[6][6] = { { 1, 2, 2, 3, 1, 2 },
@@ -91,9 +92,6 @@ int is_edging_valid(int lastEdging, NumBox start)
     return lastEdging == 0 || lastEdging == gameboard[start.y][start.x].edging;
 }
 
-// Check if any pawn of a player can move, according
-// to the last edging played
-
 
 // Get the 4 surrounding neighbours of a cell
 void get_neighbours(NumBox neigh[4], NumBox cell)
@@ -136,20 +134,25 @@ void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumB
 
 // Call the function depth_first_search
 // The size of the array that stores the possible moves of NumBox pawn
-// is fixed, but could be reallocated
 // 1 move => 4 cells max
 // 2 move => 8 cells max
 // 3 move => 16 cells max
 NumBox *get_moves(int *moves_count, NumBox pawn)
 {
-    int m = gameboard[pawn.y][pawn.x].edging;
+    int max_size, m = gameboard[pawn.y][pawn.x].edging;
     NumBox forbidden = { -1, -1 };
 
+    if (m == 1)      max_size = 4;
+    else if (m == 2) max_size = 8;
+    else             max_size = 16;
+
+    NumBox *moves = (NumBox *) malloc(sizeof(NumBox) * max_size);
+
     *moves_count = 0;
-    NumBox *moves = (NumBox *) malloc(sizeof(NumBox) * m * 5);
 
     depth_first_search(moves, moves_count, pawn, m, forbidden, pawn);
     uniq(moves, moves_count);
+    moves = (NumBox *) realloc(moves, sizeof(NumBox) * *moves_count);
 
     return moves;
 }
