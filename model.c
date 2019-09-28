@@ -146,8 +146,7 @@ void random_move(Coul color, NumBox *start, NumBox *end)
         *start = cells[alea_int(6)];
 
         ends = get_moves(&len, *start);
-    }
-    while (len == 0);
+    } while (len == 0);
 
     *end = ends[alea_int(len)];
 }
