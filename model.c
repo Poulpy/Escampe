@@ -21,7 +21,8 @@ void init_gameboard()
 
 // Fill the gameboard with a pre-arranged set of pawns (white & black)
 // Could have done it even smaller with only one array, because the
-// number of white pawns, paladins and unicorns are limited
+// number of white pawns, paladins and unicorns is limited;
+// Black is the default color, so no need to assign this color, only white
 void init_gamepawns_1()
 {
     int i;
@@ -40,6 +41,7 @@ void init_gamepawns_1()
         gameboard[unicorns[i].x][unicorns[i].y].type = UNICORN;
 }
 
+// 2nd pre-arranged set of pawns
 void init_gamepawns_2()
 {
     int i;
@@ -68,13 +70,14 @@ int can_override(NumBox start, NumBox end)
             gameboard[start.y][start.x].color != gameboard[end.y][end.x].color);
 }
 
-// Check if the cell is occupied any pawn
+// Check if the cell is occupied by any pawn
 int is_cell_occupied(NumBox pos)
 {
     return gameboard[pos.y][pos.x].type != EMPTY;
 }
 
 // Move a pawn in the gameboard
+// Returns also if the pawn beat a unicorn
 int move_pawn(NumBox start, NumBox end)
 {
     Type enemy = gameboard[end.y][end.x].type;
@@ -87,6 +90,7 @@ int move_pawn(NumBox start, NumBox end)
     return enemy == UNICORN;
 }
 
+// Check if a NumBox start has the same number of edgings as the lastEdging
 int is_edging_valid(int lastEdging, NumBox start)
 {
     return lastEdging == 0 || lastEdging == gameboard[start.y][start.x].edging;
@@ -108,7 +112,8 @@ void get_neighbours(NumBox neigh[4], NumBox cell)
 // This function checks also if the NumBox pawn (the starting point)
 // can capture the unicorn (the end point; that's why we have to check
 // if there is no more moves to play)
-void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player)
+void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves,
+                        NumBox forbidden, NumBox player)
 {
     int i;
     NumBox neigh[4];
@@ -134,23 +139,25 @@ void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumB
 
 // Call the function depth_first_search
 // The size of the array that stores the possible moves of NumBox pawn
+// is dependent of the number of moves allowed
 // 1 move => 4 cells max
 // 2 move => 8 cells max
 // 3 move => 16 cells max
+// The array storing the moves is reallocated at the end
 NumBox *get_moves(int *moves_count, NumBox pawn)
 {
-    int max_size, m = gameboard[pawn.y][pawn.x].edging;
+    int max_size, edgings = gameboard[pawn.y][pawn.x].edging;
     NumBox forbidden = { -1, -1 };
 
-    if (m == 1)      max_size = 4;
-    else if (m == 2) max_size = 8;
-    else             max_size = 16;
+    if (edgings == 1)      max_size = 4;
+    else if (edgings == 2) max_size = 8;
+    else                   max_size = 16;
 
     NumBox *moves = (NumBox *) malloc(sizeof(NumBox) * max_size);
 
     *moves_count = 0;
 
-    depth_first_search(moves, moves_count, pawn, m, forbidden, pawn);
+    depth_first_search(moves, moves_count, pawn, edgings, forbidden, pawn);
     uniq(moves, moves_count);
     moves = (NumBox *) realloc(moves, sizeof(NumBox) * *moves_count);
 
@@ -170,7 +177,7 @@ void random_move(Coul color, NumBox *start, NumBox *end)
         cells = get_cells_by_color(color);
         *start = cells[alea_int(6)];
         ends = get_moves(&len, *start);
-        // must do that because the array is DYNAMICALLY allocated
+        // must do that in the loop because the array is DYNAMICALLY allocated
         if (0 == len)
         {
             go_on = 0;
@@ -183,12 +190,13 @@ void random_move(Coul color, NumBox *start, NumBox *end)
     free(ends);
 }
 
+// Check if the NumBox pos is in gameboard
 int in_range(NumBox pos)
 {
     return pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5;
 }
 
-// Get all pawns of a player
+// Get all pawns of a player (represented by a color Coul)
 NumBox *get_cells_by_color(Coul color)
 {
     int cursor = 0, i, j;
@@ -209,6 +217,7 @@ NumBox *get_cells_by_color(Coul color)
 }
 
 // Check if a NumBox pos is on the border bor (TOP, BOTTOM, etc)
+// A border is the first 2 rows
 int is_in_border(NumBox pos, Border bor, int interface)
 {
     switch (bor)
@@ -237,7 +246,7 @@ int can_move(NumBox pawnCell)
     return 0 != moves_count;
 }
 
-// Set the pawns in the gameboard
+// Set the pawns of a player in the gameboard
 void set_pawns(NumBox pawns[6], Coul color)
 {
     int i;
@@ -304,6 +313,7 @@ void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2)
 }
 
 // Remove a NumBox n from an array of NumBox ns of size len
+// It removes ALL NumBox that are equal to n, not just one
 void remove_numbox(NumBox *ns, int *len, NumBox n)
 {
     int i;
@@ -318,6 +328,7 @@ void remove_numbox(NumBox *ns, int *len, NumBox n)
 }
 
 // Copy an array n2 of size len2 to an array n1
+// The append starts at offset (not neccessarily the length of n1)
 void copy(NumBox *n1, int *offset, NumBox *n2, int len2)
 {
     int i;
