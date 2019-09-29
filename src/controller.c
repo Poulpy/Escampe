@@ -33,29 +33,29 @@ int is_between_points(POINT p1, POINT c1, POINT c2)
     return p1.x >= c1.x && p1.x <= c2.x && p1.y <= c1.y && p1.y >= c2.y;
 }
 
-// Returns the color of a player
-COULEUR get_color_by_player(Coul color)
+// Returns the coulP of a player
+COULEUR get_coulP_by_player(COUL coulP)
 {
-    if (color == BLACK) return BLACK_PLAYER_COLOR;
-    return WHITE_PLAYER_COLOR;
+    if (coulP == NOIR) return NOIR_PLAYER_COLOR;
+    return BLANC_PLAYER_COLOR;
 }
 
-// Let the user place a pawn in the gameboard, given a click
-// IT IS NOT added to gameboard
-void player_place_pawn(NumBox *cell, Border bor, int interface)
+// Let the user place a piece in the plateau, given a click
+// IT IS NOT added to plateau
+void player_place_piece(NUMBOX *cell, Border bor, int interface)
 {
     POINT click;
 
     do
     {
         click = wait_clic();
-        *cell = point_to_numbox(click, interface);
+        *cell = point_to_numBox(click, interface);
     } while (!is_on_board(click) || !is_in_border(*cell, bor, interface));
 }
 
-// Let an AI place a pawn in the gameboard
-// IT IS NOT added to gameboard
-void place_random_pawn(NumBox *cell, Border bor, int interface)
+// Let an AI place a piece in the plateau
+// IT IS NOT added to plateau
+void place_random_piece(NUMBOX *cell, Border bor, int interface)
 {
     do
     {
@@ -65,39 +65,39 @@ void place_random_pawn(NumBox *cell, Border bor, int interface)
 }
 
 // Pawns are placed for one player (AI or human)
-// /The first pawn placed is the unicorn
-void position_pawns(NumBox pawns[6], Border bor, Coul player, int interface,
+// /The first piece placed is the unicorn
+void position_pieces(NUMBOX pieces[6], Border bor, COUL player, int interface,
                     int is_ai)
 {
     int i;
-    COULEUR color = get_color_by_player(player);
+    COULEUR coulP = get_coulP_by_player(player);
 
     if (is_ai)
     {
-        place_random_pawn(&(pawns[0]), bor, interface);
+        place_random_piece(&(pieces[0]), bor, interface);
     }
     else
     {
-        player_place_pawn(&(pawns[0]), bor, interface);
+        player_place_piece(&(pieces[0]), bor, interface);
     }
 
-    draw_unicorn(numbox_to_point(pawns[0], interface), color);
+    affiche_licorne(numBox_to_point(pieces[0], interface), coulP);
     affiche_all();
 
     for (i = 1; i != 6; i++)
     {
         do
         {
-            if (is_ai) place_random_pawn(&(pawns[i]), bor, interface);
-            else player_place_pawn(&(pawns[i]), bor, interface);
-        } while (contains(pawns, i, pawns[i]));
+            if (is_ai) place_random_piece(&(pieces[i]), bor, interface);
+            else player_place_piece(&(pieces[i]), bor, interface);
+        } while (contains(pieces, i, pieces[i]));
 
-        draw_paladin(numbox_to_point(pawns[i], interface), color);
+        affiche_paladin(numBox_to_point(pieces[i], interface), coulP);
         affiche_all();
     }
 }
 
-// Check if a Point click is on the gameboard
+// Check if a Point click is on the plateau
 int is_on_board(POINT click)
 {
     return click.x >= MARGIN && click.x <= (WIDTH - MARGIN) &&
@@ -108,7 +108,7 @@ int is_on_board(POINT click)
 // - an interface
 // - a gamemode
 // - a border
-// The gameboard is also drawn
+// The plateau is also drawn
 void init_game(int *interface, Gamemode *mode, Border *bor)
 {
     fill_screen(BACKGROUND_COLOR);
@@ -119,34 +119,34 @@ void init_game(int *interface, Gamemode *mode, Border *bor)
     display_gamemode_choice();
     *mode = player_choose_gamemode();
 
-    init_gameboard();
+    init_plateau();
 
-    draw_gameboard(*interface);
+    affiche_plateau(*interface);
 
     display_border_choice();
     *bor = player_choose_border();
-    erase_window_except_gameboard();
+    erase_window_except_plateau();
 }
 
-// Both players place their pawns
-// The black player places his pawns first, according to the border bor
-// The white player places his pawns on the opposite border
-void players_place_pawns(Border bor, int interface, Gamemode mode)
+// Both players place their pieces
+// The black player places his pieces first, according to the border bor
+// The white player places his pieces on the opposite border
+void players_place_pieces(Border bor, int interface, Gamemode mode)
 {
     int players[] = { 0, 0 };
-    NumBox white_pawns[6], black_pawns[6];
+    NUMBOX white_pieces[6], black_pieces[6];
 
     if (PVC == mode)
     {
-        if (AI_COLOR == BLACK) players[0] = 1;
+        if (AI_COLOR == NOIR) players[0] = 1;
         else                   players[1] = 1;
     }
 
-    position_pawns(black_pawns, bor, BLACK, interface, players[0]);
-    position_pawns(white_pawns, get_opposite_border(bor), WHITE, interface, players[1]);
+    position_pieces(black_pieces, bor, NOIR, interface, players[0]);
+    position_pieces(white_pieces, get_opposite_border(bor), BLANC, interface, players[1]);
 
-    set_pawns(black_pawns, BLACK);
-    set_pawns(white_pawns, WHITE);
+    set_pieces(black_pieces, NOIR);
+    set_pieces(white_pieces, BLANC);
 }
 
 // Let the player choose a border, Top, Bottom, Right, Left, given a click
@@ -164,22 +164,22 @@ Border player_choose_border()
     return bor;
 }
 
-// Converts a NumBox n to a Point, given an interface (1 or 2)
-POINT numbox_to_point(NumBox n, int interface)
+// Converts a NUMBOX n to a Point, given an interface (1 or 2)
+POINT numBox_to_point(NUMBOX n, int interface)
 {
-    if (interface == 1) return numbox_to_point_ig1(n);
-    else return numbox_to_point_ig2(n);
+    if (interface == 1) return numBox_to_pointBG_ig1(n);
+    else return numBox_to_pointBG_ig2(n);
 }
 
-// Converts a Point p to a NumBox, given an interface (1 or 2)
-NumBox point_to_numbox(POINT p, int interface)
+// Converts a Point p to a NUMBOX, given an interface (1 or 2)
+NUMBOX point_to_numBox(POINT p, int interface)
 {
-    if (interface == 1) return point_to_numbox_ig1(p);
-    else return point_to_numbox_ig2(p);
+    if (interface == 1) return point_ig1_to_numBox(p);
+    else return point_ig2_to_numBox(p);
 }
 
-// Converts a NumBox n to a Point for the interface 1
-POINT numbox_to_point_ig1(NumBox n)
+// Converts a NUMBOX n to a Point for the interface 1
+POINT numBox_to_pointBG_ig1(NUMBOX n)
 {
     POINT p;
 
@@ -189,10 +189,10 @@ POINT numbox_to_point_ig1(NumBox n)
     return p;
 }
 
-// Converts a Point p to a NumBox for the interface 1
-NumBox point_to_numbox_ig1(POINT p)
+// Converts a Point p to a NUMBOX for the interface 1
+NUMBOX point_ig1_to_numBox(POINT p)
 {
-    NumBox n;
+    NUMBOX n;
 
     n.x = (p.x - MARGIN) / CELL_WIDTH;
     n.y = (p.y - MARGIN) / CELL_HEIGHT;
@@ -200,8 +200,8 @@ NumBox point_to_numbox_ig1(POINT p)
     return n;
 }
 
-// Converts a NumBox n to a Point for the interface 2
-POINT numbox_to_point_ig2(NumBox n)
+// Converts a NUMBOX n to a Point for the interface 2
+POINT numBox_to_pointBG_ig2(NUMBOX n)
 {
     POINT p;
 
@@ -211,10 +211,10 @@ POINT numbox_to_point_ig2(NumBox n)
     return p;
 }
 
-// Converts a Point p to a NumBox for the interface 2
-NumBox point_to_numbox_ig2(POINT p)
+// Converts a Point p to a NUMBOX for the interface 2
+NUMBOX point_ig2_to_numBox(POINT p)
 {
-    NumBox n;
+    NUMBOX n;
 
     n.y = (p.x - MARGIN) / CELL_WIDTH;
     n.x = (MARGIN + BOARD_HEIGHT - p.y) / CELL_HEIGHT;
@@ -263,10 +263,10 @@ Gamemode player_choose_gamemode()
     else return PVC;
 }
 
-// Check if the pawn on the NumBox cell belongs to the player color
-int is_on_player_side(NumBox cell, int interface, Coul color)
+// Check if the piece on the NUMBOX cell belongs to the player coulP
+int is_on_player_side(NUMBOX cell, int interface, COUL coulP)
 {
-    return is_cell_occupied(cell) && gameboard[cell.y][cell.x].color == color;
+    return is_cell_occupied(cell) && plateau[cell.y][cell.x].coulP == coulP;
 }
 
 // Let the player choose to play again or quit the game
@@ -276,11 +276,11 @@ int player_choose_to_replay()
     return click.y >= 0 && click.x < MID_WIDTH;
 }
 
-// Check if the number of edgings of a cell is correct, and if the cell
+// Check if the number of liseres of a cell is correct, and if the cell
 // is occupied
-int is_cell_valid(NumBox selectedCell, int lastEdging, int interface)
+int is_cell_valid(NUMBOX selectedCell, int lastEdging, int interface)
 {
-    return is_edging_valid(lastEdging, selectedCell) &&
+    return is_lisere_valid(lastEdging, selectedCell) &&
            is_cell_occupied(selectedCell);
 }
 
