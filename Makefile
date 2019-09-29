@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -Wall `sdl-config --cflags -Isrc/include`
+CFLAGS=-O2 -Wall -pg -no-pie `sdl-config --cflags -Isrc/include`
 LIBS=`sdl-config --libs` -lm -lSDL_ttf
 SOURCE_DIR=src/
 INC_DIR=src/include/

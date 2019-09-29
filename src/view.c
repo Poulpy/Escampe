@@ -29,7 +29,8 @@ void display_interface_choice()
     affiche_all();
 }
 
-void display_button(char *text, POINT bl_corner, POINT ur_corner, COULEUR back, COULEUR front, int textSize)
+void display_button(char *text, POINT bl_corner, POINT ur_corner, COULEUR back,
+                    COULEUR front, int textSize)
 {
     draw_fill_rectangle(bl_corner, ur_corner, back);
     bl_corner.y += (ur_corner.y - bl_corner.y) * 0.3;
@@ -122,6 +123,7 @@ void erase_window_except_gameboard()
     draw_fill_rectangle(p3, p4, BACKGROUND_COLOR);
 }
 
+// Draw a unicorn at the POINT origin
 void draw_unicorn(POINT origin, COULEUR color)
 {
     int top_margin = 20;
@@ -361,6 +363,7 @@ void highlight_cells(NumBox *cells, int len, COULEUR color, int interface, int d
     if (display) affiche_all();
 }
 
+// Erase an highlight by highlighting over with the background color
 void erase_highlight(NumBox cell, int interface, int display)
 {
     highlight_cell(cell, BACKGROUND_COLOR, interface, display);
