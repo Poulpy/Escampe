@@ -148,6 +148,9 @@ void draw_unicorn(POINT origin, COULEUR color)
     draw_fill_ellipse(botl, botr, 2, color);
 }
 
+// Draw a paladin from the Point origin
+// The little shade on the top of the paladin is made
+// with the substraction - 0x070707
 void draw_paladin(POINT origin, COULEUR color)
 {
     int top_margin = 30;
@@ -228,10 +231,28 @@ void draw_edging(POINT bl_corner, int number)
     }
 }
 
+// Erase a pawn by drawing over an edging; because the color
+// of the cell (behind the pawn), depends on the number of
+// edgings of the cell
 void erase_pawn(NumBox pawn, int interface)
 {
     draw_edging(numbox_to_point(pawn, interface), get_edging(pawn));
 }
+
+// Another version
+/*
+void erase_pawn(NumBox pawn, int interface)
+{
+    int edgings = get_edging(pawn);
+    POINT p = numbox_to_point(pawn, interface);
+    if (edgings == 1)
+        draw_unicorn(p, FIRST_COLOR);
+    if (edgings == 2)
+        draw_unicorn(p, SECON_COLOR);
+    if (edgings == 3)
+        draw_unicorn(p, THIRD_COLOR);
+}
+*/
 
 // Show which player won
 void display_endgame_menu(Coul color)
@@ -271,11 +292,7 @@ void erase_information()
     start.y = HEIGHT;
     end.x = WIDTH;
     end.y = MARGIN + BOARD_HEIGHT + 6;
-    draw_fill_rectangle(start, end, BACKGROUND_COLOR);
 
-    start.y = 0;
-    end.x = WIDTH;
-    end.y = MARGIN - 5;
     draw_fill_rectangle(start, end, BACKGROUND_COLOR);
 }
 
@@ -312,7 +329,7 @@ void display_informations(Coul playerColor, int lastEdging)
 void display_turn_helper(COULEUR textColor, int lastEdging)
 {
     char requiredEdging[5];
-    int textSize = 35, i, radii[] = { 100, 90, 80 };
+    int textSize = 35, radii[] = { 100, 90, 80 }, i;
     POINT label, p = { 0, HEIGHT };
     COULEUR colors[] = { FIRST_COLOR, SECON_COLOR, THIRD_COLOR };
 
@@ -351,6 +368,7 @@ void highlight_cell(NumBox cell, COULEUR color, int interface, int display)
 }
 
 // Draw circles around cells of the gameboard
+// If display is set to TRUE, affiche_all() is called to display the result
 void highlight_cells(NumBox *cells, int len, COULEUR color, int interface, int display)
 {
     int i;
@@ -369,6 +387,7 @@ void erase_highlight(NumBox cell, int interface, int display)
     highlight_cell(cell, BACKGROUND_COLOR, interface, display);
 }
 
+// Erase highlights over multiple cells
 void erase_highlights(NumBox *cells, int len, int interface, int display)
 {
     int i;

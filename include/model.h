@@ -69,7 +69,7 @@ void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves,
 NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
 Border get_opposite_border(Border bor);
-Coul get_other_player(Coul currentPlayer);
+Coul   get_other_player(Coul currentPlayer);
 
 #endif
 
