@@ -2,24 +2,56 @@ Flat profile:
 
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
- time   seconds   seconds    calls  Ts/call  Ts/call  name    
- 57.17      0.04     0.04                             fill_screen
- 14.29      0.05     0.01                             draw_fill_circle
- 14.29      0.06     0.01                             draw_fill_rectangle
- 14.29      0.07     0.01                             is_cell_valid
-  0.00      0.07     0.00       40     0.00     0.00  draw_edging
-  0.00      0.07     0.00       40     0.00     0.00  draw_pawn
-  0.00      0.07     0.00       14     0.00     0.00  draw_paladin
-  0.00      0.07     0.00       12     0.00     0.00  highlight_cell
-  0.00      0.07     0.00        4     0.00     0.00  display_turn_helper
-  0.00      0.07     0.00        4     0.00     0.00  erase_information
-  0.00      0.07     0.00        4     0.00     0.00  erase_pawn
-  0.00      0.07     0.00        2     0.00     0.00  display_button
-  0.00      0.07     0.00        2     0.00     0.00  draw_unicorn
-  0.00      0.07     0.00        1     0.00     0.00  display_border_choice
-  0.00      0.07     0.00        1     0.00     0.00  display_gamemode_choice
-  0.00      0.07     0.00        1     0.00     0.00  display_interface_choice
-  0.00      0.07     0.00        1     0.00     0.00  draw_gameboard
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 27.28      0.03     0.03       97     0.31     0.36  draw_fill_circle
+ 27.28      0.06     0.03        6     5.00     5.00  fill_screen
+ 18.19      0.08     0.02  1564754     0.00     0.00  is_cell_valid
+ 18.19      0.10     0.02       22     0.91     1.55  draw_fill_rectangle
+  9.09      0.11     0.01       34     0.29     0.32  draw_fill_ellipse
+  0.00      0.11     0.00      128     0.00     0.00  numbox_to_point
+  0.00      0.11     0.00       88     0.00     0.00  draw_circle
+  0.00      0.11     0.00       52     0.00     0.00  draw_fill_triangle
+  0.00      0.11     0.00       42     0.00     0.00  alea_float
+  0.00      0.11     0.00       42     0.00     0.00  alea_int
+  0.00      0.11     0.00       42     0.00     0.70  draw_edging
+  0.00      0.11     0.00       42     0.00     0.09  draw_pawn
+  0.00      0.11     0.00       42     0.00     0.00  get_color_by_player
+  0.00      0.11     0.00       38     0.00     0.00  append
+  0.00      0.11     0.00       31     0.00     0.00  aff_pol
+  0.00      0.11     0.00       26     0.00     0.01  highlight_cell
+  0.00      0.11     0.00       24     0.00     0.00  is_in_border
+  0.00      0.11     0.00       17     0.00     0.00  affiche_all
+  0.00      0.11     0.00       16     0.00     0.65  draw_paladin
+  0.00      0.11     0.00       12     0.00     0.00  depth_first_search
+  0.00      0.11     0.00       12     0.00     0.00  uniq
+  0.00      0.11     0.00       10     0.00     0.00  contains
+  0.00      0.11     0.00       10     0.00     0.00  wait_clic
+  0.00      0.11     0.00        9     0.00     0.00  get_moves
+  0.00      0.11     0.00        9     0.00     0.00  is_cell_occupied
+  0.00      0.11     0.00        8     0.00     0.00  get_cells_by_color
+  0.00      0.11     0.00        6     0.00     0.00  can_move
+  0.00      0.11     0.00        6     0.00     0.71  display_turn_helper
+  0.00      0.11     0.00        6     0.00     3.11  erase_information
+  0.00      0.11     0.00        6     0.00     0.70  erase_pawn
+  0.00      0.11     0.00        6     0.00     0.00  get_edging
+  0.00      0.11     0.00        6     0.00     0.00  place_random_pawn
+  0.00      0.11     0.00        6     0.00     0.00  player_place_pawn
+  0.00      0.11     0.00        3     0.00     0.00  is_edging_valid
+  0.00      0.11     0.00        2     0.00     1.55  display_button
+  0.00      0.11     0.00        2     0.00     0.01  draw_line
+  0.00      0.11     0.00        2     0.00     0.68  draw_unicorn
+  0.00      0.11     0.00        2     0.00     3.91  position_pawns
+  0.00      0.11     0.00        2     0.00     0.00  set_pawns
+  0.00      0.11     0.00        1     0.00     6.22  display_border_choice
+  0.00      0.11     0.00        1     0.00     5.01  display_gamemode_choice
+  0.00      0.11     0.00        1     0.00     8.11  display_interface_choice
+  0.00      0.11     0.00        1     0.00    33.65  draw_gameboard
+  0.00      0.11     0.00        1     0.00     0.00  get_border_choice
+  0.00      0.11     0.00        1     0.00     0.00  get_interface_choice
+  0.00      0.11     0.00        1     0.00     0.00  get_opposite_border
+  0.00      0.11     0.00        1     0.00     0.00  init_gameboard
+  0.00      0.11     0.00        1     0.00     0.00  player_choose_border
+  0.00      0.11     0.00        1     0.00     0.00  player_choose_interface
 
  %         the percentage of the total running time of the
 time       program used by this function.
@@ -57,68 +89,308 @@ notice and this notice are preserved.
 		     Call graph (explanation follows)
 
 
-granularity: each sample hit covers 2 byte(s) for 14.28% of 0.07 seconds
+granularity: each sample hit covers 2 byte(s) for 9.09% of 0.11 seconds
 
 index % time    self  children    called     name
                                                  <spontaneous>
-[1]     57.1    0.04    0.00                 fill_screen [1]
+[1]     52.7    0.00    0.06                 init_game [1]
+                0.00    0.03       1/1           draw_gameboard [4]
+                0.00    0.01       1/1           display_interface_choice [12]
+                0.00    0.01       1/1           display_border_choice [15]
+                0.00    0.01       1/1           display_gamemode_choice [17]
+                0.01    0.00       1/6           fill_screen [5]
+                0.00    0.00       4/17          affiche_all [39]
+                0.00    0.00       1/1           player_choose_interface [58]
+                0.00    0.00       1/10          wait_clic [43]
+                0.00    0.00       1/1           init_gameboard [56]
+                0.00    0.00       1/1           player_choose_border [57]
+-----------------------------------------------
+                0.00    0.00       2/97          draw_unicorn [25]
+                0.00    0.00      12/97          display_turn_helper [21]
+                0.03    0.00      83/97          draw_edging [6]
+[2]     31.4    0.03    0.00      97         draw_fill_circle [2]
+                0.00    0.00  353413/1564754     is_cell_valid [8]
+-----------------------------------------------
+                0.00    0.00       2/22          display_button [24]
+                0.00    0.00       4/22          display_border_choice [15]
+                0.00    0.00       4/22          erase_window_except_gameboard [16]
+                0.01    0.01      12/22          erase_information [9]
+[3]     31.1    0.02    0.01      22         draw_fill_rectangle [3]
+                0.01    0.00 1110707/1564754     is_cell_valid [8]
+-----------------------------------------------
+                0.00    0.03       1/1           init_game [1]
+[4]     30.6    0.00    0.03       1         draw_gameboard [4]
+                0.00    0.03      36/42          draw_edging [6]
+                0.01    0.00       1/6           fill_screen [5]
+                0.00    0.00      36/42          draw_pawn [23]
+                0.00    0.00      36/128         numbox_to_point [32]
+-----------------------------------------------
+                0.01    0.00       1/6           display_interface_choice [12]
+                0.01    0.00       1/6           display_gamemode_choice [17]
+                0.01    0.00       1/6           draw_gameboard [4]
+                0.01    0.00       1/6           display_endgame_menu [18]
+                0.01    0.00       1/6           init_game [1]
+                0.01    0.00       1/6           init_graphics [19]
+[5]     27.3    0.03    0.00       6         fill_screen [5]
+-----------------------------------------------
+                0.00    0.00       6/42          erase_pawn [22]
+                0.00    0.03      36/42          draw_gameboard [4]
+[6]     26.9    0.00    0.03      42         draw_edging [6]
+                0.03    0.00      83/97          draw_fill_circle [2]
 -----------------------------------------------
                                                  <spontaneous>
-[2]     14.3    0.01    0.00                 draw_fill_circle [2]
+[7]     20.8    0.00    0.02                 display_informations [7]
+                0.00    0.02       6/6           erase_information [9]
+                0.00    0.00       6/6           display_turn_helper [21]
+                0.00    0.00       6/31          aff_pol [37]
+-----------------------------------------------
+                0.00    0.00     922/1564754     draw_line [31]
+                0.00    0.00    9260/1564754     draw_fill_triangle [30]
+                0.00    0.00   22528/1564754     draw_circle [26]
+                0.00    0.00   67924/1564754     draw_fill_ellipse [10]
+                0.00    0.00  353413/1564754     draw_fill_circle [2]
+                0.01    0.00 1110707/1564754     draw_fill_rectangle [3]
+[8]     18.2    0.02    0.00 1564754         is_cell_valid [8]
+                0.00    0.00       3/3           is_edging_valid [51]
+                0.00    0.00       3/9           is_cell_occupied [45]
+-----------------------------------------------
+                0.00    0.02       6/6           display_informations [7]
+[9]     17.0    0.00    0.02       6         erase_information [9]
+                0.01    0.01      12/22          draw_fill_rectangle [3]
+-----------------------------------------------
+                0.00    0.00       2/34          draw_unicorn [25]
+                0.01    0.00      32/34          draw_paladin [11]
+[10]     9.9    0.01    0.00      34         draw_fill_ellipse [10]
+                0.00    0.00   67924/1564754     is_cell_valid [8]
+-----------------------------------------------
+                0.00    0.00       6/16          draw_pawn [23]
+                0.00    0.01      10/16          position_pawns [13]
+[11]     9.4    0.00    0.01      16         draw_paladin [11]
+                0.01    0.00      32/34          draw_fill_ellipse [10]
+                0.00    0.00      48/52          draw_fill_triangle [30]
+-----------------------------------------------
+                0.00    0.01       1/1           init_game [1]
+[12]     7.4    0.00    0.01       1         display_interface_choice [12]
+                0.01    0.00       1/6           fill_screen [5]
+                0.00    0.00       2/2           display_button [24]
+                0.00    0.00       3/31          aff_pol [37]
+-----------------------------------------------
+                0.00    0.01       2/2           players_place_pawns [14]
+[13]     7.1    0.00    0.01       2         position_pawns [13]
+                0.00    0.01      10/16          draw_paladin [11]
+                0.00    0.00       2/2           draw_unicorn [25]
+                0.00    0.00      12/17          affiche_all [39]
+                0.00    0.00      10/10          contains [42]
+                0.00    0.00       6/6           place_random_pawn [49]
+                0.00    0.00       6/6           player_place_pawn [50]
 -----------------------------------------------
                                                  <spontaneous>
-[3]     14.3    0.01    0.00                 draw_fill_rectangle [3]
+[14]     7.1    0.00    0.01                 players_place_pawns [14]
+                0.00    0.01       2/2           position_pawns [13]
+                0.00    0.00       2/2           set_pawns [52]
+                0.00    0.00       1/1           get_opposite_border [55]
+-----------------------------------------------
+                0.00    0.01       1/1           init_game [1]
+[15]     5.7    0.00    0.01       1         display_border_choice [15]
+                0.00    0.00       4/22          draw_fill_rectangle [3]
+                0.00    0.00       6/31          aff_pol [37]
 -----------------------------------------------
                                                  <spontaneous>
-[4]     14.3    0.01    0.00                 is_cell_valid [4]
+[16]     5.7    0.00    0.01                 erase_window_except_gameboard [16]
+                0.00    0.00       4/22          draw_fill_rectangle [3]
 -----------------------------------------------
-                0.00    0.00       4/40          erase_pawn [11]
-                0.00    0.00      36/40          draw_gameboard [17]
-[5]      0.0    0.00    0.00      40         draw_edging [5]
+                0.00    0.01       1/1           init_game [1]
+[17]     4.6    0.00    0.01       1         display_gamemode_choice [17]
+                0.01    0.00       1/6           fill_screen [5]
+                0.00    0.00       1/2           draw_line [31]
+                0.00    0.00       7/31          aff_pol [37]
 -----------------------------------------------
-                0.00    0.00       4/40          draw_move [52]
-                0.00    0.00      36/40          draw_gameboard [17]
-[6]      0.0    0.00    0.00      40         draw_pawn [6]
-                0.00    0.00       4/14          draw_paladin [7]
+                                                 <spontaneous>
+[18]     4.6    0.00    0.01                 display_endgame_menu [18]
+                0.01    0.00       1/6           fill_screen [5]
+                0.00    0.00       1/2           draw_line [31]
+                0.00    0.00       3/31          aff_pol [37]
 -----------------------------------------------
-                0.00    0.00       4/14          draw_pawn [6]
-                0.00    0.00      10/14          position_pawns [107]
-[7]      0.0    0.00    0.00      14         draw_paladin [7]
+                                                 <spontaneous>
+[19]     4.5    0.00    0.01                 init_graphics [19]
+                0.01    0.00       1/6           fill_screen [5]
+                0.00    0.00       1/17          affiche_all [39]
 -----------------------------------------------
-                0.00    0.00       6/12          highlight_cells [74]
-                0.00    0.00       6/12          erase_highlights [58]
-[8]      0.0    0.00    0.00      12         highlight_cell [8]
+                                                 <spontaneous>
+[20]     4.3    0.00    0.00                 draw_move [20]
+                0.00    0.00       6/6           erase_pawn [22]
+                0.00    0.00       6/42          draw_pawn [23]
 -----------------------------------------------
-                0.00    0.00       4/4           display_informations [42]
-[9]      0.0    0.00    0.00       4         display_turn_helper [9]
+                0.00    0.00       6/6           display_informations [7]
+[21]     3.9    0.00    0.00       6         display_turn_helper [21]
+                0.00    0.00      12/97          draw_fill_circle [2]
+                0.00    0.00       6/31          aff_pol [37]
 -----------------------------------------------
-                0.00    0.00       4/4           display_informations [42]
-[10]     0.0    0.00    0.00       4         erase_information [10]
+                0.00    0.00       6/6           draw_move [20]
+[22]     3.8    0.00    0.00       6         erase_pawn [22]
+                0.00    0.00       6/42          draw_edging [6]
+                0.00    0.00       6/6           get_edging [48]
+                0.00    0.00       6/128         numbox_to_point [32]
 -----------------------------------------------
-                0.00    0.00       4/4           draw_move [52]
-[11]     0.0    0.00    0.00       4         erase_pawn [11]
-                0.00    0.00       4/40          draw_edging [5]
+                0.00    0.00       6/42          draw_move [20]
+                0.00    0.00      36/42          draw_gameboard [4]
+[23]     3.5    0.00    0.00      42         draw_pawn [23]
+                0.00    0.00       6/16          draw_paladin [11]
+                0.00    0.00      42/42          get_color_by_player [35]
+                0.00    0.00      42/128         numbox_to_point [32]
 -----------------------------------------------
-                0.00    0.00       2/2           display_interface_choice [16]
-[12]     0.0    0.00    0.00       2         display_button [12]
+                0.00    0.00       2/2           display_interface_choice [12]
+[24]     2.8    0.00    0.00       2         display_button [24]
+                0.00    0.00       2/22          draw_fill_rectangle [3]
 -----------------------------------------------
-                0.00    0.00       2/2           position_pawns [107]
-[13]     0.0    0.00    0.00       2         draw_unicorn [13]
+                0.00    0.00       2/2           position_pawns [13]
+[25]     1.2    0.00    0.00       2         draw_unicorn [25]
+                0.00    0.00       2/97          draw_fill_circle [2]
+                0.00    0.00       2/34          draw_fill_ellipse [10]
+                0.00    0.00       4/52          draw_fill_triangle [30]
 -----------------------------------------------
-                0.00    0.00       1/1           init_game [76]
-[14]     0.0    0.00    0.00       1         display_border_choice [14]
+                0.00    0.00      88/88          highlight_cell [27]
+[26]     0.3    0.00    0.00      88         draw_circle [26]
+                0.00    0.00   22528/1564754     is_cell_valid [8]
 -----------------------------------------------
-                0.00    0.00       1/1           init_game [76]
-[15]     0.0    0.00    0.00       1         display_gamemode_choice [15]
+                0.00    0.00      13/26          highlight_cells [29]
+                0.00    0.00      13/26          erase_highlights [28]
+[27]     0.3    0.00    0.00      26         highlight_cell [27]
+                0.00    0.00      88/88          draw_circle [26]
+                0.00    0.00      44/128         numbox_to_point [32]
 -----------------------------------------------
-                0.00    0.00       1/1           init_game [76]
-[16]     0.0    0.00    0.00       1         display_interface_choice [16]
-                0.00    0.00       2/2           display_button [12]
+                                                 <spontaneous>
+[28]     0.1    0.00    0.00                 erase_highlights [28]
+                0.00    0.00      13/26          highlight_cell [27]
 -----------------------------------------------
-                0.00    0.00       1/1           init_game [76]
-[17]     0.0    0.00    0.00       1         draw_gameboard [17]
-                0.00    0.00      36/40          draw_edging [5]
-                0.00    0.00      36/40          draw_pawn [6]
+                                                 <spontaneous>
+[29]     0.1    0.00    0.00                 highlight_cells [29]
+                0.00    0.00      13/26          highlight_cell [27]
+-----------------------------------------------
+                0.00    0.00       4/52          draw_unicorn [25]
+                0.00    0.00      48/52          draw_paladin [11]
+[30]     0.1    0.00    0.00      52         draw_fill_triangle [30]
+                0.00    0.00    9260/1564754     is_cell_valid [8]
+-----------------------------------------------
+                0.00    0.00       1/2           display_gamemode_choice [17]
+                0.00    0.00       1/2           display_endgame_menu [18]
+[31]     0.0    0.00    0.00       2         draw_line [31]
+                0.00    0.00     922/1564754     is_cell_valid [8]
+-----------------------------------------------
+                0.00    0.00       6/128         erase_pawn [22]
+                0.00    0.00      36/128         draw_gameboard [4]
+                0.00    0.00      42/128         draw_pawn [23]
+                0.00    0.00      44/128         highlight_cell [27]
+[32]     0.0    0.00    0.00     128         numbox_to_point [32]
+-----------------------------------------------
+                0.00    0.00      42/42          alea_int [34]
+[33]     0.0    0.00    0.00      42         alea_float [33]
+-----------------------------------------------
+                0.00    0.00       6/42          random_move [113]
+                0.00    0.00      36/42          place_random_pawn [49]
+[34]     0.0    0.00    0.00      42         alea_int [34]
+                0.00    0.00      42/42          alea_float [33]
+-----------------------------------------------
+                0.00    0.00      42/42          draw_pawn [23]
+[35]     0.0    0.00    0.00      42         get_color_by_player [35]
+-----------------------------------------------
+                0.00    0.00      38/38          depth_first_search [40]
+[36]     0.0    0.00    0.00      38         append [36]
+-----------------------------------------------
+                0.00    0.00       3/31          display_interface_choice [12]
+                0.00    0.00       3/31          display_endgame_menu [18]
+                0.00    0.00       6/31          display_border_choice [15]
+                0.00    0.00       6/31          display_turn_helper [21]
+                0.00    0.00       6/31          display_informations [7]
+                0.00    0.00       7/31          display_gamemode_choice [17]
+[37]     0.0    0.00    0.00      31         aff_pol [37]
+-----------------------------------------------
+                0.00    0.00       6/24          player_place_pawn [50]
+                0.00    0.00      18/24          place_random_pawn [49]
+[38]     0.0    0.00    0.00      24         is_in_border [38]
+-----------------------------------------------
+                0.00    0.00       1/17          init_graphics [19]
+                0.00    0.00       4/17          init_game [1]
+                0.00    0.00      12/17          position_pawns [13]
+[39]     0.0    0.00    0.00      17         affiche_all [39]
+-----------------------------------------------
+                                  30             depth_first_search [40]
+                0.00    0.00      12/12          get_moves [44]
+[40]     0.0    0.00    0.00      12+30      depth_first_search [40]
+                0.00    0.00      38/38          append [36]
+                                  30             depth_first_search [40]
+-----------------------------------------------
+                0.00    0.00      12/12          get_moves [44]
+[41]     0.0    0.00    0.00      12         uniq [41]
+-----------------------------------------------
+                0.00    0.00      10/10          position_pawns [13]
+[42]     0.0    0.00    0.00      10         contains [42]
+-----------------------------------------------
+                0.00    0.00       1/10          player_choose_border [57]
+                0.00    0.00       1/10          player_choose_interface [58]
+                0.00    0.00       1/10          init_game [1]
+                0.00    0.00       1/10          player_choose_to_replay [107]
+                0.00    0.00       6/10          player_place_pawn [50]
+[43]     0.0    0.00    0.00      10         wait_clic [43]
+-----------------------------------------------
+                0.00    0.00       3/9           random_move [113]
+                0.00    0.00       6/9           can_move [47]
+[44]     0.0    0.00    0.00       9         get_moves [44]
+                0.00    0.00      12/12          depth_first_search [40]
+                0.00    0.00      12/12          uniq [41]
+-----------------------------------------------
+                0.00    0.00       3/9           is_cell_valid [8]
+                0.00    0.00       6/9           is_on_player_side [97]
+[45]     0.0    0.00    0.00       9         is_cell_occupied [45]
+-----------------------------------------------
+                0.00    0.00       3/8           random_move [113]
+                0.00    0.00       5/8           can_other_player_move [64]
+[46]     0.0    0.00    0.00       8         get_cells_by_color [46]
+-----------------------------------------------
+                0.00    0.00       6/6           can_other_player_move [64]
+[47]     0.0    0.00    0.00       6         can_move [47]
+                0.00    0.00       6/9           get_moves [44]
+-----------------------------------------------
+                0.00    0.00       6/6           erase_pawn [22]
+[48]     0.0    0.00    0.00       6         get_edging [48]
+-----------------------------------------------
+                0.00    0.00       6/6           position_pawns [13]
+[49]     0.0    0.00    0.00       6         place_random_pawn [49]
+                0.00    0.00      36/42          alea_int [34]
+                0.00    0.00      18/24          is_in_border [38]
+-----------------------------------------------
+                0.00    0.00       6/6           position_pawns [13]
+[50]     0.0    0.00    0.00       6         player_place_pawn [50]
+                0.00    0.00       6/10          wait_clic [43]
+                0.00    0.00       6/24          is_in_border [38]
+-----------------------------------------------
+                0.00    0.00       3/3           is_cell_valid [8]
+[51]     0.0    0.00    0.00       3         is_edging_valid [51]
+-----------------------------------------------
+                0.00    0.00       2/2           players_place_pawns [14]
+[52]     0.0    0.00    0.00       2         set_pawns [52]
+-----------------------------------------------
+                0.00    0.00       1/1           player_choose_border [57]
+[53]     0.0    0.00    0.00       1         get_border_choice [53]
+-----------------------------------------------
+                0.00    0.00       1/1           player_choose_interface [58]
+[54]     0.0    0.00    0.00       1         get_interface_choice [54]
+-----------------------------------------------
+                0.00    0.00       1/1           players_place_pawns [14]
+[55]     0.0    0.00    0.00       1         get_opposite_border [55]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game [1]
+[56]     0.0    0.00    0.00       1         init_gameboard [56]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game [1]
+[57]     0.0    0.00    0.00       1         player_choose_border [57]
+                0.00    0.00       1/1           get_border_choice [53]
+                0.00    0.00       1/10          wait_clic [43]
+-----------------------------------------------
+                0.00    0.00       1/1           init_game [1]
+[58]     0.0    0.00    0.00       1         player_choose_interface [58]
+                0.00    0.00       1/1           get_interface_choice [54]
+                0.00    0.00       1/10          wait_clic [43]
 -----------------------------------------------
 
  This table describes the call tree of the program, and was sorted by
@@ -211,9 +483,20 @@ notice and this notice are preserved.
 
 Index by function name
 
-  [14] display_border_choice   [2] draw_fill_circle       [10] erase_information
-  [12] display_button          [3] draw_fill_rectangle    [11] erase_pawn
-  [15] display_gamemode_choice [17] draw_gameboard         [1] fill_screen
-  [16] display_interface_choice [7] draw_paladin           [8] highlight_cell
-   [9] display_turn_helper     [6] draw_pawn               [4] is_cell_valid
-   [5] draw_edging            [13] draw_unicorn
+  [37] aff_pol                 [3] draw_fill_rectangle    [27] highlight_cell
+  [39] affiche_all            [30] draw_fill_triangle     [56] init_gameboard
+  [33] alea_float              [4] draw_gameboard         [45] is_cell_occupied
+  [34] alea_int               [31] draw_line               [8] is_cell_valid
+  [36] append                 [11] draw_paladin           [51] is_edging_valid
+  [47] can_move               [23] draw_pawn              [38] is_in_border
+  [42] contains               [25] draw_unicorn           [32] numbox_to_point
+  [40] depth_first_search      [9] erase_information      [49] place_random_pawn
+  [15] display_border_choice  [22] erase_pawn             [57] player_choose_border
+  [24] display_button          [5] fill_screen            [58] player_choose_interface
+  [17] display_gamemode_choice [53] get_border_choice     [50] player_place_pawn
+  [12] display_interface_choice [46] get_cells_by_color   [13] position_pawns
+  [21] display_turn_helper    [35] get_color_by_player    [52] set_pawns
+  [26] draw_circle            [48] get_edging             [41] uniq
+   [6] draw_edging            [54] get_interface_choice   [43] wait_clic
+   [2] draw_fill_circle       [44] get_moves
+  [10] draw_fill_ellipse      [55] get_opposite_border

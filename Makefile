@@ -4,11 +4,10 @@ LIBS=`sdl-config --libs` -lm -lSDL_ttf
 SRCDIR=src
 BUILDDIR=build
 TARGET=bin/main
-INC=-Iinclude -I usr/include
+INC=-Iinclude
 SRCEXT=c
 OBJECTS=$(BUILDDIR)/model.o $(BUILDDIR)/view.o $(BUILDDIR)/controller.o $(BUILDDIR)/graphics.o
 SOURCES=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
-#OBJECTS=$(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
 all: $(TARGET)
 
@@ -16,9 +15,9 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $^ src/main.c -o $(TARGET) $(LIBS)
 
 $(BUILDDIR)/graphics.o: $(SRCDIR)/graphics.c
-	#rm -f include/police.h
-	#touch include/police.h
-	if test -e /usr/include/SDL_ttf.h;          then echo "#define SDL_TTF_OK" > include/police.h; fi
+	rm -f include/police.h
+	touch include/police.h
+	if test -e /usr/include/SDL_ttf.h;           then echo "#define SDL_TTF_OK" > include/police.h; fi
 	if test -e /usr/include/SDL/SDL_ttf.h;       then echo OK; echo "#define SDL_TTF_OK" > include/police.h; fi
 	if test -e /usr/local/include/SDL_ttf.h;     then echo "#define SDL_TTF_OK" > include/police.h; fi
 	if test -e /usr/local/include/SDL/SDL_ttf.h; then echo "#define SDL_TTF_OK" > include/police.h; fi

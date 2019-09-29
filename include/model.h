@@ -64,7 +64,8 @@ void append(NumBox *ns, int *len, NumBox n);
 void remove_numboxes(NumBox *n1, int *len1, NumBox *n2, int len2);
 void copy(NumBox *n1, int *offset, NumBox *n2, int len2);
 void set_pawns(NumBox pawns[6], Coul color);
-void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves, NumBox forbidden, NumBox player);
+void depth_first_search(NumBox *cells, int *offset, NumBox pawn, int moves,
+                        NumBox forbidden, NumBox player);
 NumBox *get_moves(int *moves_count, NumBox pawn);
 NumBox *get_cells_by_color(Coul color);
 Border get_opposite_border(Border bor);
