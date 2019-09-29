@@ -1,33 +1,35 @@
 CC=gcc
-CFLAGS=-O2 -Wall `sdl-config --cflags`
+CFLAGS=-O2 -Wall `sdl-config --cflags -Isrc/include`
 LIBS=`sdl-config --libs` -lm -lSDL_ttf
+SOURCE_DIR=src/
+INC_DIR=src/include/
 
-%: model.o view.o controller.o graphics.o %.c
+%: model.o view.o controller.o graphics.o src/%.c
 	rm -f $@
-	$(CC) $(CFLAGS) model.o view.o controller.o  graphics.o $@.c -o $@ $(LIBS)
+	$(CC) $(CFLAGS) model.o view.o controller.o graphics.o src/$@.c -o $@ $(LIBS)
 
 
-graphics.o: graphics.c graphics.h
+graphics.o: src/graphics.c src/include/graphics.h
 	rm -f police.h
 	touch police.h
 	if test -e /usr/include/SDL_ttf.h;           then echo "#define SDL_TTF_OK" > police.h; fi
 	if test -e /usr/include/SDL/SDL_ttf.h;       then echo "#define SDL_TTF_OK" > police.h; fi
 	if test -e /usr/local/include/SDL_ttf.h;     then echo "#define SDL_TTF_OK" > police.h; fi
 	if test -e /usr/local/include/SDL/SDL_ttf.h; then echo "#define SDL_TTF_OK" > police.h; fi
-	$(CC) $(CFLAGS) -c graphics.c
+	$(CC) $(CFLAGS) -c src/graphics.c
 
-model.o: model.c model.h
-	$(CC) $(CFLAGS) -c model.c
+model.o: src/model.c src/include/model.h
+	$(CC) $(CFLAGS) -c src/model.c
 
-view.o: view.c view.h
-	$(CC) $(CFLAGS) -c view.c
+view.o: src/view.c src/include/view.h
+	$(CC) $(CFLAGS) -c src/view.c
 
-controller.o: controller.c controller.h
-	$(CC) $(CFLAGS) -c controller.c
+controller.o: src/controller.c src/include/controller.h
+	$(CC) $(CFLAGS) -c src/controller.c
 
 clean:
 	rm -f *core
 	rm -f *.o
-	rm -f police.h
+	rm -f src/include/police.h
 	rm -f exemple
 	rm -f *.tar
