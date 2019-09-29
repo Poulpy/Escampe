@@ -154,7 +154,6 @@ NumBox *get_moves(int *moves_count, NumBox pawn)
     else                   max_size = 16;
 
     NumBox *moves = (NumBox *) malloc(sizeof(NumBox) * max_size);
-
     *moves_count = 0;
 
     depth_first_search(moves, moves_count, pawn, edgings, forbidden, pawn);
@@ -169,28 +168,27 @@ NumBox *get_moves(int *moves_count, NumBox pawn)
 // get a move with a random number
 void random_move(Coul color, NumBox *start, NumBox *end)
 {
-    int len, go_on = 0;
+    int len, go_on = 1;
     NumBox *cells, *ends;
+
+    cells = get_cells_by_color(color);
 
     do
     {
-        cells = get_cells_by_color(color);
         *start = cells[alea_int(6)];
         ends = get_moves(&len, *start);
         // must do that in the loop because the array is DYNAMICALLY allocated
-        if (0 == len)
-        {
-            go_on = 0;
-            free(ends);
-        }
+        if (0 == len) free(ends);
+        else go_on = 0;
     } while (go_on);
 
     *end = ends[alea_int(len)];
 
     free(ends);
+    free(cells);
 }
 
-// Check if the NumBox pos is in gameboard
+// Check if the NumBox pos is in gameboard, 0 <= x & y <= 5
 int in_range(NumBox pos)
 {
     return pos.x >= 0 && pos.x <= 5 && pos.y >= 0 && pos.y <= 5;
@@ -261,7 +259,8 @@ void set_pawns(NumBox pawns[6], Coul color)
     }
 }
 
-// Add a NumBox n to an array of NumBox ns of size len if the NumBox doesn't already exist
+// Add a NumBox n to an array of NumBox ns of size len if the NumBox doesn't
+// already exist
 void append(NumBox *ns, int *len, NumBox n)
 {
     if (contains(ns, *len, n)) return;
@@ -339,7 +338,7 @@ void copy(NumBox *n1, int *offset, NumBox *n2, int len2)
     }
 }
 
-// Returns the number of edgings from a NumBox n
+// Returns the number of edgings of a NumBox n
 int get_edging(NumBox n)
 {
     return gameboard[n.y][n.x].edging;
@@ -355,25 +354,20 @@ Border get_opposite_border(Border bor)
     return BOTTOM;
 }
 
+// Check if the other player can move any of his pawns
 int can_other_player_move(Coul player, int lastEdging)
 {
-    int i, j;
+    int i;
     Coul otherPlayer = get_other_player(player);
-    NumBox pawnCell;
+    NumBox *pawns = get_cells_by_color(otherPlayer);
 
-    for (i = 0; i < 6; i++)
+    for (i = 0; i != 6; i++)
     {
-        for (j = 0; j < 6; j++)
-        {
-            pawnCell.x = j;
-            pawnCell.y = i;
-            if (gameboard[i][j].type != EMPTY &&
-                gameboard[i][j].color == otherPlayer &&
-                is_edging_valid(lastEdging, pawnCell) &&
-                can_move(pawnCell))
-                return 1;
-        }
+        if (is_edging_valid(lastEdging, pawns[i]) && can_move(pawns[i]))
+            return 1;
     }
+
+    free(pawns);
 
     return 0;
 }
@@ -390,13 +384,13 @@ int is_AI_turn(Coul currentPlayer, Gamemode mode)
     return currentPlayer == AI_COLOR && mode == PVC;
 }
 
-// Print a NumBox (debug)
+// Print a NumBox in the terminal (debug)
 void print_numbox(NumBox n)
 {
     printf("x : %d ; y : %d\n", n.x, n.y);
 }
 
-// Print an array of NumBox (debug)
+// Print an array of NumBox in the terminal (debug)
 void print_numboxes(NumBox *n, int len)
 {
     int i;
