@@ -3,7 +3,8 @@
 
 /* Libraries */
 
-#include "controller.h"
+#include "../include/controller.h"
+
 /* Main */
 
 int main()

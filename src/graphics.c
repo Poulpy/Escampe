@@ -37,7 +37,7 @@
 #ifdef SDL_TTF_OK
 	#include <SDL_ttf.h>
 	#include <SDL/SDL_ttf.h>
-	#define POLICE_NAME "seasideresort.ttf"
+	#define POLICE_NAME "build/fonts/seasideresort.ttf"
 	TTF_Font *police[256];
 	int verdana_ok = 0;
 #endif
