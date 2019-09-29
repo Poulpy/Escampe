@@ -1,4 +1,6 @@
 # Escampe
+![Escampe](https://github.com/Poulpy/escampe/blob/master/escampe.png?raw=true)
+
 
 ## Clone the project
 
