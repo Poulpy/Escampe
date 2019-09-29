@@ -1,4 +1,4 @@
-#include "include/model.h"
+#include "model.h"
 
 // Initialize the gameboard with the edgings and the type (EMPTY)
 void init_gameboard()

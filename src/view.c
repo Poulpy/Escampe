@@ -1,4 +1,4 @@
-#include "include/view.h"
+#include "view.h"
 
 void display_interface_choice()
 {

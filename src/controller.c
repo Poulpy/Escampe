@@ -1,4 +1,4 @@
-#include "include/controller.h"
+#include "controller.h"
 
 // Display the menu for chosing a border (TOP, BOTTOM, etc)
 int get_border_choice(POINT click)
