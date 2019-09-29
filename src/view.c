@@ -107,8 +107,8 @@ void display_border_choice()
     affiche_all();
 }
 
-// Erase everything in the window except the gameboard in the center
-void erase_window_except_gameboard()
+// Erase everything in the window except the plateau in the center
+void erase_window_except_plateau()
 {
     POINT p = { 0, 0 };
     POINT p2 = { WIDTH, MARGIN };
@@ -124,7 +124,7 @@ void erase_window_except_gameboard()
 }
 
 // Draw a unicorn at the POINT origin
-void draw_unicorn(POINT origin, COULEUR color)
+void affiche_licorne(POINT origin, COULEUR coulP)
 {
     int top_margin = 20;
     int bot_margin = 24;
@@ -138,17 +138,17 @@ void draw_unicorn(POINT origin, COULEUR color)
                    origin.y + bot_margin };
 
     top.x -= 2;
-    draw_fill_triangle(top, botl, botr, color);
+    draw_fill_triangle(top, botl, botr, coulP);
     top.x += 4;
-    draw_fill_triangle(top, botl, botr, color);
+    draw_fill_triangle(top, botl, botr, coulP);
 
     top.x -= 2;
     top.y--;
-    draw_fill_circle(top, 2, color);
-    draw_fill_ellipse(botl, botr, 2, color);
+    draw_fill_circle(top, 2, coulP);
+    draw_fill_ellipse(botl, botr, 2, coulP);
 }
 
-void draw_paladin(POINT origin, COULEUR color)
+void affiche_paladin(POINT origin, COULEUR coulP)
 {
     int top_margin = 30;
     int bot_margin = 24;
@@ -161,26 +161,26 @@ void draw_paladin(POINT origin, COULEUR color)
     POINT botr = { origin.x + CELL_WIDTH -  side_margin,
                    origin.y + bot_margin };
 
-    draw_fill_triangle(top, botl, botr, color);
+    draw_fill_triangle(top, botl, botr, coulP);
     top.x -= 5;
-    draw_fill_triangle(top, botl, botr, color);
+    draw_fill_triangle(top, botl, botr, coulP);
     top.x += 10;
-    draw_fill_triangle(top, botl, botr, color);
+    draw_fill_triangle(top, botl, botr, coulP);
 
-    draw_fill_ellipse(botl, botr, 2, color);
+    draw_fill_ellipse(botl, botr, 2, coulP);
     botl.x = top.x - 9;
     botr.x = top.x - 1;
     botl.y = top.y;
     botr.y = top.y;
-    draw_fill_ellipse(botl, botr, 3, color - 0x070707);
+    draw_fill_ellipse(botl, botr, 3, coulP - 0x070707);
 }
 
-// Draw the gameboard, along with the edgings and the pawns
-void draw_gameboard(int interface)
+// Draw the plateau, along with the liseres and the pieces
+void affiche_plateau(int interface)
 {
     int row, col;
     POINT cursor;
-    NumBox n;
+    NUMBOX n;
     fill_screen(BACKGROUND_COLOR);
 
     for (row = 0; row != 6; row++)
@@ -189,34 +189,34 @@ void draw_gameboard(int interface)
         {
             n.x = col;
             n.y = row;
-            cursor = numbox_to_point(n, interface);
+            cursor = numBox_to_point(n, interface);
 
-            draw_edging(cursor, gameboard[row][col].edging);
-            draw_pawn(n, interface);
+            draw_lisere(cursor, plateau[row][col].lisere);
+            affiche_piece(n, interface);
         }
     }
 
     affiche_all();
 }
 
-// Draw a pawn on a cell of the gameboard
-void draw_pawn(NumBox pawn, int interface)
+// Draw a piece on a cell of the plateau
+void affiche_piece(NUMBOX piece, int interface)
 {
-    COULEUR color;
-    Box cell = gameboard[pawn.y][pawn.x];
-    POINT origin = numbox_to_point(pawn, interface);
+    COULEUR coulP;
+    BOX cell = plateau[piece.y][piece.x];
+    POINT origin = numBox_to_point(piece, interface);
 
-    color = get_color_by_player(cell.color);
+    coulP = get_coulP_by_player(cell.coulP);
 
-    if (cell.type == UNICORN) draw_unicorn(origin, color);
-    else if (cell.type == PALADIN) draw_paladin(origin, color);
+    if (cell.typeP == LICORNE) affiche_licorne(origin, coulP);
+    else if (cell.typeP == PALADIN) affiche_paladin(origin, coulP);
 }
 
-// Draw edgings on a cell of the gameboard
-void draw_edging(POINT bl_corner, int number)
+// Draw liseres on a cell of the plateau
+void draw_lisere(POINT bl_corner, int number)
 {
     int c, f = 5;
-    COULEUR colors[] = { FIRST_COLOR, SECON_COLOR, THIRD_COLOR };
+    COULEUR coulPs[] = { FIRST_COLOR, SECON_COLOR, THIRD_COLOR };
     POINT center;
 
     center.x = bl_corner.x + CIRCLE_RADIUS;
@@ -224,17 +224,17 @@ void draw_edging(POINT bl_corner, int number)
 
     for (c = 1; c != number + 1; c++)
     {
-        draw_fill_circle(center, CIRCLE_RADIUS - c * f, colors[c - 1]);
+        draw_fill_circle(center, CIRCLE_RADIUS - c * f, coulPs[c - 1]);
     }
 }
 
-void erase_pawn(NumBox pawn, int interface)
+void erase_piece(NUMBOX piece, int interface)
 {
-    draw_edging(numbox_to_point(pawn, interface), get_edging(pawn));
+    draw_lisere(numBox_to_point(piece, interface), get_lisere(piece));
 }
 
 // Show which player won
-void display_endgame_menu(Coul color)
+void display_endgame_menu(COUL coulP)
 {
     fill_screen(BACKGROUND_COLOR);
 
@@ -243,7 +243,7 @@ void display_endgame_menu(Coul color)
     label.x = MARGIN + (size * 2);
     label.y = HEIGHT - size;
 
-    if (color == 0) aff_pol("Le joueur 1 gagne !", size, label, skyblue);
+    if (coulP == 0) aff_pol("Le joueur 1 gagne !", size, label, skyblue);
     else aff_pol("Le joueur 2 gagne !", size, label, skyblue);
 
     top.x = MID_WIDTH;
@@ -280,7 +280,7 @@ void erase_information()
 }
 
 // Show the player's turn (Player 1, Player 2)
-void display_informations(Coul playerColor, int lastEdging)
+void display_informations(COUL playerColor, int lastEdging)
 {
     POINT label;
     char* text;
@@ -291,15 +291,15 @@ void display_informations(Coul playerColor, int lastEdging)
     label.x = MID_WIDTH - (size * 2);
     label.y = MARGIN + BOARD_HEIGHT + (size * 2);
 
-    if (playerColor == BLACK)
+    if (playerColor == NOIR)
     {
         text = "Joueur 1";
-        textColor = BLACK_PLAYER_COLOR;
+        textColor = NOIR_PLAYER_COLOR;
     }
     else
     {
         text = "Joueur 2";
-        textColor = WHITE_PLAYER_COLOR;
+        textColor = BLANC_PLAYER_COLOR;
     }
 
     aff_pol(text, size, label, textColor);
@@ -308,13 +308,13 @@ void display_informations(Coul playerColor, int lastEdging)
     affiche_all();
 }
 
-// Show the number of edgings to play
+// Show the number of liseres to play
 void display_turn_helper(COULEUR textColor, int lastEdging)
 {
     char requiredEdging[5];
     int textSize = 35, i, radii[] = { 100, 90, 80 };
     POINT label, p = { 0, HEIGHT };
-    COULEUR colors[] = { FIRST_COLOR, SECON_COLOR, THIRD_COLOR };
+    COULEUR coulPs[] = { FIRST_COLOR, SECON_COLOR, THIRD_COLOR };
 
     if (lastEdging == 0)
     {
@@ -328,48 +328,49 @@ void display_turn_helper(COULEUR textColor, int lastEdging)
 
     for (i = 0; i != lastEdging; i++)
     {
-        draw_fill_circle(p, radii[i], colors[i]);
+        draw_fill_circle(p, radii[i], coulPs[i]);
     }
     label.x = 15;
     label.y = HEIGHT - 10;
     aff_pol(requiredEdging, textSize, label, BACKGROUND_COLOR);
 }
 
-// Draw a circle surrounding a cell of the gameboard
-void highlight_cell(NumBox cell, COULEUR color, int interface, int display)
+// Draw a circle surrounding a cell of the plateau
+void highlight_cell(NUMBOX cell, COULEUR coulP, int interface, int display)
 {
     POINT p;
 
-    p = numbox_to_point(cell, interface);
+    p = numBox_to_point(cell, interface);
     p.x += CIRCLE_RADIUS;
     p.y += CIRCLE_RADIUS;
 
-    draw_circle(p, CIRCLE_RADIUS - 3, color);
-    draw_circle(p, CIRCLE_RADIUS - 4, color);
+    draw_circle(p, CIRCLE_RADIUS - 3, coulP);
+    draw_circle(p, CIRCLE_RADIUS - 4, coulP);
 
     if (display) affiche_all();
 }
 
-// Draw circles around cells of the gameboard
-void highlight_cells(NumBox *cells, int len, COULEUR color, int interface, int display)
+// Draw circles around cells of the plateau
+void highlight_cells(NUMBOX *cells, int len, COULEUR coulP, int interface, int display)
 {
     int i;
 
     for (i = 0; i != len; i++)
     {
-        highlight_cell(cells[i], color, interface, 0);
+        highlight_cell(cells[i], coulP, interface, 0);
     }
 
     if (display) affiche_all();
 }
 
-// Erase an highlight by highlighting over with the background color
-void erase_highlight(NumBox cell, int interface, int display)
+// Erase an highlight by highlighting over with the background coulP
+void erase_highlight(NUMBOX cell, int interface, int display)
 {
     highlight_cell(cell, BACKGROUND_COLOR, interface, display);
 }
 
-void erase_highlights(NumBox *cells, int len, int interface, int display)
+// Erase highlight over numerous NumBox in the array cells of size len
+void erase_highlights(NUMBOX *cells, int len, int interface, int display)
 {
     int i;
     for (i = 0; i != len; i++)
@@ -380,11 +381,11 @@ void erase_highlights(NumBox *cells, int len, int interface, int display)
     if (display) affiche_all();
 }
 
-// Erase where the pawn was and draw the pawn to its destination
-void draw_move(NumBox start, NumBox end, int interface)
+// Erase where the piece was and draw the piece to its destination
+void draw_move(NUMBOX start, NUMBOX end, int interface)
 {
-    erase_pawn(start, interface);
-    draw_pawn(end, interface);
+    erase_piece(start, interface);
+    affiche_piece(end, interface);
     affiche_all();
 }
 
