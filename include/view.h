@@ -14,8 +14,8 @@
 #define THIRD_COLOR (SECON_COLOR - SHADE)
 #define FOURT_COLOR (THIRD_COLOR - SHADE)
 
-#define BLANC_PLAYER_COLOR white
-#define NOIR_PLAYER_COLOR 0x6d6fc6
+#define WHITE_PLAYER_COLOR white
+#define BLACK_PLAYER_COLOR 0x6d6fc6
 
 #define CIRCLE_RADIUS 35
 #define CELL_WIDTH 70
@@ -32,29 +32,29 @@
 #define WIDTH BOARD_WIDTH + MARGIN * 2
 #define HEIGHT BOARD_HEIGHT + MARGIN * 2
 
-void draw_lisere(POINT center, int number);
-void affiche_plateau(int interface);
-void affiche_licorne(POINT origin, COULEUR coulP);
-void affiche_paladin(POINT origin, COULEUR coulP);
-void draw_lisere(POINT bl_corner, int number);
+void draw_edging(POINT center, int number);
+void draw_gameboard(int interface);
+void draw_unicorn(POINT origin, COULEUR color);
+void draw_paladin(POINT origin, COULEUR color);
+void draw_edging(POINT bl_corner, int number);
 void display_interface_choice();
-void affiche_piece(NUMBOX piece, int interface);
+void draw_pawn(NumBox pawn, int interface);
 void display_gamemode_choice();
-void display_endgame_menu(COUL coulP);
+void display_endgame_menu(Coul color);
 void display_button(char *text, POINT bl_corner, POINT ur_corner, COULEUR back, COULEUR front, int textSize);
 void erase_information();
-void display_informations(COUL playerColor, int lastEdging);
-void highlight_cell(NUMBOX cell, COULEUR coulP, int interface, int display);
-void highlight_cells(NUMBOX *cells, int len, COULEUR coulP, int interface, int display);
-void erase_highlight(NUMBOX cell, int interface, int display);
-void erase_highlights(NUMBOX *cells, int len, int interface, int display);
+void display_informations(Coul playerColor, int lastEdging);
+void highlight_cell(NumBox cell, COULEUR color, int interface, int display);
+void highlight_cells(NumBox *cells, int len, COULEUR color, int interface, int display);
+void erase_highlight(NumBox cell, int interface, int display);
+void erase_highlights(NumBox *cells, int len, int interface, int display);
 void display_turn_helper(COULEUR textColor, int lastEdging);
 void display_border_choice();
-void erase_highlightings(NUMBOX *moves, NUMBOX piece, int moves_count, int interface);
-void erase_piece(NUMBOX piece, int interface);
-void draw_move(NUMBOX start, NUMBOX end, int interface);
-void draw_tiny_plateau();
-void erase_window_except_plateau();
+void erase_highlightings(NumBox *moves, NumBox pawn, int moves_count, int interface);
+void erase_pawn(NumBox pawn, int interface);
+void draw_move(NumBox start, NumBox end, int interface);
+void draw_tiny_gameboard();
+void erase_window_except_gameboard();
 
 #endif
 
