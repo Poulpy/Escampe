@@ -18,7 +18,7 @@ $(BUILDDIR)/graphics.o: $(SRCDIR)/graphics.c
 	rm -f include/police.h
 	touch include/police.h
 	if test -e /usr/include/SDL_ttf.h;           then echo "#define SDL_TTF_OK" > include/police.h; fi
-	if test -e /usr/include/SDL/SDL_ttf.h;       then echo OK; echo "#define SDL_TTF_OK" > include/police.h; fi
+	if test -e /usr/include/SDL/SDL_ttf.h;       then echo "#define SDL_TTF_OK" > include/police.h; fi
 	if test -e /usr/local/include/SDL_ttf.h;     then echo "#define SDL_TTF_OK" > include/police.h; fi
 	if test -e /usr/local/include/SDL/SDL_ttf.h; then echo "#define SDL_TTF_OK" > include/police.h; fi
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
