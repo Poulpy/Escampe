@@ -17,12 +17,12 @@ git clone https://github.com/Poulpy/Escampe.git
 
 ## Compile
 ```bash
-make main
+make
 ```
 
 ## Execute
 
 ```bash
-./main
+./bin/main
 ```
 

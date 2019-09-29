@@ -12,6 +12,7 @@ SOURCES=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
+	mkdir bin
 	$(CC) $(CFLAGS) $^ src/main.c -o $(TARGET) $(LIBS)
 
 $(BUILDDIR)/graphics.o: $(SRCDIR)/graphics.c
