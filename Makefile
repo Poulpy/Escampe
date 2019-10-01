@@ -15,6 +15,7 @@ $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $^ src/main.c -o $(TARGET) $(LIBS)
 
 $(BUILDDIR)/graphics.o: $(SRCDIR)/graphics.c
+	mkdir -p bin
 	rm -f include/police.h
 	touch include/police.h
 	if test -e /usr/include/SDL_ttf.h;           then echo "#define SDL_TTF_OK" > include/police.h; fi
