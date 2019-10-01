@@ -26,3 +26,7 @@ make
 ./bin/main
 ```
 
+## Authors
+
+![@joshhauser](https://github.com/joshhauser) & @Poulpy
+
