@@ -14,7 +14,7 @@ all: $(TARGET)
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $^ src/main.c -o $(TARGET) $(LIBS)
 
-$(BUILDDIR)/graphics.o: $(SRCDIR)/graphics.c
+build/graphics.o: $(SRCDIR)/graphics.c
 	mkdir -p bin
 	rm -f include/police.h
 	touch include/police.h
