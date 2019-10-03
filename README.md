@@ -28,13 +28,13 @@ make
 
 ## Rules
 
-Here are the ![rules](http://jeuxstrategieter.free.fr/Escampe_presentation.php).
+Here are the [rules](http://jeuxstrategieter.free.fr/Escampe_presentation.php).
 
 ## Authors
 
-![@joshhauser](https://github.com/joshhauser) & @Poulpy
+[@joshhauser](https://github.com/joshhauser) & @Poulpy
 
 ## Testing
 
 
-![@zlezero](https://github.com/zlezero)
+[@zlezero](https://github.com/zlezero)
