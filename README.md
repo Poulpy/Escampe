@@ -26,6 +26,10 @@ make
 ./bin/main
 ```
 
+## Rules
+
+Here are the ![rules](http://jeuxstrategieter.free.fr/Escampe_presentation.php).
+
 ## Authors
 
 ![@joshhauser](https://github.com/joshhauser) & @Poulpy
