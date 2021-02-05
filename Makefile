@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -Wall -pg -no-pie `sdl-config --cflags`
+CFLAGS=-O2 -Wall -g `sdl-config --cflags`
 LIBS=`sdl-config --libs` -lm -lSDL_ttf
 SRCDIR=src
 BUILDDIR=build
@@ -12,7 +12,7 @@ SOURCES=$(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $^ src/main.c -o $(TARGET) $(LIBS)
+	$(CC) $(CFLAGS) $(INC) $^ src/main.c -o $(TARGET) $(LIBS)
 
 build/graphics.o: $(SRCDIR)/graphics.c
 	mkdir -p bin

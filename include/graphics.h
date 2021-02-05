@@ -1,3 +1,5 @@
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
 // ############################################
 //                    ISTY
 //
@@ -50,7 +52,7 @@
 
 	// Les booléens
 	typedef int BOOL;
-	
+
 // 1.2 VARIABLES
 	// Taille de l'affichage
 	int WIDTH;
@@ -103,7 +105,7 @@
 // #######################
 
 	// 3.1 Renvoie le ou les fleches appuyees
-	// sous forme d'un déplacement en 
+	// sous forme d'un déplacement en
 	// x négatif = nombre d'appuis sur la flèche gauche
 	// x positif = nombre d'appuis sur la flèche droite
 	// y négatif = nombre d'appuis sur la flèche bas
@@ -148,12 +150,12 @@
 	void draw_line(POINT p1, POINT p2, COULEUR color);
 
 	// 4.4 Dessine un rectangle non rempli
-	// Les deux points sont deux points quelconques 
+	// Les deux points sont deux points quelconques
 	// non adjacents du rectangle
 	void draw_rectangle(POINT p1, POINT p2, COULEUR color);
 
 	// 4.5 Dessine un rectangle rempli
-	// Les deux point sont deux points quelconques 
+	// Les deux point sont deux points quelconques
 	// non adjacents du rectangle
 	void draw_fill_rectangle(POINT p1, POINT p2, COULEUR color);
 
@@ -187,8 +189,8 @@
 // Sinon il se fait dans dans la fenetre shell
 
 	// 5.1 Affiche du texte avec
-	// Le texte est passŽ dans l'argument "a_ecrire" 
-	// la police est celle définie par la constante POLICE_NAME 
+	// Le texte est passŽ dans l'argument "a_ecrire"
+	// la police est celle définie par la constante POLICE_NAME
 	//           dans graphics.c
 	// la taille est passŽe en argument
 	// l'argument p de type POINT est le point en haut ˆ gauche
@@ -228,7 +230,7 @@
 	void chrono_start();
 	// Renvoie la valeur du chrono et ne l'arrete pas
 	float chrono_val();
-	
+
 	// 7.2 Attend le nombre de millisecondes passe en argument
 	void attendre(int millisecondes);
 
@@ -257,3 +259,4 @@
 
 	// 9.1 Renvoie la distance entre deux points
 	int distance(POINT P1, POINT P2);
+#endif
